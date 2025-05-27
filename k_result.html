@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Results</title>
+    <!-- Font Awesome CDN (for icons) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts (Poppins) -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Link to your updated CSS -->
+    <link rel="stylesheet" href="k_result.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-trophy"></i> Quiz Results <i class="fas fa-trophy"></i></h1>
+        </header>
+
+        <div class="summary-section">
+            <p class="encouragement" id="encouragementMessage">Well done on completing the quiz!</p>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-label"><i class="fas fa-question-circle"></i> Total Questions</span>
+                    <span class="stat-value" id="total-questions-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label"><i class="fas fa-check-circle"></i> Correct Answers</span>
+                    <span class="stat-value" id="correct-answers-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label"><i class="fas fa-percentage"></i> Score</span>
+                    <span class="stat-value" id="score-percentage">0%</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label"><i class="fas fa-clock"></i> Time Taken</span>
+                    <span class="stat-value" id="time-taken-value">0s</span>
+                </div>
+            </div>
+            <button id="toggleDetailsButton" class="button tertiary-button">
+                <i class="fas fa-eye"></i> Show Details
+            </button>
+        </div>
+
+        <div id="detailedResultsSection" class="detailed-section hidden">
+            <h2><i class="fas fa-list-ul"></i> Detailed Breakdown</h2>
+            <div id="answers-breakdown">
+                <!-- Detailed results will be inserted here by JavaScript -->
+            </div>
+
+            <div class="legend">
+                <h3><i class="fas fa-info-circle"></i> Legend:</h3>
+                <ul>
+                    <li><span class="legend-color correct"></span> Card: Correctly Answered</li>
+                    <li><span class="legend-color incorrect"></span> Card: Incorrectly Answered</li>
+                    <li><span class="legend-color skipped"></span> Card: Skipped Question</li>
+                    <li><strong style="color: #f1c40f;">Gold Option Text</strong>: Correct Option</li>
+                    <li><i class="fas fa-check icon" style="color: #2ecc71;"></i> : Marks the correct option.</li>
+                    <li><i class="fas fa-times icon" style="color: #e74c3c;"></i> : Marks your incorrect selection.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button id="backButton" class="button secondary-button"><i class="fas fa-arrow-left"></i> Back to Quiz Setup</button>
+            <!-- You could add other buttons here, e.g., "Try Again" -->
+        </div>
+    </div>
+    <script src="k_result.js"></script>
+</body>
+</html>
