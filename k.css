@@ -1,0 +1,193 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+body {
+    font-family: 'Poppins', sans-serif;
+    /* Premium gradient - Deep Blue/Purple from k.js */
+    background: linear-gradient(135deg, #2c3e50 0%, #4a0e4e 100%);
+    color: #e0e0e0; /* Lighter text for dark background from k.js */
+    margin: 0;
+    padding: 20px; /* Added padding similar to k.js */
+    display: flex;
+    justify-content: center;
+    align-items: center; /* Vertically center for setup page */
+    min-height: 100vh;
+    position: relative; /* For back arrow positioning */
+}
+
+.back-arrow {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    font-size: 28px;
+    color: #f1c40f; /* Gold accent for visibility on dark bg */
+    text-decoration: none;
+    padding: 8px 12px;
+    background-color: rgba(44, 62, 80, 0.7); /* Semi-transparent dark, inspired by form-section bg */
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    transition: background-color 0.3s, transform 0.2s, color 0.3s;
+}
+
+.back-arrow:hover {
+    background-color: rgba(241, 196, 15, 0.9); /* Gold on hover */
+    color: #2c3e50; /* Dark text on gold hover */
+    transform: scale(1.1);
+}
+
+.container {
+    /* Styles from k.js .container */
+    background-color: rgba(52, 73, 94, 0.85); /* Semi-transparent dark blue-grey */
+    padding: 35px 45px;
+    border-radius: 12px;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(5px); /* Optional blur effect */
+    
+    width: 100%;
+    max-width: 500px; /* Adjusted for this simpler form */
+    text-align: center;
+    /* margin-top: 30px; Removed as align-items:center on body handles this */
+}
+
+h1 {
+    /* Styles from k.js header h1 */
+    color: #f1c40f; /* Gold/Yellow Accent */
+    margin-bottom: 30px;
+    font-size: 2.1em; /* Adjusted from 2.3em for "Quiz Configuration" */
+    font-weight: 700;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+}
+
+.form-group {
+    margin-bottom: 25px; /* From k.js */
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 10px; /* From k.js */
+    color: #ecf0f1; /* Light label text from k.js */
+    font-weight: 600; /* From k.js */
+    font-size: 1.05em; /* From k.js */
+}
+
+.form-group input[type="number"] {
+    /* Styles from k.js .form-group input */
+    width: calc(100% - 24px); /* Account for padding (12px left + 12px right) */
+    padding: 12px;
+    border: 1px solid #7f8c8d; /* Grey border */
+    border-radius: 5px;
+    font-size: 1em;
+    background-color: #ecf0f1; /* Light background for input */
+    color: #2c3e50; /* Dark text inside input */
+    box-sizing: border-box;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.form-group input[type="number"]::placeholder {
+    color: #95a5a6; /* From k.js */
+}
+
+.form-group input[type="number"]:focus {
+    /* Styles from k.js input:focus */
+    border-color: #f1c40f; /* Gold border on focus */
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(241, 196, 15, 0.25); /* Gold focus ring */
+}
+
+/* Input with error (class added by JS in k.html) */
+.input-error {
+    border-color: #e74c3c !important; /* Premium-looking error red from k.js */
+}
+
+.input-error:focus {
+    box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25) !important; /* Error focus ring from k.js */
+}
+
+button[type="submit"] {
+    /* Adapted from k.js .primary-button */
+    background: linear-gradient(45deg, #8e44ad, #5e3370); /* Purple gradient */
+    color: white;
+    border: 1px solid rgba(255,255,255, 0.1); /* Subtle border */
+    
+    padding: 12px 28px;
+    border-radius: 25px; /* Pill shape */
+    font-size: 1.05em;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px; /* Added some space above button */
+}
+
+button[type="submit"]:hover {
+    /* Adapted from k.js .primary-button:hover */
+    background: linear-gradient(45deg, #7b3099, #4a245c); /* Darker purple */
+    transform: translateY(-2px) scale(1.02); /* Lift and slightly grow */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+.error-messages {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.error-messages p {
+    /* Styles from k.js .error-message */
+    color: #e74c3c; /* Premium-looking error red */
+    font-size: 0.9em; /* Slightly larger than k.js 0.85em */
+    margin: 8px 0 0 0; /* Adapted from k.js margin-top */
+    font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding: 25px 20px;
+        margin: 20px auto; /* Keep centered with auto margins */
+    }
+    h1 {
+        font-size: 1.9em;
+    }
+    .back-arrow {
+        top: 15px;
+        left: 15px;
+        font-size: 24px;
+        padding: 6px 10px;
+    }
+    button[type="submit"] {
+        font-size: 1em;
+        padding: 12px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 20px 15px;
+    }
+    h1 {
+        font-size: 1.6em;
+        margin-bottom: 25px;
+    }
+    .form-group input[type="number"] {
+        padding: 10px;
+        font-size: 0.95em;
+    }
+    button[type="submit"] {
+        font-size: 0.95em;
+    }
+    .back-arrow {
+        top: 10px;
+        left: 10px;
+        font-size: 22px;
+        padding: 5px 8px;
+    }
+    .error-messages p {
+        font-size: 0.85em;
+    }
+}
