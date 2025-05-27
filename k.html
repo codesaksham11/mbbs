@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Setup</title>
+    <link rel="stylesheet" href="k.css">
+</head>
+<body>
+        <a href="index.html" class="back-arrow" title="Go Back">←</a>
+
+    <div class="container">
+        <h1>Quiz Configuration</h1>
+        <form id="quizSetupForm">
+            <div class="form-group">
+                <label for="time">Amount of Time (minutes):</label>
+                <input type="number" id="time" name="time" placeholder="1 - 300">
+            </div>
+
+            <div class="form-group">
+                <label for="questions">Number of Questions:</label>
+                <input type="number" id="questions" name="questions" placeholder="1 - 50">
+            </div>
+
+            <div id="errorMessages" class="error-messages"></div>
+
+            <button type="submit">Submit & Start Quiz</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('quizSetupForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const timeInput = document.getElementById('time');
+            const questionsInput = document.getElementById('questions');
+            const errorMessagesDiv = document.getElementById('errorMessages');
+            errorMessagesDiv.innerHTML = ''; // Clear previous errors
+
+            let errors = [];
+            let isValid = true;
+
+            // Validate Time
+            const timeValue = parseInt(timeInput.value, 10);
+            if (isNaN(timeValue) || timeValue < 1 || timeValue > 300) {
+                errors.push("Time must be a number between 1 and 300 minutes.");
+                timeInput.classList.add('input-error');
+                isValid = false;
+            } else {
+                timeInput.classList.remove('input-error');
+            }
+
+            // Validate Number of Questions
+            const questionsValue = parseInt(questionsInput.value, 10);
+            if (isNaN(questionsValue) || questionsValue < 1 || questionsValue > 500) {
+                errors.push("Number of questions must be between 1 and 50.");
+                questionsInput.classList.add('input-error');
+                isValid = false;
+            } else {
+                questionsInput.classList.remove('input-error');
+            }
+
+            if (isValid) {
+                // Save to localStorage
+                localStorage.setItem('quizTime', timeValue);
+                localStorage.setItem('quizQuestions', questionsValue);
+
+                // Proceed to k_quiz.html
+                window.location.href = 'k_quiz.html';
+            } else {
+                // Display errors
+                errors.forEach(error => {
+                    const p = document.createElement('p');
+                    p.textContent = error;
+                    errorMessagesDiv.appendChild(p);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
