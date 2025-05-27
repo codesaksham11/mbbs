@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz in Progress</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+/* --- Base Styles --- */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #2c3e50 0%, #4a0e4e 100%);
+    color: #e0e0e0;
+    margin: 0;
+    /* Adjust top padding based on actual sticky header height + a little space */
+    /* Initial estimate, might need tweaking after header is styled */
+    padding-top: 80px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 20px;
+}
+
+/* --- Quiz Header (Sticky) --- */
+.quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed; /* Changed from fixed in original to sticky-like behavior via 'fixed' */
+    top: 0;
+    left: 0; /* Ensure it spans full width from the left */
+    width: 100%; /* Full width */
+    z-index: 1000;
+    background: linear-gradient(135deg, #34495e 0%, #5e3370 100%);
+    padding: 15px 25px; /* Adjusted padding */
+    border-bottom: 2px solid #f1c40f; /* Gold accent border */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.quiz-header .back-arrow {
+    color: #f1c40f; /* Gold color for better visibility */
+    text-decoration: none;
+    font-size: 26px; /* Slightly larger */
+    padding: 5px;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.quiz-header .back-arrow:hover {
+    color: #ffffff;
+    transform: scale(1.1);
+}
+
+.quiz-header .timer { /* Targeting existing #timer with class .timer */
+    font-size: 1.2em;
+    font-weight: 600;
+    color: #ffffff;
+    background-color: rgba(44, 62, 80, 0.7);
+    padding: 8px 15px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex; /* For icon alignment if added */
+    align-items: center;
+    gap: 8px; /* Space for icon if added */
+}
+
+.quiz-header .timer.warning { /* JS will add 'warning' class */
+    color: #f1c40f;
+    background-color: rgba(231, 76, 60, 0.7);
+    border-color: #f1c40f;
+    animation: pulseTimer 1.5s infinite ease-in-out;
+}
+
+@keyframes pulseTimer {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(241, 196, 15, 0.4); }
+  50% { transform: scale(1.03); box-shadow: 0 0 5px 3px rgba(241, 196, 15, 0.2); }
+}
+
+/* --- Main Quiz Container & Content --- */
+.quiz-container { /* This is the overall content wrapper below the header */
+    max-width: 850px; /* Adjusted from target's 950px for this layout */
+    margin: 0 auto; /* Centered, top margin handled by body padding */
+    background-color: rgba(52, 73, 94, 0.9);
+    border-radius: 10px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    padding: 25px 30px; /* Inner padding for content */
+}
+
+#quizContent {
+    display: none; /* JS will show this */
+}
+
+/* --- Loading and Error Messages --- */
+.loading-message, .error-message {
+    text-align: center;
+    font-size: 1.2em; /* Adjusted from target's 1.3em */
+    color: #bdc3c7;
+    padding: 40px 20px; /* More padding */
+}
+/* For Font Awesome icon if added to loading message */
+.loading-message i {
+    margin-right: 10px;
+    font-size: 1.2em;
+    color: #f1c40f; /* Gold icon */
+}
+.error-message a {
+    color: #f1c40f; /* Gold link */
+    text-decoration: underline;
+}
+.error-message a:hover {
+    color: #ffffff;
+}
+
+
+/* --- Question Styling --- */
+#questionsContainer {
+    margin-bottom: 30px;
+}
+
+.question-block { /* Replaces .question-card from target */
+    background-color: rgba(44, 62, 80, 0.75); /* Darker card bg */
+    padding: 20px 25px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+}
+
+.question-block h3 { /* Replaces .question-text from target */
+    font-size: 1.15em;
+    margin-top: 0;
+    margin-bottom: 18px;
+    color: #ecf0f1;
+    line-height: 1.6;
+    font-weight: 500; /* Poppins regular/medium */
+}
+/* If you number questions like "1. Question text..." */
+.question-block h3 strong {
+    margin-right: 10px;
+    color: #f1c40f; /* Gold number */
+    font-weight: 700;
+}
+
+.options-container { /* Replaces .options-group from target */
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.option { /* Each label-input pair in k_quiz.html */
+    display: flex; /* Make label take full width */
+    align-items: center;
+    padding: 12px 15px;
+    border: 1px solid #7f8c8d;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: rgba(236, 240, 241, 0.1);
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    color: #bdc3c7;
+}
+
+.option:hover {
+    background-color: rgba(236, 240, 241, 0.2);
+    border-color: #f1c40f;
+    color: #ffffff;
+}
+
+.option input[type="radio"] {
+    margin-right: 12px;
+    appearance: none; /* Important for custom styling */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 19px;
+    height: 19px;
+    border: 2px solid #95a5a6;
+    border-radius: 50%;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+    flex-shrink: 0; /* Prevent radio from shrinking */
+    background-color: transparent; /* Ensure it's transparent before checked */
+    position: relative; /* For custom checkmark */
+}
+
+.option input[type="radio"]:checked {
+    border-color: #f1c40f;
+    background-color: #f1c40f; /* Gold fill */
+}
+
+/* Custom checkmark for radio button (optional, simpler way is above) */
+.option input[type="radio"]:checked::before {
+    content: '';
+    display: block;
+    width: 9px; /* Size of inner dot */
+    height: 9px;
+    border-radius: 50%;
+    background-color: #2c3e50; /* Dark dot for contrast on gold */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+
+.option input[type="radio"]:focus-visible { /* Modern focus for accessibility */
+     box-shadow: 0 0 0 2px #2c3e50, 0 0 0 4px rgba(241, 196, 15, 0.5); /* Dark ring then gold glow */
+}
+
+.option label { /* The text part of the option */
+    flex-grow: 1;
+    cursor: pointer; /* Ensure label itself is clickable */
+    margin-bottom: 0; /* Reset default margin if any */
+}
+
+
+/* --- Submit Button --- */
+#submitButton {
+    /* Applying .button and .primary-button styles */
+    display: inline-flex; /* Changed from block to match .button */
+    align-items: center;
+    justify-content: center;
+    width: 100%; /* Make it full width as in original k_quiz.html */
+    padding: 12px 28px;
+    border: none;
+    border-radius: 25px;
+    font-size: 1.05em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    text-decoration: none;
+    gap: 8px; /* For icon if added */
+    background: linear-gradient(45deg, #8e44ad, #5e3370); /* Purple gradient */
+    color: white;
+    border: 1px solid rgba(255,255,255, 0.1); /* Subtle border */
+    margin-top: 30px; /* Space above button */
+}
+
+#submitButton:hover {
+    background: linear-gradient(45deg, #7b3099, #4a245c); /* Darker purple */
+    transform: translateY(-2px) scale(1.01); /* Slight lift, less aggressive scale for full width */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* --- Modal Styles (from target, useful if JS implements modals) --- */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 2000; /* Above quiz header */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    align-items: center; /* Vertically center */
+    justify-content: center; /* Horizontally center */
+}
+
+.modal-content {
+    background-color: #34495e;
+    color: #ecf0f1;
+    padding: 30px 35px; /* Increased padding */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    width: 90%;
+    max-width: 480px; /* Slightly wider modal */
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+    text-align: center;
+    animation: fadeInModal 0.3s ease-out;
+}
+
+@keyframes fadeInModal {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 20px; /* Increased margin */
+    color: #f1c40f;
+    font-size: 1.6em; /* Larger modal title */
+}
+/* For Font Awesome icon if added to modal title */
+.modal-content h2 i {
+    margin-right: 10px;
+}
+
+.modal-content p {
+    margin-bottom: 25px;
+    color: #bdc3c7;
+    line-height: 1.6;
+    font-size: 1.05em; /* Slightly larger modal text */
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: space-around; /* Or center if single button */
+    gap: 15px;
+    margin-top: 10px; /* Space above buttons */
+}
+
+/* Generic button styles for modal (can be reused) */
+.modal-button {
+    padding: 10px 25px;
+    border: none;
+    border-radius: 20px; /* Rounded pill shape */
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+    min-width: 120px; /* Minimum width for buttons */
+}
+
+.modal-button.primary {
+    background: linear-gradient(45deg, #8e44ad, #5e3370);
+    color: white;
+}
+.modal-button.primary:hover {
+    background: linear-gradient(45deg, #7b3099, #4a245c);
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.modal-button.secondary {
+    background-color: #7f8c8d;
+    color: #ecf0f1;
+}
+.modal-button.secondary:hover {
+    background-color: #6c7a7d;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 768px) {
+    body {
+        padding-top: 70px; /* Adjust if header height changes */
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    .quiz-header {
+        padding: 12px 20px;
+    }
+    .quiz-header .timer {
+        font-size: 1.1em;
+        padding: 7px 12px;
+    }
+    .quiz-container {
+        padding: 20px 20px;
+    }
+    .question-block {
+        padding: 15px 20px;
+    }
+    .question-block h3 {
+        font-size: 1.1em;
+    }
+    .option {
+        padding: 10px 12px;
+        font-size: 0.95em;
+    }
+    .option input[type="radio"] {
+        width: 17px;
+        height: 17px;
+    }
+    #submitButton {
+        font-size: 1em;
+        padding: 12px 22px;
+    }
+    .modal-content {
+        padding: 25px;
+        max-width: 90%;
+    }
+    .modal-content h2 { font-size: 1.4em; }
+    .modal-content p { font-size: 1em; }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding-top: 65px; /* Adjust based on header */
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    .quiz-header {
+        padding: 10px 15px;
+        /* Allow items to wrap if needed, though space-between usually handles it */
+        /* flex-wrap: wrap;
+        gap: 10px; */
+    }
+    .quiz-header .back-arrow {
+        font-size: 22px;
+    }
+    .quiz-header .timer {
+        font-size: 1em;
+        padding: 6px 10px;
+    }
+    .quiz-container {
+        padding: 15px;
+        border-radius: 8px;
+    }
+    .question-block {
+        padding: 15px;
+    }
+    .question-block h3 {
+        font-size: 1em;
+        margin-bottom: 15px;
+    }
+    .option {
+        font-size: 0.9em;
+    }
+    #submitButton {
+        font-size: 0.95em;
+        padding: 10px 18px;
+        border-radius: 20px;
+    }
+    .modal-actions {
+        flex-direction: column; /* Stack modal buttons */
+    }
+    .modal-button {
+        width: 100%; /* Full width modal buttons on small screens */
+    }
+    } 
+    </style>
+</head>
+<body>
+    <div class="quiz-header">
+        <a href="k.html" class="back-arrow" title="Go Back to Setup">←</a>
+        <div id="timer" class="timer">00:00</div>
+    </div>
+
+    <div class="quiz-container">
+        <div id="quizContent">
+            <div id="questionsContainer">
+                <!-- Question blocks will be inserted here -->
+            </div>
+            <button id="submitButton">Submit Quiz</button>
+        </div>
+        <div id="loadingMessage" class="loading-message">
+            Loading quiz data... Please wait.
+        </div>
+        <div id="errorMessage" class="error-message" style="display:none;">
+            Error loading quiz. Please <a href="k.html">go back</a> and try again.
+        </div>
+    </div>
+
+    <script src="k_quiz.js"></script>
+</body>
+</html>
