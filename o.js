@@ -2,11 +2,41 @@ document.addEventListener('DOMContentLoaded', () => {
     const syncButton = document.getElementById('syncButton');
     const statusDiv = document.getElementById('status');
     const dataOutputDiv = document.getElementById('dataOutput');
-    
+
     const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTDAMB0qsDiZMizUdlfjLImiT9R2H_K266U3k30rjv0CUuPoI66qDKociYAzYEftngisBHt5QOiOXCN/pub?output=csv';
-    
-    const rawCsvStorageKey = 'rawSpreadsheetCsvData_v2'; // Changed key in case old raw data exists
-    const jsonDataStorageKey = 'structuredSpreadsheetJsData_v2'; // Changed key for new structure
+
+    const rawCsvStorageKey = 'rawSpreadsheetCsvData_v2';
+    const jsonDataStorageKey = 'structuredSpreadsheetJsData_v2';
+
+    // --- START: Helper Functions for Cookie and Login Check ---
+    /**
+     * Gets a cookie by its name.
+     * @param {string} name - The name of the cookie.
+     * @returns {string|null} The cookie value or null if not found.
+     */
+    function getCookie(name) {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            let cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.startsWith(name + '=')) {
+                return cookie.substring(name.length + 1, cookie.length);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Checks if the user appears to be logged in based on client-side cookie.
+     * @returns {boolean} True if a session_token cookie exists, false otherwise.
+     */
+    function isClientSideLoggedIn() {
+        const sessionToken = getCookie('session_token');
+        // Check if token exists and is not an empty string
+        return sessionToken !== null && sessionToken !== '';
+    }
+    // --- END: Helper Functions ---
+
 
     /**
      * Parses a single line of CSV text, handling quoted fields.
@@ -27,43 +57,41 @@ document.addEventListener('DOMContentLoaded', () => {
                     inQuotes = !inQuotes;
                 }
             } else if (char === ',' && !inQuotes) {
-                values.push(currentValue); // Values will be trimmed later
+                values.push(currentValue);
                 currentValue = '';
             } else {
                 currentValue += char;
             }
         }
-        values.push(currentValue); // Add the last value
-        return values.map(v => v.trim()); // Trim all parsed values
+        values.push(currentValue);
+        return values.map(v => v.trim());
     }
 
     /**
      * Converts a CSV string to an array of JavaScript objects with specific key mappings.
-     * "S.N" -> "id"
-     * "Question" -> "questionText"
      * @param {string} csv - The CSV string data.
      * @returns {Array<Object>} An array of objects.
      */
     function convertCsvToJs(csv) {
-        const trimmedCsv = csv.trim().replace(/\r\n/g, '\n').replace(/\r/g, '\n'); // Normalize newlines
+        const trimmedCsv = csv.trim().replace(/\r\n/g, '\n').replace(/\r/g, '\n');
         if (!trimmedCsv) return [];
 
         const lines = trimmedCsv.split('\n');
-        if (lines.length < 1) return []; // Need at least a header line
+        if (lines.length < 1) return [];
 
         const headers = parseCsvLine(lines[0]);
         const result = [];
 
         for (let i = 1; i < lines.length; i++) {
             const lineContent = lines[i].trim();
-            if (!lineContent) continue; // Skip genuinely empty lines
+            if (!lineContent) continue;
 
             const values = parseCsvLine(lineContent);
             const obj = {};
-            let hasMeaningfulData = false; // To track if the row has any non-empty value
+            let hasMeaningfulData = false;
 
             headers.forEach((header, index) => {
-                const originalHeader = header; // Keep original for non-mapped keys
+                const originalHeader = header;
                 const upperHeader = header.toUpperCase();
                 const value = values[index] !== undefined ? values[index] : '';
 
@@ -76,13 +104,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (upperHeader === "QUESTION") {
                     obj["questionText"] = value;
                 } else {
-                    obj[originalHeader] = value; // Use original header name for other keys
+                    obj[originalHeader] = value;
                 }
             });
 
-            // Only add the object if it has some data.
-            // This helps avoid pushing objects for rows that might parse as all empty strings
-            // (e.g. if there are trailing commas or blank lines that weren't fully skipped).
             if (hasMeaningfulData) {
                  result.push(obj);
             }
@@ -95,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {Array<Object>} data - The data to display.
      */
     function displayJsDataAsText(data) {
-        if (!data) { // Handles null or undefined
+        if (!data) {
             dataOutputDiv.innerHTML = '<p>Data is not available.</p>';
             return;
         }
@@ -104,11 +129,11 @@ document.addEventListener('DOMContentLoaded', () => {
              return;
         }
 
-        const jsonString = JSON.stringify(data, null, 2); // Pretty print with 2 spaces indentation
+        const jsonString = JSON.stringify(data, null, 2);
         const preElement = document.createElement('pre');
         preElement.textContent = jsonString;
-        
-        dataOutputDiv.innerHTML = ''; // Clear previous content
+
+        dataOutputDiv.innerHTML = '';
         dataOutputDiv.appendChild(preElement);
     }
 
@@ -117,15 +142,17 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function loadAndDisplayFromLocalStorage() {
         statusDiv.textContent = 'Attempting to load data from local storage...';
+        statusDiv.style.color = ''; // Reset color
         const storedJsDataString = localStorage.getItem(jsonDataStorageKey);
 
         if (storedJsDataString) {
             try {
                 const storedJsData = JSON.parse(storedJsDataString);
-                displayJsDataAsText(storedJsData); // This will handle empty array case
+                displayJsDataAsText(storedJsData);
                 statusDiv.textContent = `Data successfully loaded from local storage. ${storedJsData.length || 0} records found.`;
             } catch (error) {
                 statusDiv.textContent = 'Error parsing data from local storage. It might be corrupted.';
+                statusDiv.style.color = 'red'; // Indicate error
                 console.error('Error parsing local storage data:', error);
                 dataOutputDiv.innerHTML = '<p>Could not parse data from local storage. Try syncing again.</p>';
             }
@@ -137,6 +164,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Event listener for the sync button
     syncButton.addEventListener('click', () => {
+        // --- START: LOGIN CHECK ---
+        if (!isClientSideLoggedIn()) {
+            statusDiv.textContent = 'Error: You must be logged in to sync data. Please log in and try again.';
+            statusDiv.style.color = 'red'; // Style the error message
+            // Optionally, clear the data output if you prefer
+            // dataOutputDiv.innerHTML = '<p>Login required to perform this action.</p>';
+            return; // Stop further execution of the sync process
+        }
+        // --- END: LOGIN CHECK ---
+
+        // If login check passes, reset statusDiv color (if it was red) and proceed
+        statusDiv.style.color = ''; // Or your default status text color
         statusDiv.textContent = 'Fetching data from spreadsheet...';
         dataOutputDiv.innerHTML = '<p><em>Processing your request...</em></p>';
         syncButton.disabled = true;
@@ -155,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 statusDiv.textContent = 'Converting CSV to JS format with custom mappings...';
                 const jsonData = convertCsvToJs(csvText);
-                
+
                 localStorage.setItem(jsonDataStorageKey, JSON.stringify(jsonData));
                 console.log("Structured JS data saved to local storage:", jsonData);
 
@@ -164,6 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .catch(error => {
                 statusDiv.textContent = `Error during sync: ${error.message}`;
+                statusDiv.style.color = 'red'; // Indicate error
                 dataOutputDiv.innerHTML = `<p>Failed to fetch or process data. Please check the console (F12) for more details. Error: ${error.message}</p>`;
                 console.error('Sync process failed:', error);
             })
