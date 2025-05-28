@@ -135,7 +135,7 @@ export async function onRequestPost(context) {
         headers.append('Content-Type', 'application/json');
         headers.append(
             'Set-Cookie',
-            `session_token=${newSessionToken}; HttpOnly; Secure; Path=/; SameSite=Lax; Max-Age=${SESSION_TTL_SECONDS}`
+            `session_token=${newSessionToken}; Secure; Path=/; SameSite=Lax; Max-Age=${SESSION_TTL_SECONDS}`
         );
 
         console.log(`Login successful for MBBS ID ${trimmedMbbsId}, Email ${trimmedEmail} (Forced: ${forceLogin})`);
