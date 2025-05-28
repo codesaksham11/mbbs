@@ -4,78 +4,162 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz Setup</title>
-    <link rel="stylesheet" href="k.css">
+    <link rel="stylesheet" href="k.css"> <!-- Make sure k.css exists and is styled -->
+    <style>
+        /* Basic styling for demonstration if k.css is not provided */
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; margin-top: 20px; background-color: #f4f4f4; }
+        .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 90%; max-width: 500px; }
+        .back-arrow { font-size: 2em; text-decoration: none; color: #333; position: absolute; top: 20px; left: 20px; }
+        h1 { text-align: center; color: #333; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: #555; font-weight: bold; }
+        .form-group input[type="number"] {
+            width: calc(100% - 22px); padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 1em;
+        }
+        .form-group input[type="number"].input-error { border-color: red; }
+        button[type="submit"] {
+            background-color: #007bff; color: white; padding: 12px 20px; border: none;
+            border-radius: 4px; cursor: pointer; font-size: 1em; width: 100%;
+            transition: background-color 0.3s ease;
+        }
+        button[type="submit"]:hover { background-color: #0056b3; }
+        .error-messages { margin-top: 15px; color: red; font-size: 0.9em; }
+        .error-messages p { margin: 5px 0; }
+        .login-prompt {
+            margin-top: 20px; padding: 15px; background-color: #fff3cd; border: 1px solid #ffeeba;
+            color: #856404; border-radius: 4px; text-align: center;
+        }
+        .login-prompt a { color: #0056b3; font-weight: bold; text-decoration: none; }
+        .login-prompt a:hover { text-decoration: underline; }
+    </style>
 </head>
 <body>
-        <a href="index.html" class="back-arrow" title="Go Back">←</a>
+    <a href="index.html" class="back-arrow" title="Go Back">←</a>
 
     <div class="container">
         <h1>Quiz Configuration</h1>
         <form id="quizSetupForm">
             <div class="form-group">
                 <label for="time">Amount of Time (minutes):</label>
-                <input type="number" id="time" name="time" placeholder="1 - 300">
+                <input type="number" id="time" name="time" placeholder="1 - 300" required>
             </div>
 
             <div class="form-group">
                 <label for="questions">Number of Questions:</label>
-                <input type="number" id="questions" name="questions" placeholder="1 - 50">
+                <input type="number" id="questions" name="questions" placeholder="1 - 500" required> <!-- Max questions was 500 in your example -->
             </div>
 
             <div id="errorMessages" class="error-messages"></div>
+             <div id="loginPrompt" class="login-prompt" style="display: none;">
+                You need to be logged in to start a quiz. Please <a href="index.html#login">login here</a>.
+            </div>
 
             <button type="submit">Submit & Start Quiz</button>
         </form>
     </div>
 
-    <script>
-        document.getElementById('quizSetupForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent default form submission
+        <script>
+        // Helper function to get a cookie by name
+        function getCookie(name) {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                let cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.startsWith(name + '=')) {
+                    return cookie.substring(name.length + 1, cookie.length);
+                }
+            }
+            return null;
+        }
 
+        // Function to check for login status (client-side)
+        function isClientSideLoggedIn() {
+            const sessionToken = getCookie('session_token');
+            return sessionToken !== null && sessionToken !== ''; // Check if token exists and is not empty
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const quizSetupForm = document.getElementById('quizSetupForm');
             const timeInput = document.getElementById('time');
             const questionsInput = document.getElementById('questions');
             const errorMessagesDiv = document.getElementById('errorMessages');
-            errorMessagesDiv.innerHTML = ''; // Clear previous errors
+            const loginPromptDiv = document.getElementById('loginPrompt');
+            const submitButton = quizSetupForm.querySelector('button[type="submit"]');
 
-            let errors = [];
-            let isValid = true;
 
-            // Validate Time
-            const timeValue = parseInt(timeInput.value, 10);
-            if (isNaN(timeValue) || timeValue < 1 || timeValue > 300) {
-                errors.push("Time must be a number between 1 and 300 minutes.");
-                timeInput.classList.add('input-error');
-                isValid = false;
+            // Initial check: If not logged in, show prompt and update submit button
+            if (!isClientSideLoggedIn()) {
+                loginPromptDiv.style.display = 'block';
+                submitButton.disabled = true;
+                submitButton.textContent = 'Login Required to Start'; // Updated text
+                submitButton.style.backgroundColor = '#aaa'; // Grey out button slightly
+                submitButton.style.cursor = 'not-allowed';
             } else {
-                timeInput.classList.remove('input-error');
+                loginPromptDiv.style.display = 'none'; // Ensure prompt is hidden if logged in
+                submitButton.disabled = false;
+                submitButton.textContent = 'Submit & Start Quiz';
+                submitButton.style.backgroundColor = '#007bff'; // Default button color
+                submitButton.style.cursor = 'pointer';
             }
 
-            // Validate Number of Questions
-            const questionsValue = parseInt(questionsInput.value, 10);
-            if (isNaN(questionsValue) || questionsValue < 1 || questionsValue > 500) {
-                errors.push("Number of questions must be between 1 and 50.");
-                questionsInput.classList.add('input-error');
-                isValid = false;
-            } else {
-                questionsInput.classList.remove('input-error');
-            }
 
-            if (isValid) {
-                // Save to localStorage
-                localStorage.setItem('quizTime', timeValue);
-                localStorage.setItem('quizQuestions', questionsValue);
+            quizSetupForm.addEventListener('submit', function(event) {
+                event.preventDefault(); // Prevent default form submission
+                errorMessagesDiv.innerHTML = ''; // Clear previous errors
 
-                // Proceed to k_quiz.html
-                window.location.href = 'k_quiz.html';
-            } else {
-                // Display errors
-                errors.forEach(error => {
-                    const p = document.createElement('p');
-                    p.textContent = error;
-                    errorMessagesDiv.appendChild(p);
-                });
-            }
+                // Re-check login status on submit
+                if (!isClientSideLoggedIn()) {
+                    loginPromptDiv.style.display = 'block';
+                    submitButton.disabled = true;
+                    submitButton.textContent = 'Login Required to Start';
+                    submitButton.style.backgroundColor = '#aaa';
+                    submitButton.style.cursor = 'not-allowed';
+                    // Do not add an error to errorMessagesDiv for this, the prompt is sufficient
+                    return; // Stop form processing
+                }
+
+
+                let errors = [];
+                let isValid = true;
+
+                // Validate Time
+                const timeValue = parseInt(timeInput.value, 10);
+                if (isNaN(timeValue) || timeValue < 1 || timeValue > 300) {
+                    errors.push("Time must be a number between 1 and 300 minutes.");
+                    timeInput.classList.add('input-error');
+                    isValid = false;
+                } else {
+                    timeInput.classList.remove('input-error');
+                }
+
+                // Validate Number of Questions
+                const questionsValue = parseInt(questionsInput.value, 10);
+                if (isNaN(questionsValue) || questionsValue < 1 || questionsValue > 500) {
+                    errors.push("Number of questions must be between 1 and 500.");
+                    questionsInput.classList.add('input-error');
+                    isValid = false;
+                } else {
+                    questionsInput.classList.remove('input-error');
+                }
+
+                if (isValid) {
+                    // Save to localStorage
+                    localStorage.setItem('quizTime', timeValue);
+                    localStorage.setItem('quizQuestions', questionsValue);
+
+                    // Proceed to k_quiz.html
+                    console.log('Quiz setup valid and user appears logged in (client-side). Proceeding to quiz...');
+                    window.location.href = 'k_quiz.html';
+                } else {
+                    // Display validation errors
+                    errors.forEach(error => {
+                        const p = document.createElement('p');
+                        p.textContent = error;
+                        errorMessagesDiv.appendChild(p);
+                    });
+                }
+            });
         });
-    </script>
+                        </script>
 </body>
 </html>
