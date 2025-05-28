@@ -1,120 +1,239 @@
 document.addEventListener('DOMContentLoaded', () => {
     const quizResults = JSON.parse(localStorage.getItem('quizResults'));
 
-    if (!quizResults) {
-        alert('No quiz results found. Redirecting to quiz setup.');
+    // Constants for marking (CEE Nepal Format)
+    const MARKS_CORRECT = 2;
+    const MARKS_INCORRECT = -0.25;
+    const MARKS_SKIPPED = 0;
+
+    // Expected subject order for display (mirroring k_quiz.js CATEGORY_CONFIG for consistency)
+    const SUBJECT_DISPLAY_ORDER = [
+        "physics", "chemistry", "botany", "zoology", "mat"
+    ];
+
+    if (!quizResults || !quizResults.answeredQuestionsDetail) {
+        alert('No valid quiz results found or results are corrupted. Redirecting to quiz setup.');
+        console.error("k_result.js: quizResults or quizResults.answeredQuestionsDetail is missing.");
         window.location.href = 'k.html'; // Assuming k.html is your setup page
         return;
     }
 
-    // DOM elements for summary
-    const totalQuestionsEl = document.getElementById('total-questions-value');
-    const correctAnswersEl = document.getElementById('correct-answers-value');
+    // --- 1. Calculate Core Metrics ---
+    let correctCount = 0;
+    let incorrectCount = 0;
+    let skippedCount = 0;
+    let marksObtained = 0;
+
+    quizResults.answeredQuestionsDetail.forEach(q => {
+        // Ensure userAnswer is a string for comparison
+        const userAnswerStr = String(q.userAnswer);
+
+        if (userAnswerStr === 'Not answered' || userAnswerStr === 'DOM Error') {
+            skippedCount++;
+            marksObtained += MARKS_SKIPPED;
+        } else if (q.isCorrect) {
+            correctCount++;
+            marksObtained += MARKS_CORRECT;
+        } else {
+            incorrectCount++;
+            marksObtained += MARKS_INCORRECT;
+        }
+    });
+
+    const totalQuestionsInQuiz = quizResults.totalQuestionsAskedInConfig || quizResults.totalQuestionsDisplayed || 0;
+    const totalPossibleMarks = totalQuestionsInQuiz * MARKS_CORRECT;
+    
+    let percentageFromMarks = 0;
+    if (totalPossibleMarks > 0) {
+        percentageFromMarks = Math.round((marksObtained / totalPossibleMarks) * 1000) / 10; // Round to 1 decimal place
+    } else if (marksObtained > 0 && totalPossibleMarks === 0) { // Edge case: got marks but 0 possible (e.g. 0 questions, but somehow marks were awarded)
+        percentageFromMarks = 100; // Or handle as an anomaly
+    }
+
+
+    // --- 2. DOM Elements for Summary ---
+    const correctRatioEl = document.getElementById('correct-ratio-value');
+    const marksObtainedEl = document.getElementById('marks-obtained-value');
     const scorePercentageEl = document.getElementById('score-percentage');
     const timeTakenEl = document.getElementById('time-taken-value');
     const encouragementMessageEl = document.getElementById('encouragementMessage');
 
-    // DOM elements for details
+    // --- 3. Display Summary ---
+    if (correctRatioEl) {
+        correctRatioEl.textContent = `${correctCount} / ${totalQuestionsInQuiz}`;
+    }
+    if (marksObtainedEl) {
+        const formattedMarks = Number.isInteger(marksObtained) ? marksObtained : marksObtained.toFixed(2);
+        const formattedTotalPossible = Number.isInteger(totalPossibleMarks) ? totalPossibleMarks : totalPossibleMarks.toFixed(2);
+        marksObtainedEl.textContent = `${formattedMarks} / ${formattedTotalPossible}`;
+    }
+    if (scorePercentageEl) {
+        scorePercentageEl.textContent = `${percentageFromMarks}%`;
+    }
+    if (timeTakenEl) {
+        timeTakenEl.textContent = `${quizResults.timeTaken}s`;
+        // Timeout message
+        if (quizResults.status === "Time Out" && quizResults.maxTime > 0) {
+            timeTakenEl.textContent += ' (Time Ran Out)';
+            timeTakenEl.classList.add('timeout');
+        }
+    }
+
+    // Encouragement message (based on percentageFromMarks)
+    if (encouragementMessageEl) {
+        if (percentageFromMarks >= 80) {
+            encouragementMessageEl.innerHTML = `<i class="fas fa-star"></i> Excellent work! You aced it! <i class="fas fa-star"></i>`;
+        } else if (percentageFromMarks >= 60) {
+            encouragementMessageEl.innerHTML = `<i class="fas fa-thumbs-up"></i> Good job! You have a solid understanding.`;
+        } else if (percentageFromMarks >= 40) {
+            encouragementMessageEl.innerHTML = `Keep practicing! You're getting there.`;
+        } else {
+            encouragementMessageEl.innerHTML = `Don't give up! Review the material and try again.`;
+        }
+    }
+
+
+    // --- 4. Detailed Results Section Elements ---
     const toggleDetailsButton = document.getElementById('toggleDetailsButton');
     const detailedResultsSectionEl = document.getElementById('detailedResultsSection');
     const answersBreakdownEl = document.getElementById('answers-breakdown');
-
-    // DOM element for back button
     const backButton = document.getElementById('backButton');
 
-    // Calculate results
-    const correctCount = quizResults.answeredQuestionsDetail.filter(q => q.isCorrect).length;
-    const totalQuestions = quizResults.totalQuestionsAsked;
-    const timeTaken = quizResults.timeTaken;
-    const score = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
-
-    // Display summary
-    totalQuestionsEl.textContent = totalQuestions;
-    correctAnswersEl.textContent = correctCount;
-    scorePercentageEl.textContent = `${score}%`;
-    timeTakenEl.textContent = `${timeTaken}s`;
-
-    // Encouragement message
-    if (score >= 80) {
-        encouragementMessageEl.innerHTML = `<i class="fas fa-star"></i> Excellent work! You aced it! <i class="fas fa-star"></i>`;
-    } else if (score >= 60) {
-        encouragementMessageEl.innerHTML = `<i class="fas fa-thumbs-up"></i> Good job! You have a solid understanding.`;
-    } else if (score >= 40) {
-        encouragementMessageEl.innerHTML = `Keep practicing! You're getting there.`;
-    } else {
-        encouragementMessageEl.innerHTML = `Don't give up! Review the material and try again.`;
-    }
-    if (timeTaken > quizResults.totalTimeAllowed && quizResults.totalTimeAllowed > 0) { // Assuming totalTimeAllowed is part of quizResults
-         timeTakenEl.textContent += ' (Time ran out)';
-         timeTakenEl.classList.add('timeout');
+    if (toggleDetailsButton && detailedResultsSectionEl) {
+        toggleDetailsButton.addEventListener('click', () => {
+            const isHidden = detailedResultsSectionEl.classList.toggle('hidden');
+            if (isHidden) {
+                toggleDetailsButton.innerHTML = '<i class="fas fa-eye"></i> Show Details';
+            } else {
+                toggleDetailsButton.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Details';
+            }
+        });
     }
 
+    if (backButton) {
+        backButton.addEventListener('click', () => {
+            localStorage.removeItem('quizResults'); // Optional: clear results when going back
+            window.location.href = 'k.html';
+        });
+    }
 
-    // Toggle details functionality
-    toggleDetailsButton.addEventListener('click', () => {
-        const isHidden = detailedResultsSectionEl.classList.toggle('hidden');
-        if (isHidden) {
-            toggleDetailsButton.innerHTML = '<i class="fas fa-eye"></i> Show Details';
-        } else {
-            toggleDetailsButton.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Details';
-        }
-    });
+    // --- Generate Detailed View (Categorized) ---
+    if (answersBreakdownEl) {
+        answersBreakdownEl.innerHTML = ''; // Clear previous content
 
-    // Back button functionality
-    backButton.addEventListener('click', () => {
-        localStorage.removeItem('quizResults'); // Optional: clear results when going back
-        window.location.href = 'k.html'; // Assuming k.html is your setup page
-    });
-
-    // Generate detailed view
-    quizResults.answeredQuestionsDetail.forEach((questionData, index) => {
-        const questionCard = document.createElement('div');
-        questionCard.classList.add('detailed-question-card');
-
-        if (questionData.userAnswer === 'Not answered') {
-            questionCard.classList.add('result-skipped');
-        } else if (questionData.isCorrect) {
-            questionCard.classList.add('result-correct');
-        } else {
-            questionCard.classList.add('result-incorrect');
-        }
-
-        const questionTextEl = document.createElement('p');
-        questionTextEl.classList.add('detailed-question-text');
-        questionTextEl.innerHTML = `<strong>Q${index + 1}:</strong> ${questionData.questionText}`;
-        questionCard.appendChild(questionTextEl);
-
-        const optionsUl = document.createElement('ul');
-        optionsUl.classList.add('detailed-options-list');
-
-        questionData.options.forEach(optionText => {
-            const optionLi = document.createElement('li');
-            
-            let optionDisplay = optionText;
-            let iconsHTML = '';
-
-            if (optionText === questionData.correctAnswer) {
-                optionLi.classList.add('correct-option'); // Styles the text (e.g., gold color)
-                iconsHTML += ' <span class="icon-wrapper"><i class="fas fa-check icon"></i></span>';
+        const questionsBySubject = {};
+        quizResults.answeredQuestionsDetail.forEach(q => {
+            const subjectKey = (q.subject || 'uncategorized').toLowerCase().trim();
+            if (!questionsBySubject[subjectKey]) {
+                questionsBySubject[subjectKey] = [];
             }
-
-            if (optionText === questionData.userAnswer) {
-                if (!questionData.isCorrect) {
-                    // User selected this option and it was wrong
-                    iconsHTML += ' <span class="icon-wrapper"><i class="fas fa-times icon" style="color: #e74c3c;"></i></span>';
-                }
-                // If user's answer is correct, the check mark is already handled above.
-                 optionDisplay = `<strong>${optionText} (Your answer)</strong>`;
-            } else if (optionText === questionData.correctAnswer) {
-                 optionDisplay = `${optionText}`; // Correct answer is already styled by class
-            }
-
-
-            optionLi.innerHTML = optionDisplay + iconsHTML;
-            optionsUl.appendChild(optionLi);
+            questionsBySubject[subjectKey].push(q);
         });
 
-        questionCard.appendChild(optionsUl);
-        answersBreakdownEl.appendChild(questionCard);
-    });
+        // Get an ordered list of subjects present in the results, respecting SUBJECT_DISPLAY_ORDER
+        const subjectsInResults = Object.keys(questionsBySubject);
+        const orderedSubjectsToDisplay = SUBJECT_DISPLAY_ORDER.filter(s => subjectsInResults.includes(s));
+        
+        subjectsInResults.forEach(s => {
+            if (!orderedSubjectsToDisplay.includes(s)) {
+                orderedSubjectsToDisplay.push(s); // Add any other subjects (like 'uncategorized') at the end
+            }
+        });
+
+        let overallQuestionIndex = 0;
+
+        orderedSubjectsToDisplay.forEach(subjectKey => {
+            const questionsInThisSubject = questionsBySubject[subjectKey];
+            if (questionsInThisSubject && questionsInThisSubject.length > 0) {
+                // Subject header
+                const subjectHeader = document.createElement('h2');
+                subjectHeader.textContent = subjectKey.charAt(0).toUpperCase() + subjectKey.slice(1);
+                subjectHeader.classList.add('detailed-subject-header');
+                answersBreakdownEl.appendChild(subjectHeader);
+
+                questionsInThisSubject.forEach((questionData) => {
+                    overallQuestionIndex++;
+                    const questionCard = document.createElement('div');
+                    questionCard.classList.add('detailed-question-card');
+
+                    const userAnswerStr = String(questionData.userAnswer);
+                    if (userAnswerStr === 'Not answered' || userAnswerStr === 'DOM Error') {
+                        questionCard.classList.add('result-skipped');
+                    } else if (questionData.isCorrect) {
+                        questionCard.classList.add('result-correct');
+                    } else {
+                        questionCard.classList.add('result-incorrect');
+                    }
+
+                    const questionTextEl = document.createElement('p');
+                    questionTextEl.classList.add('detailed-question-text');
+                    questionTextEl.innerHTML = `<strong>Q${overallQuestionIndex}:</strong> ${escapeHtml(questionData.questionText)}`;
+                    questionCard.appendChild(questionTextEl);
+
+                    const optionsUl = document.createElement('ul');
+                    optionsUl.classList.add('detailed-options-list');
+
+                    const optionsToShow = Array.isArray(questionData.options) ? questionData.options : [];
+                    
+                    if (optionsToShow.length === 0) {
+                        // Fallback if options array is empty, try to reconstruct minimally
+                        console.warn(`Options array empty for QID ${questionData.questionId}. Displaying limited info.`);
+                        if (questionData.correctAnswer) optionsToShow.push(String(questionData.correctAnswer));
+                        if (userAnswerStr && userAnswerStr !== 'Not answered' && userAnswerStr !== 'DOM Error' && userAnswerStr !== String(questionData.correctAnswer)) {
+                            if (!optionsToShow.includes(userAnswerStr)) optionsToShow.push(userAnswerStr);
+                        }
+                    }
+
+
+                    optionsToShow.forEach(optionText => {
+                        const optionLi = document.createElement('li');
+                        let displayOptionText = escapeHtml(optionText);
+                        let iconsHTML = '';
+
+                        const isCorrectOption = (String(optionText) === String(questionData.correctAnswer));
+                        const isUserChoice = (userAnswerStr !== 'Not answered' && userAnswerStr !== 'DOM Error' && String(optionText) === userAnswerStr);
+
+                        if (isCorrectOption) {
+                            optionLi.classList.add('correct-option');
+                            iconsHTML += ' <span class="icon-wrapper"><i class="fas fa-check icon"></i></span>';
+                        }
+
+                        if (isUserChoice) {
+                            if (!questionData.isCorrect) {
+                                iconsHTML += ' <span class="icon-wrapper"><i class="fas fa-times icon"></i></span>';
+                            }
+                            displayOptionText = `<strong>${escapeHtml(optionText)} (Your answer)</strong>`;
+                        }
+                        
+                        optionLi.innerHTML = displayOptionText + iconsHTML;
+                        optionsUl.appendChild(optionLi);
+                    });
+
+                    if (optionsToShow.length === 0) {
+                         const p = document.createElement('p');
+                         p.textContent = "Options data not available for this question.";
+                         p.style.color = "#e74c3c"; // Error red
+                         optionsUl.appendChild(p);
+                    }
+
+                    questionCard.appendChild(optionsUl);
+                    answersBreakdownEl.appendChild(questionCard);
+                });
+            }
+        });
+    }
+
+    // Helper: escapeHtml
+    function escapeHtml(unsafe) {
+        if (typeof unsafe !== 'string') {
+            if (unsafe === null || typeof unsafe === 'undefined') return '';
+            return String(unsafe);
+        }
+        return unsafe
+            .replace(/&/g, "&")
+            .replace(/</g, "<")
+            .replace(/>/g, ">")
+            .replace(/"/g, """)
+            .replace(/'/g, "'"); // ' is preferred over ' by some
+    }
 });
