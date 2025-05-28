@@ -11,13 +11,17 @@
             background-color: #fdfaf6; /* Light beige background from image */
             color: #333;
             line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
         header {
-            padding: 20px 50px;
+            padding: 15px 30px; /* Adjusted padding */
             display: flex;
-            justify-content: flex-start;
+            justify-content: space-between; /* Changed to space-between for nav and user status */
             align-items: center;
-            background-color: #fdfaf6; /* Ensure header bg matches body */
+            background-color: #fdfaf6;
+            border-bottom: 1px solid #eee; /* Subtle separator */
         }
         nav a {
             margin-right: 25px;
@@ -30,6 +34,53 @@
             color: #ff7f50;
         }
 
+        /* --- START: User Status & Auth Buttons --- */
+        .user-status {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        #user-info {
+            font-size: 0.95rem;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        #user-info .user-icon { font-size: 1.2em; color: #ff7043; line-height: 1; }
+        #user-info span#user-name { font-weight: 600; }
+
+        .auth-button {
+            background: #ff7043; /* Main button color */
+            color: #FFFFFF;
+            border: none;
+            padding: 8px 18px; /* Slightly smaller padding */
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: background 0.3s ease, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .auth-button .icon { font-size: 1em; line-height: 1; }
+        .auth-button:hover {
+            background: #f36335; /* Darker shade */
+            transform: translateY(-1px);
+        }
+        #logout-btn {
+            background: #555e68; /* A more neutral color for logout */
+        }
+        #logout-btn:hover {
+            background: #333;
+        }
+        /* --- END: User Status & Auth Buttons --- */
+
+
+        main {
+            flex-grow: 1; /* Ensure main content takes available space */
+        }
         .hero-section {
             display: flex;
             padding: 40px 50px 60px;
@@ -40,8 +91,8 @@
             max-width: 45%;
         }
         .hero-text h1 {
-            font-size: 52px; /* Adjusted for impact */
-            color: #0d244f; /* Dark blue from "Crack MCQs" */
+            font-size: 52px;
+            color: #0d244f;
             margin-top: 0;
             margin-bottom: 20px;
             line-height: 1.2;
@@ -51,16 +102,15 @@
             margin-bottom: 35px;
             color: #555e68;
         }
-        .start-practicing-text { /* No longer a button */
+        .start-practicing-text {
             font-size: 18px;
             font-weight: bold;
             color: #ffffff;
-            background-color: #ff7043; /* Orange button color */
+            background-color: #ff7043;
             padding: 14px 28px;
-            border-radius: 30px; /* Rounded corners */
+            border-radius: 30px;
             display: inline-block;
             text-align: center;
-            /* Removed button-specific styles, now just a styled div */
         }
         .hero-image {
             max-width: 50%;
@@ -69,13 +119,13 @@
         .hero-image img {
             max-width: 100%;
             height: auto;
-            max-height: 350px; /* Control image height */
+            max-height: 350px;
         }
 
         .categories-section {
             padding: 30px 50px 50px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsive columns */
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 25px;
             justify-content: center;
         }
@@ -87,11 +137,11 @@
             text-align: left;
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
         }
-        .card:hover:not(.no-hover-effect) { /* Add no-hover-effect to kharidar card if desired */
+        .card:hover:not(.no-hover-effect) {
              transform: translateY(-5px);
              box-shadow: 0 8px 20px rgba(0,0,0,0.1);
         }
-        .card-link { /* Wrapper for cards that are direct links */
+        .card-link {
             text-decoration: none;
             color: inherit;
             display: block;
@@ -100,15 +150,14 @@
         .card-icon {
             font-size: 36px;
             margin-bottom: 15px;
-            height: 40px; /* Fixed height for icon consistency */
+            height: 40px;
             display: flex;
             align-items: center;
         }
-        /* Specific Icon Colors - from image */
-        .icon-mbbs { color: #2ECC71; } /* Example: Green for MBBS */
-        .icon-neb { color: #50E3C2; } /* Teal bar chart */
-        .icon-entrance { color: #F5A623; } /* Orange building */
-        .icon-other { color: #4A90E2; } /* Blue clipboard */
+        .icon-mbbs { color: #2ECC71; }
+        .icon-neb { color: #50E3C2; }
+        .icon-entrance { color: #F5A623; }
+        .icon-other { color: #4A90E2; }
 
         .card h2 {
             font-size: 22px;
@@ -121,50 +170,112 @@
             color: #555e68;
             line-height: 1.5;
         }
-        #kharidar-card {
-            cursor: pointer; /* Indicate Kharidar card is clickable */
+        #kharidar-card { /* This ID is for the Kharidar password modal trigger */
+            cursor: pointer;
         }
 
-        /* Modal styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.6);
-            align-items: center; /* Vertically center */
-            justify-content: center; /* Horizontally center */
+        /* --- START: General Modal Styles --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); /* Darker overlay */
+            z-index: 1050; /* Ensure above most content */
+            display: none; justify-content: center; align-items: center;
+            opacity: 0; transition: opacity 0.3s ease-in-out;
         }
-        .modal-content {
+        .modal-overlay.visible { display: flex; opacity: 1; }
+
+        .modal-content-base { /* Base style for modal content boxes */
+            background: #fff;
+            padding: 25px 30px; /* Adjusted padding */
+            border-radius: 8px;
+            max-width: 420px; /* Consistent max-width */
+            width: 90%;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            position: relative;
+            transform: scale(0.95);
+            transition: transform 0.3s ease-in-out;
+            text-align: center; /* Default to center for titles/messages */
+        }
+        .modal-overlay.visible .modal-content-base { transform: scale(1); }
+
+        .modal-content-base h2, .modal-content-base h3 {
+            text-align: center; margin-bottom: 1.5rem; color: #0d244f;
+            font-size: 1.4rem; /* Consistent title size */
+        }
+        .modal-close-btn {
+            position: absolute; top: 10px; right: 15px; font-size: 1.8rem; color: #888;
+            background: none; border: none; cursor: pointer; line-height: 1; padding: 0;
+            transition: color 0.2s ease;
+        }
+        .modal-close-btn:hover { color: #333; }
+        /* --- END: General Modal Styles --- */
+
+        /* --- START: Login Modal Specific Styles --- */
+        #login-modal-content .form-group { margin-bottom: 1.1rem; text-align: left; }
+        #login-modal-content .form-group label {
+            display: block; margin-bottom: 0.4rem; font-weight: 500;
+            color: #555e68; font-size: 0.9rem;
+        }
+        #login-modal-content .form-group input[type="email"],
+        #login-modal-content .form-group input[type="text"],
+        #login-modal-content .form-group input[type="number"] { /* Assuming MBBS ID might be number */
+            width: 100%; padding: 10px 12px; border: 1px solid #ccc;
+            background: #fdfaf6; color: #333; border-radius: 5px;
+            font-size: 1rem; transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            box-sizing: border-box; /* Important for width 100% */
+        }
+        #login-modal-content .form-group input:focus {
+            outline: none; border-color: #ff7043;
+            box-shadow: 0 0 0 2px rgba(255, 112, 67, 0.2);
+        }
+        #login-submit-btn { width: 100%; padding: 10px 20px; margin-top: 0.5rem; }
+        #login-error-message {
+            text-align: center; margin-top: 1rem; font-weight: 500;
+            min-height: 1.2em; color: #d9534f; font-size: 0.9rem;
+        }
+        /* --- END: Login Modal Specific Styles --- */
+
+        /* --- START: Confirmation Modal Specific Styles --- */
+        #confirmation-modal-content p {
+            color: #333; font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;
+        }
+        .confirmation-modal-actions {
+            display: flex; justify-content: center; gap: 1rem; margin-top: 1rem;
+        }
+        .confirmation-modal-actions .auth-button { min-width: 100px; }
+        .confirmation-modal-actions .cancel-button { background-color: #777; }
+        .confirmation-modal-actions .cancel-button:hover { background-color: #555; }
+        /* --- END: Confirmation Modal Specific Styles --- */
+
+
+        /* Kharidar Modal Styles (Existing - slightly adjusted to use modal-overlay class) */
+        #kharidar-modal .modal-content { /* Specific for Kharidar */
             background-color: #fff;
-            margin: auto; /* Centering */
+            /* margin: auto; No longer needed due to flex centering */
             padding: 30px;
             border-radius: 8px;
             width: 90%;
             max-width: 400px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             text-align: center;
-            position: relative; /* For close button positioning */
+            position: relative;
         }
-        .modal-content h3 {
+        #kharidar-modal .modal-content h3 {
             margin-top: 0;
             margin-bottom: 20px;
             color: #0d244f;
             font-size: 20px;
         }
-        .modal-content input[type="password"] {
-            width: calc(100% - 22px); /* Account for padding */
+        #kharidar-modal .modal-content input[type="password"] {
+            width: calc(100% - 24px); /* Account for padding */
             padding: 12px;
             margin-bottom: 20px;
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 16px;
+            box-sizing: border-box;
         }
-        .modal-content button {
+        #kharidar-modal .modal-content button {
             background-color: #ff7043;
             color: white;
             padding: 12px 25px;
@@ -175,10 +286,10 @@
             font-weight: 500;
             transition: background-color 0.2s;
         }
-        .modal-content button:hover {
+        #kharidar-modal .modal-content button:hover {
             background-color: #f36335;
         }
-        .close-button {
+        #kharidar-modal .close-button { /* Re-target for Kharidar modal */
             color: #777;
             position: absolute;
             top: 10px;
@@ -187,20 +298,21 @@
             font-weight: bold;
             cursor: pointer;
         }
-        .close-button:hover,
-        .close-button:focus {
+        #kharidar-modal .close-button:hover,
+        #kharidar-modal .close-button:focus {
             color: #333;
         }
-        #error-message {
-            color: #d9534f; /* Bootstrap danger color */
+        #kharidar-modal #error-message { /* Specific error message for Kharidar modal */
+            color: #d9534f;
             margin-top: 15px;
             font-size: 14px;
             min-height: 20px;
         }
 
+
         #about-section {
             padding: 60px 50px;
-            background-color: #f8f9fa; /* Light grey for contrast */
+            background-color: #f8f9fa;
             text-align: center;
         }
         #about-section h2 {
@@ -215,6 +327,14 @@
             margin: 0 auto 15px auto;
             line-height: 1.7;
         }
+        footer {
+            text-align: center; padding: 1.5rem 1rem; margin-top: auto;
+            background: #0d244f;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+        footer a { color: #ff7043; text-decoration: none; font-weight: 600;}
+        footer a:hover { text-decoration: underline; }
 
         /* Responsive adjustments */
         @media (max-width: 992px) {
@@ -225,7 +345,7 @@
                 font-size: 44px;
             }
              .hero-image {
-                display: none; /* Hide image on smaller tablets for more text space, or adjust size */
+                display: none;
             }
             .hero-text {
                 max-width: 100%;
@@ -235,9 +355,17 @@
         @media (max-width: 768px) {
             header {
                 padding: 15px 20px;
-                justify-content: center;
+                flex-direction: column; /* Stack nav and user status on small screens */
+                gap: 10px;
             }
-            nav a { margin: 0 15px;}
+            header nav {
+                display: flex;
+                justify-content: center;
+                width: 100%;
+            }
+            nav a { margin: 0 10px;}
+            .user-status { justify-content: center; width: 100%;}
+
 
             .hero-section {
                 flex-direction: column;
@@ -257,25 +385,32 @@
                  padding: 12px 24px;
                  font-size: 17px;
             }
-            .hero-image { /* Show image again if desired on mobile, stacked */
+            .hero-image {
                 display: block;
                 max-width: 80%;
-                margin: 0 auto 30px auto; /* Center and add space below */
+                margin: 30px auto 0 auto; /* Adjusted margin */
             }
             .categories-section {
-                grid-template-columns: 1fr; /* Stack cards */
+                grid-template-columns: 1fr;
                 padding: 20px;
                 gap: 20px;
             }
-            .modal-content {
+            .modal-content-base, #kharidar-modal .modal-content { /* Apply to both modal types */
                 width: 90%;
-                padding: 25px;
+                padding: 20px;
             }
             #about-section {
                 padding: 40px 20px;
             }
             #about-section h2 {
                 font-size: 28px;
+            }
+            .confirmation-modal-actions {
+                flex-direction: column;
+                gap: 0.8rem;
+            }
+            .confirmation-modal-actions .auth-button {
+                width: 100%;
             }
         }
     </style>
@@ -287,6 +422,17 @@
             <a href="index.html">Home</a>
             <a href="#about-section">About</a>
         </nav>
+        <div class="user-status">
+            <div id="user-info" style="display: none;">
+                <span class="user-icon">👤</span> Welcome, <span id="user-name">User</span>!
+            </div>
+            <button id="logout-btn" class="auth-button" style="display: none;">
+                <span class="icon">🚪</span> Logout
+            </button>
+            <button id="login-header-btn" class="auth-button">
+                <span class="icon">🔑</span> Login
+            </button>
+        </div>
     </header>
 
     <main>
@@ -297,21 +443,17 @@
                 <div class="start-practicing-text">Start Practicing</div>
             </div>
             <div class="hero-image">
-                <!-- 
-                  Replace this SVG with your actual image. For example:
-                  <img src="your-image-filename.png" alt="Person practicing MCQs">
-                  The SVG below is a simplified placeholder.
-                -->
-                <img src="images/abcd.jpg" img/>
-                    </section>
+                <img src="images/abcd.jpg" alt="Practicing MCQs"/>
+            </div>
+        </section>
+
         <section class="categories-section">
-            <a href="k.html" class="card-link">
-    <div class="card" id="mbbs-card">  <!-- Changed id for clarity, though not strictly needed by JS anymore -->
-        <div class="card-icon icon-mbbs">🩺</div> <!-- Changed icon & class -->
-        <h2>MBBS</h2>
-        <p>MCQs for MBBS entrance preparation.</p>
-    </div>
-</a>
+            <!-- Card for Kharidar - Triggers Password Modal -->
+            <div class="card" id="kharidar-card"> <!-- This ID is used by JS to open the Kharidar modal -->
+                <div class="card-icon icon-mbbs">🩺</div>
+                <h2>Kharidar Special</h2>
+                <p>Access exclusive Kharidar content (Password Protected).</p>
+            </div>
 
             <a href="n.html" class="card-link">
                 <div class="card">
@@ -338,89 +480,176 @@
             </a>
         </section>
 
-        <!-- Kharidar Password Modal -->
-        
-
         <section id="about-section">
             <h2>About Us</h2>
             <p>Welcome to our MCQ practice platform! We are dedicated to helping students like you excel in their exams by providing a comprehensive collection of Multiple Choice Questions.</p>
-            <p>Our mission is to make exam preparation accessible, efficient, and effective. Whether you're gearing up for MBBS, MBBS or MBBS. yes, it'a website tailored to make CEE content accessible to people who really need it. Our curated question banks are designed to boost your confidence and sharpen your skills. </p>
+            <p>Our mission is to make exam preparation accessible, efficient, and effective. Whether you're gearing up for MBBS, general entrance, or specialized tests, our website is tailored to make quality content accessible. Our curated question banks are designed to boost your confidence and sharpen your skills.</p>
         </section>
     </main>
 
+    <footer>
+        <p>© <script>document.write(new Date().getFullYear())</script> MCQ Pro. All Rights Reserved. | <a href="/privacy.html">Privacy Policy</a></p>
+    </footer>
+
+    <!-- Kharidar Password Modal (Existing) -->
+    <div id="kharidar-modal" class="modal-overlay"> <!-- Added modal-overlay class -->
+        <div class="modal-content"> <!-- This is specific to kharidar modal now -->
+            <span class="close-button" id="close-modal-button">×</span>
+            <h3>Kharidar Access</h3>
+            <input type="password" id="password-input" placeholder="Enter Password">
+            <button id="submit-password">Submit</button>
+            <div id="error-message"></div> <!-- Error message specific to Kharidar modal -->
+        </div>
+    </div>
+
+    <!-- Login Modal (New - for KV based login) -->
+    <div id="login-modal-overlay" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="login-modal-title">
+        <div id="login-modal-content" class="modal-content-base"> <!-- Use base style -->
+            <button id="login-modal-close-btn" class="modal-close-btn" aria-label="Close Login Modal">×</button>
+            <form id="login-form" action="javascript:void(0);" aria-describedby="login-error-message">
+                <h2 id="login-modal-title">Member Login</h2>
+                <div class="form-group">
+                    <label for="name-input">Your Name:</label>
+                    <input type="text" id="name-input" name="name" required placeholder="e.g., John Doe" autocomplete="name">
+                </div>
+                <div class="form-group">
+                    <label for="email-input">Email Address:</label>
+                    <input type="email" id="email-input" name="email" required placeholder="you@example.com" autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="mbbs-id-input">MBBS ID / Unique Code:</label> <!-- Changed from wallet-input -->
+                    <input type="text" id="mbbs-id-input" name="mbbsId" required placeholder="Enter your registered ID" autocomplete="off">
+                </div>
+                 <button type="submit" id="login-submit-btn" class="auth-button" style="width: 100%;">
+                    <span class="icon">🚀</span> Login
+                </button>
+                <div id="login-error-message" aria-live="polite"></div> <!-- Error message for KV login -->
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal (New - for session conflict) -->
+    <div id="confirmation-modal-overlay" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="confirmation-modal-title">
+        <div id="confirmation-modal-content" class="modal-content-base"> <!-- Use base style -->
+             <h3 id="confirmation-modal-title">Session Conflict Detected</h3>
+             <p id="confirmation-modal-message">
+                 This email is already logged in on another device or browser. Continuing will log out the other session. Do you wish to proceed?
+             </p>
+             <div class="confirmation-modal-actions">
+                 <button id="confirm-cancel-btn" class="auth-button cancel-button">
+                     <span class="icon">❌</span> Cancel
+                 </button>
+                 <button id="confirm-proceed-btn" class="auth-button proceed-button">
+                     <span class="icon">✔️</span> Proceed
+                 </button>
+             </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // --- START: Kharidar Password Modal Logic (Existing) ---
             const kharidarCard = document.getElementById('kharidar-card');
-            const modal = document.getElementById('kharidar-modal');
-            const closeModalButton = document.getElementById('close-modal-button');
+            const kharidarModal = document.getElementById('kharidar-modal');
+            const closeModalButton = document.getElementById('close-modal-button'); // Specific to Kharidar modal
             const passwordInput = document.getElementById('password-input');
             const submitPasswordButton = document.getElementById('submit-password');
-            const errorMessage = document.getElementById('error-message');
+            const kharidarErrorMessage = kharidarModal.querySelector('#error-message'); // Scoped to Kharidar modal
 
             if (kharidarCard) {
                 kharidarCard.addEventListener('click', () => {
-                    modal.style.display = 'flex'; // Use flex for centering
-                    passwordInput.value = ''; // Clear previous input
-                    errorMessage.textContent = ''; // Clear previous error
+                    kharidarModal.style.display = 'flex';
+                    kharidarModal.classList.add('visible'); // For opacity transition
+                    passwordInput.value = '';
+                    if(kharidarErrorMessage) kharidarErrorMessage.textContent = '';
                     passwordInput.focus();
                 });
             }
 
-            function hideModal() {
-                modal.style.display = 'none';
+            function hideKharidarModal() {
+                kharidarModal.classList.remove('visible');
+                // Wait for opacity transition before setting display to none
+                setTimeout(() => {
+                    kharidarModal.style.display = 'none';
+                }, 300); // Match transition duration
             }
 
             if (closeModalButton) {
-                closeModalButton.addEventListener('click', hideModal);
+                closeModalButton.addEventListener('click', hideKharidarModal);
             }
-
-            // Close modal if user clicks outside of the modal content
-            window.addEventListener('click', (event) => {
-                if (event.target === modal) {
-                    hideModal();
-                }
-            });
-
-            // Close modal with Escape key
-            window.addEventListener('keydown', (event) => {
-                if (event.key === 'Escape' && modal.style.display === 'flex') {
-                    hideModal();
-                }
-            });
-
+            if (kharidarModal) {
+                kharidarModal.addEventListener('click', (event) => {
+                    if (event.target === kharidarModal) { // Click outside content
+                        hideKharidarModal();
+                    }
+                });
+            }
             if (submitPasswordButton) {
                 submitPasswordButton.addEventListener('click', () => {
                     const enteredPassword = passwordInput.value;
-                    if (enteredPassword === 'Saksham God') {
-                        window.location.href = 'k.html';
+                    if (enteredPassword === 'Saksham God') { // Replace with your actual password
+                        window.location.href = 'k.html'; // Or desired Kharidar page
                     } else {
-                        errorMessage.textContent = 'Incorrect password. Please try again.';
-                        passwordInput.focus(); // Keep focus on password field
+                        if(kharidarErrorMessage) kharidarErrorMessage.textContent = 'Incorrect password. Please try again.';
+                        passwordInput.focus();
                     }
                 });
             }
-            
             if (passwordInput) {
                 passwordInput.addEventListener('keypress', function(event) {
                     if (event.key === 'Enter') {
-                        event.preventDefault(); 
-                        submitPasswordButton.click();
+                        event.preventDefault();
+                        if(submitPasswordButton) submitPasswordButton.click();
                     }
                 });
             }
+            // --- END: Kharidar Password Modal Logic ---
 
-            // Smooth scroll for "About" link
+
+            // --- START: Smooth Scroll for "About" link (Existing) ---
             const aboutLink = document.querySelector('nav a[href="#about-section"]');
             if (aboutLink) {
                 aboutLink.addEventListener('click', function(e) {
                     e.preventDefault();
-                    document.querySelector(this.getAttribute('href')).scrollIntoView({
-                        behavior: 'smooth'
-                    });
+                    const targetElement = document.querySelector(this.getAttribute('href'));
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
                 });
             }
+            // --- END: Smooth Scroll for "About" link ---
+
+            // Keydown listener for Escape key for all modals (can be generalized)
+            window.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    if (kharidarModal && kharidarModal.classList.contains('visible')) {
+                        hideKharidarModal();
+                    }
+                    // Add similar checks for loginModalOverlay and confirmationModalOverlay if they are visible
+                    const loginModalOverlay = document.getElementById('login-modal-overlay');
+                    if (loginModalOverlay && loginModalOverlay.classList.contains('visible')) {
+                        // Assuming you have a function like hideLoginModal() in app.js
+                        // For now, just logging, actual hiding will be in app.js
+                        console.log("Escape pressed for login modal");
+                         // loginModalOverlay.classList.remove('visible');
+                         // setTimeout(() => { loginModalOverlay.style.display = 'none'; }, 300);
+                    }
+                     const confirmationModalOverlay = document.getElementById('confirmation-modal-overlay');
+                    if (confirmationModalOverlay && confirmationModalOverlay.classList.contains('visible')) {
+                        console.log("Escape pressed for confirmation modal");
+                        // confirmationModalOverlay.classList.remove('visible');
+                        // setTimeout(() => { confirmationModalOverlay.style.display = 'none'; }, 300);
+                    }
+                }
+            });
         });
     </script>
+
+    <!-- Main Application Logic for KV Login System -->
+    <!-- You'll create an app.js file and link it here -->
+    <script type="module" src="/app.js"></script>
 
 </body>
 </html>
