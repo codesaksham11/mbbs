@@ -130,10 +130,14 @@ header h1 .fa-trophy {
     color: #ffffff; /* White */
 }
 
-#time-taken-value.timeout { /* Corrected ID for timeout styling */
-    color: #e74c3c; /* Premium error red */
+/* UPDATED: Styling for timeout on time-taken value */
+#time-taken-value.timeout {
+    color: #e74c3c; /* Premium error red for the text itself */
     font-weight: bold;
 }
+/* You can add ::after if you want the "(Time Ran Out)" to be styled differently or if it's not part of JS text */
+/* Example: #time-taken-value.timeout::after { content: " (Time Expired)"; font-size: 0.8em; color: #e74c3c; } */
+
 
 /* Detailed Section */
 .detailed-section {
@@ -142,7 +146,7 @@ header h1 .fa-trophy {
     border-top: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-.detailed-section h2 {
+.detailed-section h2 { /* This is the "Detailed Breakdown" H2 */
     text-align: center;
     font-size: 1.8em;
     color: #ecf0f1; /* Light text */
@@ -152,6 +156,22 @@ header h1 .fa-trophy {
     align-items: center;
     gap: 10px;
 }
+
+/* NEW: Detailed Subject Header Styling */
+.detailed-subject-header {
+    color: #f1c40f; /* Gold */
+    margin-top: 30px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid rgba(241, 196, 15, 0.7); /* Gold border, slightly transparent */
+    padding-bottom: 10px;
+    font-size: 1.6em;
+    font-weight: 600;
+    text-align: left; /* Align to left for sectioning */
+}
+.detailed-subject-header:first-child { /* Reduce top margin for the very first subject header in the list */
+    margin-top: 10px;
+}
+
 
 #answers-breakdown { margin-bottom: 30px; }
 
@@ -200,6 +220,7 @@ header h1 .fa-trophy {
     display: flex; justify-content: space-between; align-items: center;
     color: #bdc3c7; /* Light grey text */
     transition: background-color 0.2s ease;
+    word-break: break-word; /* Ensure long options wrap nicely */
 }
 .detailed-options-list li:hover {
     background-color: rgba(62, 83, 104, 0.7); /* Slightly lighter on hover */
@@ -207,20 +228,24 @@ header h1 .fa-trophy {
 
 
 .detailed-options-list li.correct-option {
-    font-weight: bold;
+    /* font-weight: bold; (Handled by strong tag if it's also user's answer, or by default for correct-option text) */
     color: #f1c40f !important; /* Gold correct, ensure it overrides default */
 }
-.detailed-options-list li strong { /* For user's answer text */
-    color: #ffffff; /* Make user answer text stand out a bit more */
+.detailed-options-list li strong { /* For user's answer text part: "(Your answer)" and the option text itself if user selected it */
+    color: #ffffff; /* Make user answer text stand out a bit more if it's not the correct one */
+    font-weight: bold;
+}
+.detailed-options-list li.correct-option strong { /* If user's answer is ALSO the correct answer */
+    color: #f1c40f !important; /* Keep it gold */
 }
 
 
 .icon { font-size: 1.2em; } /* Base icon size */
-/* specific icon colors are handled inline or by .correct-option */
 .detailed-options-list li .icon-wrapper { /* Wrapper for spacing icons */
     margin-left: 10px;
     display: inline-flex;
     align-items: center;
+    flex-shrink: 0; /* Prevent icons from shrinking on small screens */
 }
 .detailed-options-list li .icon-wrapper .fas.fa-check { color: #2ecc71; }
 .detailed-options-list li .icon-wrapper .fas.fa-times { color: #e74c3c; }
@@ -295,14 +320,22 @@ header h1 .fa-trophy {
     .container { padding: 25px 20px; margin: 10px; }
     header h1 { font-size: 2em; }
     .stats { flex-direction: column; align-items: stretch; }
-    .stat-item { min-width: unset; }
+    .stat-item { min-width: unset; flex-basis: auto; } /* Allow natural sizing in column */
     .action-buttons { flex-direction: column; align-items: center; }
     .button { width: 90%; text-align: center; margin-bottom: 10px; } /* Added margin for stacked buttons */
     .action-buttons .button:last-child { margin-bottom: 0; }
 
     .legend ul { flex-direction: column; align-items: flex-start; gap: 10px; } /* Adjusted gap */
-    .detailed-options-list li { flex-direction: column; align-items: flex-start; gap: 5px; }
-    .detailed-options-list li .icon-wrapper { margin-left: 0; margin-top: 5px; }
+    
+    .detailed-options-list li {
+        flex-direction: column; /* Stack text and icons vertically */
+        align-items: flex-start; /* Align items to the start */
+        gap: 5px;
+    }
+    .detailed-options-list li .icon-wrapper {
+        margin-left: 0; /* Remove left margin when stacked */
+        margin-top: 5px; /* Add some space above icons */
+    }
 }
 
 @media (max-width: 480px) {
@@ -313,4 +346,5 @@ header h1 .fa-trophy {
     .button { font-size: 1em; padding: 10px 20px; }
     .legend h3 { font-size: 1.1em; }
     .legend li { font-size: 0.9em; }
-             }
+    .detailed-subject-header { font-size: 1.4em; }
+}
