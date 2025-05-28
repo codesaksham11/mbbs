@@ -1,12 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
     const quizResults = JSON.parse(localStorage.getItem('quizResults'));
 
-    // Constants for marking (CEE Nepal Format)
-    const MARKS_CORRECT = 2;
-    const MARKS_INCORRECT = -0.25;
-    const MARKS_SKIPPED = 0;
+    // Corrected constants for CEE Nepal Format
+    const MARKS_CORRECT = 1;      // 1 mark for correct
+    const MARKS_INCORRECT = -0.25; // -0.25 for incorrect
+    const MARKS_SKIPPED = 0;      // 0 for skipped
 
-    // Expected subject order for display (mirroring k_quiz.js CATEGORY_CONFIG for consistency)
+    // Expected subject order for display (mirroring k_quiz.js CATEGORY_CONFIG)
     const SUBJECT_DISPLAY_ORDER = [
         "physics", "chemistry", "botany", "zoology", "mat"
     ];
@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!quizResults || !quizResults.answeredQuestionsDetail) {
         alert('No valid quiz results found or results are corrupted. Redirecting to quiz setup.');
         console.error("k_result.js: quizResults or quizResults.answeredQuestionsDetail is missing.");
-        window.location.href = 'k.html'; // Assuming k.html is your setup page
+        window.location.href = 'k.html';
         return;
     }
 
@@ -25,7 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let marksObtained = 0;
 
     quizResults.answeredQuestionsDetail.forEach(q => {
-        // Ensure userAnswer is a string for comparison
         const userAnswerStr = String(q.userAnswer);
 
         if (userAnswerStr === 'Not answered' || userAnswerStr === 'DOM Error') {
@@ -41,15 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const totalQuestionsInQuiz = quizResults.totalQuestionsAskedInConfig || quizResults.totalQuestionsDisplayed || 0;
-    const totalPossibleMarks = totalQuestionsInQuiz * MARKS_CORRECT;
-    
-    let percentageFromMarks = 0;
-    if (totalPossibleMarks > 0) {
-        percentageFromMarks = Math.round((marksObtained / totalPossibleMarks) * 1000) / 10; // Round to 1 decimal place
-    } else if (marksObtained > 0 && totalPossibleMarks === 0) { // Edge case: got marks but 0 possible (e.g. 0 questions, but somehow marks were awarded)
-        percentageFromMarks = 100; // Or handle as an anomaly
-    }
-
+    const totalPossibleMarks = totalQuestionsInQuiz * MARKS_CORRECT; // 1 mark per question
+    let percentageFromMarks = totalPossibleMarks > 0 ? Math.round((marksObtained / totalPossibleMarks) * 1000) / 10 : 0;
 
     // --- 2. DOM Elements for Summary ---
     const correctRatioEl = document.getElementById('correct-ratio-value');
@@ -59,27 +51,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const encouragementMessageEl = document.getElementById('encouragementMessage');
 
     // --- 3. Display Summary ---
-    if (correctRatioEl) {
-        correctRatioEl.textContent = `${correctCount} / ${totalQuestionsInQuiz}`;
-    }
+    if (correctRatioEl) correctRatioEl.textContent = `${correctCount} / ${totalQuestionsInQuiz}`;
     if (marksObtainedEl) {
         const formattedMarks = Number.isInteger(marksObtained) ? marksObtained : marksObtained.toFixed(2);
         const formattedTotalPossible = Number.isInteger(totalPossibleMarks) ? totalPossibleMarks : totalPossibleMarks.toFixed(2);
         marksObtainedEl.textContent = `${formattedMarks} / ${formattedTotalPossible}`;
     }
-    if (scorePercentageEl) {
-        scorePercentageEl.textContent = `${percentageFromMarks}%`;
-    }
+    if (scorePercentageEl) scorePercentageEl.textContent = `${percentageFromMarks}%`;
     if (timeTakenEl) {
         timeTakenEl.textContent = `${quizResults.timeTaken}s`;
-        // Timeout message
         if (quizResults.status === "Time Out" && quizResults.maxTime > 0) {
             timeTakenEl.textContent += ' (Time Ran Out)';
             timeTakenEl.classList.add('timeout');
         }
     }
 
-    // Encouragement message (based on percentageFromMarks)
+    // Encouragement message
     if (encouragementMessageEl) {
         if (percentageFromMarks >= 80) {
             encouragementMessageEl.innerHTML = `<i class="fas fa-star"></i> Excellent work! You aced it! <i class="fas fa-star"></i>`;
@@ -92,7 +79,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-
     // --- 4. Detailed Results Section Elements ---
     const toggleDetailsButton = document.getElementById('toggleDetailsButton');
     const detailedResultsSectionEl = document.getElementById('detailedResultsSection');
@@ -102,50 +88,37 @@ document.addEventListener('DOMContentLoaded', () => {
     if (toggleDetailsButton && detailedResultsSectionEl) {
         toggleDetailsButton.addEventListener('click', () => {
             const isHidden = detailedResultsSectionEl.classList.toggle('hidden');
-            if (isHidden) {
-                toggleDetailsButton.innerHTML = '<i class="fas fa-eye"></i> Show Details';
-            } else {
-                toggleDetailsButton.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Details';
-            }
+            toggleDetailsButton.innerHTML = isHidden ? '<i class="fas fa-eye"></i> Show Details' : '<i class="fas fa-eye-slash"></i> Hide Details';
         });
     }
 
     if (backButton) {
         backButton.addEventListener('click', () => {
-            localStorage.removeItem('quizResults'); // Optional: clear results when going back
+            localStorage.removeItem('quizResults');
             window.location.href = 'k.html';
         });
     }
 
-    // --- Generate Detailed View (Categorized) ---
+    // --- Generate Detailed View ---
     if (answersBreakdownEl) {
-        answersBreakdownEl.innerHTML = ''; // Clear previous content
+        answersBreakdownEl.innerHTML = '';
 
         const questionsBySubject = {};
         quizResults.answeredQuestionsDetail.forEach(q => {
             const subjectKey = (q.subject || 'uncategorized').toLowerCase().trim();
-            if (!questionsBySubject[subjectKey]) {
-                questionsBySubject[subjectKey] = [];
-            }
+            if (!questionsBySubject[subjectKey]) questionsBySubject[subjectKey] = [];
             questionsBySubject[subjectKey].push(q);
         });
 
-        // Get an ordered list of subjects present in the results, respecting SUBJECT_DISPLAY_ORDER
         const subjectsInResults = Object.keys(questionsBySubject);
-        const orderedSubjectsToDisplay = SUBJECT_DISPLAY_ORDER.filter(s => subjectsInResults.includes(s));
-        
-        subjectsInResults.forEach(s => {
-            if (!orderedSubjectsToDisplay.includes(s)) {
-                orderedSubjectsToDisplay.push(s); // Add any other subjects (like 'uncategorized') at the end
-            }
-        });
+        const orderedSubjectsToDisplay = SUBJECT_DISPLAY_ORDER.filter(s => subjectsInResults.includes(s))
+            .concat(subjectsInResults.filter(s => !SUBJECT_DISPLAY_ORDER.includes(s)));
 
         let overallQuestionIndex = 0;
 
         orderedSubjectsToDisplay.forEach(subjectKey => {
             const questionsInThisSubject = questionsBySubject[subjectKey];
             if (questionsInThisSubject && questionsInThisSubject.length > 0) {
-                // Subject header
                 const subjectHeader = document.createElement('h2');
                 subjectHeader.textContent = subjectKey.charAt(0).toUpperCase() + subjectKey.slice(1);
                 subjectHeader.classList.add('detailed-subject-header');
@@ -174,16 +147,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     optionsUl.classList.add('detailed-options-list');
 
                     const optionsToShow = Array.isArray(questionData.options) ? questionData.options : [];
-                    
                     if (optionsToShow.length === 0) {
-                        // Fallback if options array is empty, try to reconstruct minimally
                         console.warn(`Options array empty for QID ${questionData.questionId}. Displaying limited info.`);
                         if (questionData.correctAnswer) optionsToShow.push(String(questionData.correctAnswer));
                         if (userAnswerStr && userAnswerStr !== 'Not answered' && userAnswerStr !== 'DOM Error' && userAnswerStr !== String(questionData.correctAnswer)) {
                             if (!optionsToShow.includes(userAnswerStr)) optionsToShow.push(userAnswerStr);
                         }
                     }
-
 
                     optionsToShow.forEach(optionText => {
                         const optionLi = document.createElement('li');
@@ -204,16 +174,16 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                             displayOptionText = `<strong>${escapeHtml(optionText)} (Your answer)</strong>`;
                         }
-                        
+
                         optionLi.innerHTML = displayOptionText + iconsHTML;
                         optionsUl.appendChild(optionLi);
                     });
 
                     if (optionsToShow.length === 0) {
-                         const p = document.createElement('p');
-                         p.textContent = "Options data not available for this question.";
-                         p.style.color = "#e74c3c"; // Error red
-                         optionsUl.appendChild(p);
+                        const p = document.createElement('p');
+                        p.textContent = "Options data not available for this question.";
+                        p.style.color = "#e74c3c";
+                        optionsUl.appendChild(p);
                     }
 
                     questionCard.appendChild(optionsUl);
@@ -223,17 +193,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Helper: escapeHtml
+    // Updated escapeHtml function
     function escapeHtml(unsafe) {
         if (typeof unsafe !== 'string') {
             if (unsafe === null || typeof unsafe === 'undefined') return '';
             return String(unsafe);
         }
         return unsafe
-            .replace(/&/g, "&")
-            .replace(/</g, "<")
-            .replace(/>/g, ">")
-            .replace(/"/g, """)
-            .replace(/'/g, "'"); // ' is preferred over ' by some
+            .replace(/&/g, "&amp;")  // Must be first to avoid double-encoding
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
     }
 });
