@@ -5,447 +5,528 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Study Document</title>
     <style>
-        :root {
-            --a4-width: 595pt; /* 210mm */
-            --a4-height: 842pt; /* 297mm */
-            --page-margin-top: 56pt; /* approx 2cm */
-            --page-margin-bottom: 56pt;
-            --page-margin-horizontal: 40pt; /* approx 1.4cm */
-
-            --content-width: calc(var(--a4-width) - 2 * var(--page-margin-horizontal));
-            --content-height: calc(var(--a4-height) - var(--page-margin-top) - var(--page-margin-bottom));
-
-            --text-font-size: 10pt;
-            --line-height: 1.4;
-            --header-font-size: 16pt;
-            --question-font-size: 11pt;
-        }
-
-        body {
-            font-family: 'Times New Roman', Times, serif; /* Classic book font */
+        body, html {
             margin: 0;
-            background-color: #e0e0e0; /* Neutral background */
-            color: #000;
+            padding: 0;
+            height: 100%;
+            font-family: 'Times New Roman', Times, serif; /* Classic document font */
+            background-color: #DDE2E6; /* Light grey background */
+            overflow: hidden; /* Prevent body scrolling */
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px 0;
-            overflow-x: hidden; /* Prevent horizontal scroll on body */
-            -webkit-user-select: none; /* Disable text selection during swipes */
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
+            justify-content: center;
+            -webkit-text-size-adjust: 100%; /* Prevent iOS font scaling on orientation change */
         }
 
-        .back-link {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            font-size: 12pt;
-            color: #333;
-            text-decoration: none;
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 8px 12px;
-            border-radius: 5px;
-            z-index: 100;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        }
-        .back-link:hover {
-            background-color: #fff;
+        .viewport-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; /* Key for containing the scaled paper */
+            position: relative;
         }
 
-        #pageViewer {
-            width: var(--a4-width);
-            height: var(--a4-height);
-            position: relative; /* For absolute positioning of pages */
-            overflow: hidden; /* Crucial for swipe transitions */
-            box-shadow: 0 0 15px rgba(0,0,0,0.3);
-            background-color: white; /* Fallback for empty space */
-            transition: transform 0.3s ease-in-out; /* For zoom */
+        .paper-scaler {
+            /* This div will be scaled for zoom */
+            transition: transform 0.1s ease-out;
+            transform-origin: center center;
+            /* Initial size will be set by JS to fit A4 within viewport */
         }
 
         .a4-page {
-            width: 100%;
-            height: 100%;
-            background-color: #fff;
+            background-color: white;
+            /* A4 dimensions at 96 DPI: 210mm x 297mm
+               Width: (210 / 25.4) * 96 = 793.7px ~ 794px
+               Height: (297 / 25.4) * 96 = 1122.5px ~ 1123px */
+            width: 794px;
+            height: 1123px;
+            border: 1px solid #B0B8BF;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
             box-sizing: border-box;
-            padding: var(--page-margin-top) var(--page-margin-horizontal) var(--page-margin-bottom) var(--page-margin-horizontal);
-            position: absolute;
-            top: 0;
-            left: 0;
-            transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out;
-            opacity: 0;
-            transform: translateX(100%); /* Start off-screen to the right */
-            overflow-y: hidden; /* Prevent scrollbars on individual pages */
-            font-size: var(--text-font-size);
-            line-height: var(--line-height);
+            padding: 60px 45px; /* Typical A4 margins (e.g., ~1.5in top/bottom, ~1in sides) */
+            font-size: 12pt; /* Standard document font size */
+            line-height: 1.5;
+            overflow: hidden; /* Content must not spill */
+            position: relative; /* For page number */
+            display: none; /* Hidden by default */
         }
-
         .a4-page.active {
-            opacity: 1;
-            transform: translateX(0);
-            z-index: 1;
+            display: block;
         }
 
-        .a4-page.previous { /* For sliding out to the left */
-            transform: translateX(-100%);
-            opacity: 0;
-            z-index: 0;
+        .page-content-wrapper { /* Inner div to respect padding */
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
         }
 
-        .page-content {
-            width: var(--content-width);
-            height: var(--content-height);
-            overflow: hidden; /* Content should not overflow its designated area */
+        .subject-title-doc {
+            font-size: 18pt;
+            font-weight: bold;
+            color: #222;
+            margin-top: 25px; /* Space before new subject */
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1.5px solid #555;
+        }
+        .a4-page .page-content-wrapper > .subject-title-doc:first-child {
+            margin-top: 0; /* No top margin if it's the first element on page */
         }
 
-        .page-number {
-            position: absolute;
-            bottom: calc(var(--page-margin-bottom) / 2 - 6pt); /* Centered in bottom margin */
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 9pt;
-            color: #555;
+        .question-entry {
+            margin-bottom: 12px;
+            font-size: 11pt; /* Slightly smaller for question details */
+        }
+        .question-entry .q-sn {
+            font-weight: bold;
+            margin-right: 7px;
+        }
+        .question-entry .q-text-doc {}
+        .question-entry .q-answer-doc {
+            color: #333; /* Less prominent than in study mode */
+            font-style: italic;
+            margin-left: 25px;
+            display: block; /* Answer on new line */
         }
 
-        /* Index Page Styles */
-        .index-title {
-            font-size: 20pt;
+        /* Index Page Styling */
+        .index-page-content h1 {
             text-align: center;
-            margin-bottom: 30pt;
+            font-size: 24pt;
+            margin-bottom: 40px;
             font-weight: bold;
         }
-        .index-list {
+        .index-list-doc {
             list-style: none;
             padding: 0;
+            font-size: 14pt;
         }
-        .index-item {
+        .index-list-doc li {
             display: flex;
             justify-content: space-between;
-            font-size: 12pt;
-            margin-bottom: 10pt;
-            padding-bottom: 5pt;
-            border-bottom: 1px dotted #ccc;
+            margin-bottom: 18px;
+            line-height: 1.6;
         }
-        .index-item .subject-name {
+        .index-list-doc .subject-name-idx {
             white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            padding-right: 10pt;
         }
-        .index-item .page-ref::before {
-            content: "";
+        .index-list-doc .dots-fill {
             flex-grow: 1;
-            border-bottom: 1px dotted #aaa;
-            margin: 0 0.5em 0.25em; /* vertical alignment of dots */
+            border-bottom: 1px dotted #777;
+            margin: 0 10px;
+            position: relative;
+            bottom: 5px; /* Align dots visually */
         }
-        .index-item .page-ref {
-             display: flex;
-             align-items: baseline; /* aligns subject name with dots */
-        }
-
-        /* Content Page Styles */
-        .subject-header {
-            font-size: var(--header-font-size);
-            font-weight: bold;
-            margin-top: 0; /* For first subject on page */
-            margin-bottom: 15pt;
-            padding-bottom: 5pt;
-            border-bottom: 1px solid #000;
-        }
-        .question-item {
-            margin-bottom: 12pt;
-        }
-        .question-item p {
-            margin: 0 0 4pt 0;
-        }
-        .question-number-subject {
-            font-weight: bold;
-            margin-right: 5pt;
-        }
-        .question-text-content {
-            font-size: var(--question-font-size);
-        }
-        .answer-text-content {
-            color: #38761d; /* Dark green for answer */
-            font-weight: bold;
-            margin-left: 15pt; /* Indent answer */
-        }
-        .distractions-list {
-            list-style-type: lower-alpha;
-            margin-left: 30pt; /* Indent distractions */
-            padding-left: 10pt;
-            font-size: calc(var(--text-font-size) * 0.95);
+        .index-list-doc .page-ref-idx {
+            white-space: nowrap;
+            font-weight: normal;
             color: #444;
         }
-        .distractions-list li {
-            margin-bottom: 2pt;
+
+        .page-number-display {
+            position: absolute;
+            bottom: 30px; /* Inside padding */
+            right: 45px;  /* Inside padding */
+            font-size: 10pt;
+            color: #666;
+        }
+        .a4-page.index-page .page-number-display {
+            display: none;
         }
 
-        /* Navigation Buttons */
-        .nav-buttons {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
-        .nav-buttons button {
-            padding: 10px 20px;
-            font-size: 12pt;
-            background-color: #f8f8f8;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+        /* Navigation Controls */
+        .nav-button {
+            position: fixed;
+            background-color: rgba(40, 40, 40, 0.7);
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            font-size: 16px;
             cursor: pointer;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            border-radius: 6px;
+            z-index: 1000;
+            user-select: none;
+            transition: background-color 0.2s;
         }
-        .nav-buttons button:disabled {
-            opacity: 0.5;
+        .nav-button:hover {
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+        .nav-button:disabled {
+            background-color: rgba(100, 100, 100, 0.5);
             cursor: not-allowed;
         }
-        .nav-buttons button:hover:not(:disabled) {
-            background-color: #eee;
+
+        .back-arrow-doc {
+            top: 15px;
+            left: 15px;
+            font-size: 22px;
+            padding: 8px 15px;
+        }
+        .prev-page-btn {
+            bottom: 15px;
+            left: 15px;
+        }
+        .next-page-btn {
+            bottom: 15px;
+            right: 15px;
         }
 
         /* Hidden div for measuring content height */
-        #measureDiv {
+        #contentMeasurer {
             position: absolute;
             visibility: hidden;
-            width: var(--content-width); /* Must match page content width */
-            font-size: var(--text-font-size);
-            line-height: var(--line-height);
-            padding: 0; margin: 0; /* No extra padding/margin */
-            box-sizing: border-box;
+            top: -5000px; /* Way off screen */
+            left: 0;
+            /* Must match A4 page's content area width and font styles */
+            width: calc(794px - 2 * 45px); /* A4 width - 2 * horizontal padding */
             font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+            line-height: 1.5;
+            box-sizing: border-box;
+        }
+        #contentMeasurer .subject-title-doc { /* Copy relevant styles for accuracy */
+            font-size: 18pt; font-weight: bold; margin-top: 25px; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 1.5px solid #555;
+        }
+        #contentMeasurer .question-entry {
+            margin-bottom: 12px; font-size: 11pt;
         }
 
-        /* Zoom styling */
-        #pageViewer.zoomed-in {
-            transform: scale(1.5); /* Adjust zoom level as needed */
-            /* Could also add margin adjustments if needed when zoomed */
-        }
     </style>
 </head>
 <body>
-    <a href="index.html" class="back-link">← Back to Main</a>
+    <a href="index.html" class="nav-button back-arrow-doc">←</a>
 
-    <div id="pageViewer">
-        <!-- Pages will be injected here by JavaScript -->
+    <div class="viewport-container" id="viewportContainer">
+        <div class="paper-scaler" id="paperScaler">
+            <!-- A4 pages will be injected here by JS -->
+        </div>
     </div>
 
-    <div class="nav-buttons">
-        <button id="prevButton" disabled>Previous</button>
-        <button id="nextButton" disabled>Next</button>
-    </div>
+    <button class="nav-button prev-page-btn" id="prevButton">« Prev</button>
+    <button class="nav-button next-page-btn" id="nextButton">Next »</button>
 
-    <!-- Hidden div for measuring content height before adding to a page -->
-    <div id="measureDiv"></div>
+    <div id="contentMeasurer"></div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const jsonDataStorageKey = 'structuredSpreadsheetJsData_v2';
-            const pageViewer = document.getElementById('pageViewer');
-            const measureDiv = document.getElementById('measureDiv');
-            const prevButton = document.getElementById('prevButton');
-            const nextButton = document.getElementById('nextButton');
+    document.addEventListener('DOMContentLoaded', () => {
+        const jsonDataStorageKey = 'structuredSpreadsheetJsData_v2';
+        const paperScaler = document.getElementById('paperScaler');
+        const contentMeasurer = document.getElementById('contentMeasurer');
+        const viewportContainer = document.getElementById('viewportContainer');
+        const prevButton = document.getElementById('prevButton');
+        const nextButton = document.getElementById('nextButton');
 
-            const A4_CONTENT_HEIGHT = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--content-height')) || 730; // in pt
+        // --- CONFIGURATION ---
+        // !!! IMPORTANT: Update these key names to match your data !!!
+        const KEY_MAPPING = {
+            id: "id",                   
+            questionText: "questionText",
+            answer: "Answer",           
+            subject: "Subject",         
+            // Distractions are NOT included in this t.html version for brevity of A4 pages
+            // If you need them, you'll need to add logic to include and measure them.
+        };
+        // Desired order of subjects, all lowercase
+        const SUBJECT_ORDER = ["physics", "chemistry", "zoology", "botany", "mat"];
 
-            // --- !!! IMPORTANT: UPDATE THESE KEY NAMES !!! ---
-            const KEY_MAPPING = {
-                id: "id",
-                questionText: "questionText",
-                answer: "Answer",       // CHANGE THIS
-                subject: "Subject",     // CHANGE THIS
-                distractions: [         // CHANGE THESE
-                    "Distraction 1",
-                    "Distraction 2",
-                    "Distraction 3",
-                ]
-            };
-            // --- END IMPORTANT KEY MAPPING ---
+        const A4_PAGE_WIDTH_PX = 794;
+        const A4_PAGE_HEIGHT_PX = 1123;
+        const A4_VERTICAL_PADDING_PX = 60;
+        const A4_HORIZONTAL_PADDING_PX = 45;
+        const A4_CONTENT_HEIGHT_PX = A4_PAGE_HEIGHT_PX - (2 * A4_VERTICAL_PADDING_PX);
 
-            const PREDEFINED_SUBJECT_ORDER = ["physics", "chemistry", "zoology", "botany", "mat"];
+        let allPageElements = [];
+        let currentPageIdx = 0;
+        let currentZoomScale = 1;
 
-            let allPagesData = []; // Array to hold HTML content for each page
-            let currentPageIndex = 0;
-            let isZoomed = false;
 
-            function createPageElement(isIndexPage = false) {
-                const pageDiv = document.createElement('div');
-                pageDiv.className = 'a4-page';
-                if (isIndexPage) pageDiv.classList.add('index-page');
+        function sanitize(text) {
+            const element = document.createElement('div');
+            element.innerText = text;
+            return element.innerHTML;
+        }
 
-                const contentDiv = document.createElement('div');
-                contentDiv.className = 'page-content';
-                pageDiv.appendChild(contentDiv);
+        function generatePagesFromData(data) {
+            const pages = []; // Stores { html: string, isIndex: boolean, subject?: string }
+            const subjectIndexInfo = []; // { name: string, page: number }
 
-                return { pageDiv, contentDiv };
-            }
-
-            function addPageNumber(pageDiv, number) {
-                if (pageDiv.classList.contains('index-page')) return; // No page number for index
-                const pageNumSpan = document.createElement('span');
-                pageNumSpan.className = 'page-number';
-                pageNumSpan.textContent = number;
-                pageDiv.appendChild(pageNumSpan);
-            }
-
-            function formatQuestionForPage(item, subjectSn) {
-                let html = `<div class="question-item">`;
-                html += `<p><span class="question-number-subject">${subjectSn}.</span> <span class="question-text-content">${item[KEY_MAPPING.questionText] || 'N/A'}</span></p>`;
-                html += `<p class="answer-text-content"><strong>Answer:</strong> ${item[KEY_MAPPING.answer] || 'N/A'}</p>`;
-
-                const distractions = KEY_MAPPING.distractions
-                    .map(key => item[key])
-                    .filter(d => d && d.trim() !== '');
-
-                if (distractions.length > 0) {
-                    html += `<ul class="distractions-list">`;
-                    distractions.forEach(d => {
-                        html += `<li>${d}</li>`;
-                    });
-                    html += `</ul>`;
+            // Sort and filter data by subject order
+            const organizedData = {};
+            SUBJECT_ORDER.forEach(subjKey => {
+                organizedData[subjKey] = data.filter(item => (item[KEY_MAPPING.subject] || '').toLowerCase() === subjKey);
+            });
+            // Add any other subjects not in the predefined order
+            data.forEach(item => {
+                const subjKey = (item[KEY_MAPPING.subject] || 'uncategorized').toLowerCase();
+                if (!organizedData.hasOwnProperty(subjKey)) {
+                    organizedData[subjKey] = data.filter(it => (it[KEY_MAPPING.subject] || '').toLowerCase() === subjKey);
                 }
-                html += `</div>`;
-                return html;
-            }
+            });
 
-            function measureContentHeight(htmlContent) {
-                measureDiv.innerHTML = htmlContent;
-                // Apply specific styles if necessary for accurate measurement (e.g., question item specific margins)
-                if (htmlContent.includes('class="subject-header"')) {
-                    measureDiv.firstElementChild.style.fontSize = getComputedStyle(document.documentElement).getPropertyValue('--header-font-size');
-                     measureDiv.firstElementChild.style.marginBottom = '15pt'; // From .subject-header
-                } else if (htmlContent.includes('class="question-item"')) {
-                     measureDiv.firstElementChild.style.marginBottom = '12pt'; // From .question-item
+
+            // --- Start Pagination ---
+            let currentContentHtml = '';
+            let currentVisiblePageNumber = 1; // Page numbers start from 1 for content pages
+
+            for (const subjectKey of Object.keys(organizedData)) {
+                const items = organizedData[subjectKey];
+                if (items.length === 0) continue;
+
+                const subjectDisplayName = items[0][KEY_MAPPING.subject] || "Uncategorized";
+                let subjectHeaderHtml = `<div class="subject-title-doc">${sanitize(subjectDisplayName)}</div>`;
+                let subjectHeaderAddedToCurrentPage = false;
+                let isNewSubject = true;
+
+                contentMeasurer.innerHTML = currentContentHtml; // Existing content on current page
+                // Try adding subject header
+                contentMeasurer.innerHTML += subjectHeaderHtml;
+
+                if (contentMeasurer.offsetHeight > A4_CONTENT_HEIGHT_PX) {
+                    // Subject header alone overflows, push previous page
+                    if (currentContentHtml.trim() !== '') {
+                        pages.push({ html: currentContentHtml, isIndex: false });
+                        currentVisiblePageNumber++;
+                    }
+                    currentContentHtml = subjectHeaderHtml; // New page starts with this header
+                    contentMeasurer.innerHTML = currentContentHtml;
+                    subjectHeaderAddedToCurrentPage = true;
+                } else {
+                    // Subject header fits (or currentContentHtml was empty)
+                    if (!currentContentHtml.includes(subjectHeaderHtml)) { // Avoid duplicate if page was empty
+                        currentContentHtml += subjectHeaderHtml;
+                    }
+                    subjectHeaderAddedToCurrentPage = true;
                 }
-                return measureDiv.offsetHeight * (72 / 96); // Convert px to pt (approx, depends on browser DPI rendering to screen pixels)
-                                                             // More robust: work entirely in pt, or use getBoundingClientRect().height
-                                                             // For simplicity, this estimate is used. True pt measurement is harder.
-                                                             // Let's try directly measuring:
-                // return measureDiv.getBoundingClientRect().height; // This gives height in screen pixels
-                // A better way is to set measureDiv font size in pt and assume 1px = 0.75pt (for 96DPI) or use CSS pt directly.
-                // Since page elements are styled in pt, let's assume measureDiv respects this.
-                // The height offsetHeight gives integer pixels.
-                // For now, let's use a rough scaling factor if needed, or assume 1px from offsetHeight is roughly 0.75pt.
-                // The most reliable is to keep everything in one unit or use getComputedStyle.
-                // The `A4_CONTENT_HEIGHT` is in `pt`. `offsetHeight` is in `px`.
-                // A pragmatic way: measureDiv.style.fontSize = getComputedStyle(document.documentElement).getPropertyValue('--text-font-size');
-                // Then assume offsetHeight is somewhat proportional.
-                // A better approach for true pt height:
-                // Let's assume the styles are correctly applied and offsetHeight can be compared IF A4_CONTENT_HEIGHT was in px.
-                // Since A4_CONTENT_HEIGHT is in pt, we need conversion or consistent units.
-                // For now, let's simplify: measure based on an estimated lines or simpler pixel conversion.
-                // Average char width and line height can give a rough estimate.
-                // Or: use a fixed lines-per-page estimate.
-                // The most robust is the iterative addition and checking offsetHeight against A4 pixel equivalent.
-                // Let A4_CONTENT_HEIGHT_PX = A4_CONTENT_HEIGHT * (96/72) for this comparison.
-                const A4_CONTENT_HEIGHT_PX = A4_CONTENT_HEIGHT * (4/3); // Approx if 1pt = 1.333px
-                return measureDiv.offsetHeight; // Returns height in pixels. Compare this to A4_CONTENT_HEIGHT_PX.
-            }
+                 subjectIndexInfo.push({ name: subjectDisplayName, page: currentVisiblePageNumber });
+                 isNewSubject = false; // consume the new subject flag
 
+                let questionSN = 1;
+                for (const item of items) {
+                    let questionHtml = `<div class="question-entry">`;
+                    questionHtml += `<span class="q-sn">${questionSN}.</span>`;
+                    questionHtml += `<span class="q-text-doc">${sanitize(item[KEY_MAPPING.questionText] || 'N/A')}</span>`;
+                    questionHtml += `<span class="q-answer-doc">Answer: ${sanitize(item[KEY_MAPPING.answer] || 'N/A')}</span>`;
+                    questionHtml += `</div>`;
 
-            function paginateData(data) {
-                const pages = [];
-                const indexEntries = [];
+                    contentMeasurer.innerHTML = currentContentHtml + questionHtml;
 
-                let { pageDiv: currentPageDiv, contentDiv: currentContentDiv } = createPageElement();
-                let currentContentHeight = 0; // in px, from offsetHeight
+                    if (contentMeasurer.offsetHeight > A4_CONTENT_HEIGHT_PX) {
+                        // Question makes it overflow
+                        pages.push({ html: currentContentHtml, isIndex: false });
+                        currentVisiblePageNumber++;
+                        currentContentHtml = ''; // Start new page
+                        contentMeasurer.innerHTML = '';
+                        subjectHeaderAddedToCurrentPage = false; // Header will need to be re-added
 
-                const A4_CONTENT_HEIGHT_PX = A4_CONTENT_HEIGHT * (screen.deviceXDPI || 96) / 72; // More dynamic conversion attempt
-                                                                                             // Or simpler: A4_CONTENT_HEIGHT * 1.33 if assuming 96DPI
+                        // Re-add subject header to new page if it's not a new subject entirely
+                        let tempSubjectHeader = `<div class="subject-title-doc">${sanitize(subjectDisplayName)} (cont.)</div>`;
+                        contentMeasurer.innerHTML = tempSubjectHeader + questionHtml;
 
-                // Group by subject and sort
-                const questionsBySubject = data.reduce((acc, item) => {
-                    const rawSubject = item[KEY_MAPPING.subject] || 'Uncategorized';
-                    const normalizedSubject = rawSubject.toLowerCase().trim();
-                    if (!acc[normalizedSubject]) {
-                        acc[normalizedSubject] = [];
-                    }
-                    acc[normalizedSubject].push(item);
-                    return acc;
-                }, {});
-
-                const sortedSubjectNames = Object.keys(questionsBySubject).sort((a, b) => {
-                    let indexA = PREDEFINED_SUBJECT_ORDER.indexOf(a);
-                    let indexB = PREDEFINED_SUBJECT_ORDER.indexOf(b);
-                    if (indexA === -1) indexA = PREDEFINED_SUBJECT_ORDER.length; // Put non-predefined at end
-                    if (indexB === -1) indexB = PREDEFINED_SUBJECT_ORDER.length;
-
-                    if (indexA !== indexB) return indexA - indexB;
-                    return a.localeCompare(b); // Alphabetical for same-priority or non-predefined
-                });
-
-
-                // Create Index Page First
-                const { pageDiv: indexPageDiv, contentDiv: indexContentDiv } = createPageElement(true);
-                indexPageDiv.classList.add('index-page');
-                let indexHtml = `<h1 class="index-title">Index</h1><ul class="index-list">`;
-                // Placeholder for index entries, will be filled later
-                indexContentDiv.innerHTML = indexHtml + `</ul>`; // Temporary
-                pages.push(indexPageDiv);
-
-
-                // Paginate Content
-                let actualPageNumber = 1; // Content pages start from 1
-
-                for (const subjectName of sortedSubjectNames) {
-                    let subjectQuestionCount = 0;
-                    const subjectDisplayName = subjectName.charAt(0).toUpperCase() + subjectName.slice(1);
-
-                    // Subject Header
-                    const subjectHeaderHtml = `<h2 class="subject-header" style="font-size: ${getComputedStyle(document.documentElement).getPropertyValue('--header-font-size')}; margin-bottom: 15pt;">${subjectDisplayName}</h2>`;
-                    const subjectHeaderHeight = measureContentHeight(subjectHeaderHtml);
-
-                    if (currentContentHeight + subjectHeaderHeight > A4_CONTENT_HEIGHT_PX && currentContentHeight > 0) {
-                        pages.push(currentPageDiv);
-                        addPageNumber(currentPageDiv, actualPageNumber++);
-                        ({ pageDiv: currentPageDiv, contentDiv: currentContentDiv } = createPageElement());
-                        currentContentHeight = 0;
-                    }
-                    currentContentDiv.innerHTML += subjectHeaderHtml;
-                    currentContentHeight += subjectHeaderHeight;
-                    indexEntries.push({ name: subjectDisplayName, page: actualPageNumber });
-
-
-                    for (const item of questionsBySubject[subjectName]) {
-                        subjectQuestionCount++;
-                        const questionHtml = formatQuestionForPage(item, subjectQuestionCount);
-                        const questionHeight = measureContentHeight(questionHtml);
-
-                        if (currentContentHeight + questionHeight > A4_CONTENT_HEIGHT_PX && currentContentHeight > 0) {
-                            pages.push(currentPageDiv);
-                            addPageNumber(currentPageDiv, actualPageNumber++);
-                            ({ pageDiv: currentPageDiv, contentDiv: currentContentDiv } = createPageElement());
-                            currentContentHeight = 0;
-
-                            // If new page started, and this is the first item for subject on this page, re-add subject header
-                            // This logic can be complex to get perfect (e.g. if subject header alone takes a page)
-                            // For simplicity, let's assume subject header fits or we handle it by re-adding.
-                            // This might need refinement for edge cases (very long subject headers or tiny pages).
-                            // currentContentDiv.innerHTML += subjectHeaderHtml; // Re-add header on new page for same subject
-                            // currentContentHeight += subjectHeaderHeight;
+                        if(contentMeasurer.offsetHeight > A4_CONTENT_HEIGHT_PX){ // question alone overflows with header
+                            pages.push({ html: tempSubjectHeader, isIndex: false }); // page with only header
+                            currentVisiblePageNumber++;
+                            currentContentHtml = questionHtml; // new page with only question
+                            contentMeasurer.innerHTML = currentContentHtml;
+                        } else {
+                             currentContentHtml = tempSubjectHeader + questionHtml;
                         }
-                        currentContentDiv.innerHTML += questionHtml;
-                        currentContentHeight += questionHeight;
+                        subjectHeaderAddedToCurrentPage = true;
+
+                    } else {
+                        currentContentHtml += questionHtml;
                     }
+                    questionSN++;
                 }
-
-                // Add the last page if it has content
-                if (currentContentDiv.innerHTML.trim() !== '') {
-                    pages.push(currentPageDiv);
-                    addPageNumber(currentPageDiv, actualPageNumber++);
-                }
-
-                // Finalize Index Page Content
-                indexEntries.forEach(entry => {
-                     indexHtml += `<li class="index-item"><span class="subject-name">${entry.name}</span><span class="page-ref">${entry.page}</span></li>`;
-                });
-                indexHtml += `</ul>`;
-                pages[0].querySelector('.page-content').innerHTML = indexHtml; // Update the index page
-
-                return pages;
             }
 
+            // Add any remaining content
+            if (currentContentHtml.trim() !== '') {
+                pages.push({ html: currentContentHtml, isIndex: false });
+            }
 
-      
+            // --- Prepend Index Page ---
+            let indexHtml = `<div class="index-page-content"><h1>Index</h1><ul class="index-list-doc">`;
+            const uniqueSubjectEntries = [];
+            const seenSubjects = new Set();
+            subjectIndexInfo.forEach(info => {
+                if(!seenSubjects.has(info.name.toLowerCase() + "_" + info.page)){ // Ensure unique subject-page entries for index
+                    indexHtml += `<li><span class="subject-name-idx">${sanitize(info.name)}</span> <span class="dots-fill"></span> <span class="page-ref-idx">Page ${info.page}</span></li>`;
+                    seenSubjects.add(info.name.toLowerCase() + "_" + info.page);
+                }
+            });
+            indexHtml += `</ul></div>`;
+            pages.unshift({ html: indexHtml, isIndex: true });
+
+            return pages;
+        }
+
+
+        function displayPages(generatedPages) {
+            paperScaler.innerHTML = ''; // Clear previous
+            allPageElements = [];
+            let contentPageCounter = 0;
+
+            generatedPages.forEach((pageData, i) => {
+                const pageDiv = document.createElement('div');
+                pageDiv.classList.add('a4-page');
+                if (pageData.isIndex) {
+                    pageDiv.classList.add('index-page');
+                } else {
+                    contentPageCounter++;
+                    const pageNumDiv = document.createElement('div');
+                    pageNumDiv.className = 'page-number-display';
+                    pageNumDiv.textContent = `${contentPageCounter}`;
+                    pageDiv.appendChild(pageNumDiv);
+                }
+
+                const contentWrapper = document.createElement('div');
+                contentWrapper.className = 'page-content-wrapper';
+                contentWrapper.innerHTML = pageData.html;
+                pageDiv.appendChild(contentWrapper);
+
+                paperScaler.appendChild(pageDiv);
+                allPageElements.push(pageDiv);
+            });
+
+            if (allPageElements.length > 0) {
+                showPage(0);
+            }
+            updateNavButtonStates();
+            fitPaperToViewport();
+        }
+
+        function showPage(index) {
+            if (index < 0 || index >= allPageElements.length) {
+                return;
+            }
+            allPageElements.forEach((page, i) => {
+                page.classList.toggle('active', i === index);
+            });
+            currentPageIdx = index;
+            updateNavButtonStates();
+        }
+
+        function updateNavButtonStates() {
+            prevButton.disabled = currentPageIdx === 0;
+            nextButton.disabled = currentPageIdx === allPageElements.length - 1;
+        }
+
+        function fitPaperToViewport() {
+            const vpWidth = viewportContainer.clientWidth;
+            const vpHeight = viewportContainer.clientHeight;
+
+            // Desired padding around the scaled paper
+            const paddingHorizontal = 40; // 20px each side
+            const paddingTopBottom = 60;  // 30px top/bottom
+
+            const availableWidth = vpWidth - paddingHorizontal;
+            const availableHeight = vpHeight - paddingTopBottom;
+
+            const scaleX = availableWidth / A4_PAGE_WIDTH_PX;
+            const scaleY = availableHeight / A4_PAGE_HEIGHT_PX;
+
+            currentZoomScale = Math.min(scaleX, scaleY, 1.5); // Cap initial max scale
+            paperScaler.style.transform = `scale(${currentZoomScale})`;
+        }
+
+        // --- Event Handlers ---
+        prevButton.addEventListener('click', () => showPage(currentPageIdx - 1));
+        nextButton.addEventListener('click', () => showPage(currentPageIdx + 1));
+        window.addEventListener('resize', fitPaperToViewport);
+
+        // Swipe Navigation
+        let touchStartX = 0;
+        let touchStartY = 0;
+        viewportContainer.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) { // Only for single touch swipes
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+            }
+        }, { passive: true });
+
+        viewportContainer.addEventListener('touchend', (e) => {
+            if (touchStartX === 0) return; // No swipe started or multi-touch
+            if (e.changedTouches.length === 1) {
+                const touchEndX = e.changedTouches[0].clientX;
+                const touchEndY = e.changedTouches[0].clientY;
+                const deltaX = touchEndX - touchStartX;
+                const deltaY = touchEndY - touchStartY;
+
+                // Check for significant horizontal swipe vs vertical scroll intention
+                if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) { // 50px threshold
+                    if (deltaX < 0) { // Swipe left
+                        showPage(currentPageIdx + 1);
+                    } else { // Swipe right
+                        showPage(currentPageIdx - 1);
+                    }
+                }
+            }
+            touchStartX = 0; touchStartY = 0;
+        }, { passive: true });
+
+
+        // Pinch Zoom
+        let initialPinchDistance = null;
+        let lastZoomScale = currentZoomScale;
+
+        viewportContainer.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 2) {
+                e.preventDefault(); // Prevent default browser zoom
+                const dx = e.touches[0].clientX - e.touches[1].clientX;
+                const dy = e.touches[0].clientY - e.touches[1].clientY;
+                initialPinchDistance = Math.sqrt(dx * dx + dy * dy);
+                lastZoomScale = currentZoomScale; // Store scale at pinch start
+            }
+        }, { passive: false }); // Not passive to allow preventDefault
+
+        viewportContainer.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2 && initialPinchDistance) {
+                e.preventDefault();
+                const dx = e.touches[0].clientX - e.touches[1].clientX;
+                const dy = e.touches[0].clientY - e.touches[1].clientY;
+                const currentPinchDistance = Math.sqrt(dx * dx + dy * dy);
+                const scaleRatio = currentPinchDistance / initialPinchDistance;
+
+                currentZoomScale = lastZoomScale * scaleRatio;
+                currentZoomScale = Math.max(0.2, Math.min(currentZoomScale, 4)); // Clamp zoom
+
+                paperScaler.style.transform = `scale(${currentZoomScale})`;
+            }
+        }, { passive: false });
+
+        viewportContainer.addEventListener('touchend', (e) => {
+            if (e.touches.length < 2) {
+                initialPinchDistance = null; // Reset if not two fingers
+            }
+        });
+
+
+        // --- Initialization ---
+        function init() {
+            const storedDataString = localStorage.getItem(jsonDataStorageKey);
+            if (storedDataString) {
+                try {
+                    const data = JSON.parse(storedDataString);
+                    if (data && data.length > 0) {
+                        const generatedPages = generatePagesFromData(data);
+                        displayPages(generatedPages);
+                    } else {
+                        paperScaler.innerHTML = '<div class="a4-page active" style="text-align:center; padding-top:100px;">No data to display.</div>';
+                    }
+                } catch (err) {
+                    console.error("Error parsing data:", err);
+                    paperScaler.innerHTML = '<div class="a4-page active" style="text-align:center; padding-top:100px;">Error loading data.</div>';
+                }
+            } else {
+                paperScaler.innerHTML = '<div class="a4-page active" style="text-align:center; padding-top:100px;">No data found in local storage. Please sync first.</div>';
+            }
+        }
+
+        init();
+    });
+    </script>
+</body>
+</html>
