@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Questions</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            line-height: 1.6;
+            margin: 0;
+            background-color: #f4f7f9; /* Soft, calming background */
+            color: #333;
+            padding: 20px;
+        }
+
+        .study-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 25px 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50; /* Dark, but not harsh black */
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .status-message {
+            text-align: center;
+            color: #7f8c8d; /* Muted grey for status */
+            font-style: italic;
+            margin-bottom: 30px;
+        }
+
+        .subject-section {
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px dashed #dce4e8; /* Subtle separator for subjects */
+        }
+        .subject-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .subject-title {
+            font-size: 1.6em;
+            color: #3498db; /* Pleasant blue for subject titles */
+            margin-bottom: 20px;
+            font-weight: 500;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #e1e8ed;
+        }
+
+        .question-block {
+            margin-bottom: 25px;
+            padding: 20px;
+            background-color: #fdfdfe; /* Very light, almost white */
+            border: 1px solid #e9eef2;
+            border-radius: 8px;
+            transition: box-shadow 0.2s ease-in-out;
+        }
+        .question-block:hover {
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+
+        .question-id {
+            font-size: 0.85em;
+            color: #888;
+            margin-bottom: 8px;
+            display: block;
+            font-weight: 500;
+        }
+
+        .question-text {
+            font-size: 1.1em;
+            color: #34495e; /* Dark blue-grey for questions */
+            margin-bottom: 15px;
+            font-weight: 500; /* Makes question text stand out slightly */
+        }
+
+        .answer-reveal-button {
+            display: inline-block;
+            padding: 8px 15px;
+            background-color: #5dade2; /* Calming blue */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            transition: background-color 0.2s;
+        }
+        .answer-reveal-button:hover {
+            background-color: #4a98c4;
+        }
+
+        .details-section {
+            padding-top: 15px;
+            margin-top: 15px;
+            border-top: 1px dashed #dce4e8; /* Separator for details */
+        }
+        .details-section.hidden {
+            display: none;
+        }
+
+
+        .detail-item {
+            margin-bottom: 12px;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #555;
+            font-size: 0.95em;
+            margin-right: 8px;
+        }
+
+        .answer-text {
+            color: #27ae60; /* Green for correct answer */
+            font-weight: bold;
+            background-color: #e8f5e9;
+            padding: 5px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .distraction-list {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 5px;
+        }
+
+        .distraction-item {
+            font-size: 0.95em;
+            color: #777; /* Muted color for distractions */
+            background-color: #f1f3f4;
+            padding: 4px 7px;
+            border-radius: 4px;
+            margin-right: 6px;
+            margin-bottom: 6px;
+            display: inline-block;
+        }
+
+        .no-data {
+            text-align: center;
+            font-size: 1.1em;
+            color: #e74c3c; /* Red for error/no data */
+            padding: 30px;
+        }
+         /* Footer for pagination (if you implement it) */
+        .page-info {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="study-container">
+        <h1>Study Material</h1>
+        <p class="status-message" id="statusMessage">Loading data...</p>
+        <div id="contentArea">
+            <!-- Questions will be rendered here -->
+        </div>
+        <div class="page-info" id="pageInfo"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const jsonDataStorageKey = 'structuredSpreadsheetJsData_v2'; // Ensure this matches your saving key
+            const contentArea = document.getElementById('contentArea');
+            const statusMessage = document.getElementById('statusMessage');
+            const pageInfo = document.getElementById('pageInfo');
+
+            // --- !!! IMPORTANT: UPDATE THESE KEY NAMES !!! ---
+            // Adjust these to match the EXACT column headers from your CSV for these fields,
+            // or how they are named in your final JSON objects after processing.
+            const KEY_MAPPING = {
+                id: "id",                       // This is 'id' because your convertCsvToJs maps "S.N" to "id"
+                questionText: "questionText",   // This is 'questionText' for the same reason
+                answer: "Answer",               // CHANGE THIS to your CSV header for the correct answer
+                subject: "Subject",             // CHANGE THIS to your CSV header for the subject/category
+                distractions: [                 // CHANGE THESE to your CSV headers for distraction/incorrect options
+                    "Distraction_1",
+                    "Distraction_2",
+                    "Distraction_3",
+                    // Add more if you have them, e.g., "Distraction 4"
+                ]
+            };
+            // --- END IMPORTANT KEY MAPPING ---
+
+            function renderData(data) {
+                if (!data || data.length === 0) {
+                    statusMessage.textContent = 'No study data found in local storage.';
+                    contentArea.innerHTML = '<p class="no-data">Please sync data from the main practice page first.</p>';
+                    return;
+                }
+
+                statusMessage.textContent = `Found ${data.length} questions.`;
+                contentArea.innerHTML = ''; // Clear previous content
+
+                // Group by subject
+                const questionsBySubject = data.reduce((acc, item) => {
+                    const subject = item[KEY_MAPPING.subject] || 'Uncategorized';
+                    if (!acc[subject]) {
+                        acc[subject] = [];
+                    }
+                    acc[subject].push(item);
+                    return acc;
+                }, {});
+
+                let totalQuestionsRendered = 0;
+
+                Object.keys(questionsBySubject).sort().forEach(subjectName => {
+                    const subjectSectionDiv = document.createElement('div');
+                    subjectSectionDiv.className = 'subject-section';
+
+                    const subjectTitleH2 = document.createElement('h2');
+                    subjectTitleH2.className = 'subject-title';
+                    subjectTitleH2.textContent = subjectName;
+                    subjectSectionDiv.appendChild(subjectTitleH2);
+
+                    questionsBySubject[subjectName].forEach((item, index) => {
+                        totalQuestionsRendered++;
+                        const questionBlockDiv = document.createElement('div');
+                        questionBlockDiv.className = 'question-block';
+                        questionBlockDiv.setAttribute('id', `q-${item[KEY_MAPPING.id] || index}`);
+
+                        const questionIdP = document.createElement('p');
+                        questionIdP.className = 'question-id';
+                        questionIdP.textContent = `ID: ${item[KEY_MAPPING.id] || 'N/A'}`;
+                        questionBlockDiv.appendChild(questionIdP);
+
+                        const questionTextP = document.createElement('p');
+                        questionTextP.className = 'question-text';
+                        questionTextP.innerHTML = item[KEY_MAPPING.questionText] || '<em>Question text not available.</em>'; // Use innerHTML if questions can have HTML
+                        questionBlockDiv.appendChild(questionTextP);
+
+                        const revealButton = document.createElement('button');
+                        revealButton.className = 'answer-reveal-button';
+                        revealButton.textContent = 'Show Answer & Details';
+                        questionBlockDiv.appendChild(revealButton);
+
+                        const detailsSectionDiv = document.createElement('div');
+                        detailsSectionDiv.className = 'details-section hidden'; // Start hidden
+
+                        // Answer
+                        const answerDiv = document.createElement('div');
+                        answerDiv.className = 'detail-item';
+                        const answerLabel = document.createElement('span');
+                        answerLabel.className = 'detail-label';
+                        answerLabel.textContent = 'Correct Answer:';
+                        answerDiv.appendChild(answerLabel);
+                        const answerTextSpan = document.createElement('span');
+                        answerTextSpan.className = 'answer-text';
+                        answerTextSpan.textContent = item[KEY_MAPPING.answer] || 'N/A';
+                        answerDiv.appendChild(answerTextSpan);
+                        detailsSectionDiv.appendChild(answerDiv);
+
+                        // Distractions
+                        const distractions = KEY_MAPPING.distractions
+                            .map(key => item[key])
+                            .filter(d => d && d.trim() !== ''); // Get valid, non-empty distractions
+
+                        if (distractions.length > 0) {
+                            const distractionsDiv = document.createElement('div');
+                            distractionsDiv.className = 'detail-item';
+                            const distractionsLabel = document.createElement('span');
+                            distractionsLabel.className = 'detail-label';
+                            distractionsLabel.textContent = 'Other Options (Distractions):';
+                            distractionsDiv.appendChild(distractionsLabel);
+
+                            const distractionListUl = document.createElement('ul');
+                            distractionListUl.className = 'distraction-list';
+                            distractions.forEach(distractionText => {
+                                const li = document.createElement('li');
+                                li.className = 'distraction-item';
+                                li.textContent = distractionText;
+                                distractionListUl.appendChild(li);
+                            });
+                            distractionsDiv.appendChild(distractionListUl);
+                            detailsSectionDiv.appendChild(distractionsDiv);
+                        }
+
+                        questionBlockDiv.appendChild(detailsSectionDiv);
+                        subjectSectionDiv.appendChild(questionBlockDiv);
+
+                        // Event listener for the reveal button
+                        revealButton.addEventListener('click', () => {
+                            detailsSectionDiv.classList.toggle('hidden');
+                            revealButton.textContent = detailsSectionDiv.classList.contains('hidden') ? 'Show Answer & Details' : 'Hide Answer & Details';
+                        });
+                    });
+                    contentArea.appendChild(subjectSectionDiv);
+                });
+                pageInfo.textContent = `Displaying ${totalQuestionsRendered} questions.`;
+            }
+
+            try {
+                const storedDataString = localStorage.getItem(jsonDataStorageKey);
+                if (storedDataString) {
+                    const data = JSON.parse(storedDataString);
+                    renderData(data);
+                } else {
+                    statusMessage.textContent = 'No data found in local storage.';
+                    contentArea.innerHTML = '<p class="no-data">Please use the main practice page to sync data first.</p>';
+                }
+            } catch (error) {
+                console.error("Error loading or parsing data from local storage:", error);
+                statusMessage.textContent = 'Error loading data.';
+                contentArea.innerHTML = '<p class="no-data">Could not load study material. The data might be corrupted. Please try syncing again.</p>';
+            }
+        });
+    </script>
+</body>
+</html>
