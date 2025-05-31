@@ -3,425 +3,677 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Question Similarity Analyzer</title>
+    <title>Question & Answer Similarity Analyzer</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: sans-serif;
-            margin: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
         }
-        #controls, #status, #results {
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            backdrop-filter: blur(10px);
         }
-        #controls button {
-            padding: 10px 15px;
-            font-size: 1em;
-            cursor: pointer;
-            background-color: #007bff;
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #4a5568;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #4299e1, #3182ce);
             color: white;
             border: none;
-            border-radius: 3px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(66, 153, 225, 0.3);
         }
-        #controls button:disabled {
-            background-color: #aaa;
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(66, 153, 225, 0.4);
+        }
+
+        .btn:disabled {
+            background: #cbd5e0;
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
-        #status {
-            background-color: #f0f0f0;
+
+        .threshold-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(237, 242, 247, 0.8);
+            padding: 10px 16px;
+            border-radius: 8px;
         }
-        .result-section {
-            margin-top: 15px;
+
+        .threshold-control label {
+            font-weight: 600;
+            color: #4a5568;
         }
-        .result-section h3 {
-            margin-top: 0;
+
+        .threshold-control input {
+            width: 80px;
+            padding: 6px 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 0.9rem;
         }
-        .pair {
-            border: 1px dashed #eee;
-            padding: 10px;
+
+        .progress-container {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-left: 4px solid #4299e1;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 25px;
+            background: #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4299e1, #3182ce);
+            width: 0%;
+            transition: width 0.3s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-text {
+            font-weight: 600;
+            color: #4a5568;
             margin-bottom: 10px;
-            background-color: #f9f9f9;
         }
-        .pair p {
-            margin: 5px 0;
+
+        .eta-text {
+            color: #718096;
+            font-size: 0.9rem;
         }
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-radius: 50%;
-            border-top: 4px solid #3498db;
-            width: 20px;
-            height: 20px;
-            -webkit-animation: spin 1s linear infinite; /* Safari */
-            animation: spin 1s linear infinite;
+
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .status.error {
+            background: #fed7d7;
+            color: #c53030;
+            border: 1px solid #feb2b2;
+        }
+
+        .status.success {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+
+        .status.info {
+            background: #bee3f8;
+            color: #2a4365;
+            border: 1px solid #90cdf4;
+        }
+
+        .results {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .similarity-group {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #4299e1;
+        }
+
+        .similarity-header {
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .question-pair {
+            background: #f8fafc;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .question-id {
+            font-weight: 600;
+            color: #4299e1;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .question-text {
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .answer-text {
+            color: #718096;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        .similarity-score {
             display: inline-block;
-            margin-left: 10px;
-            vertical-align: middle;
+            background: #4299e1;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 10px;
         }
-        /* Safari */
-        @-webkit-keyframes spin {
-            0% { -webkit-transform: rotate(0deg); }
-            100% { -webkit-transform: rotate(360deg); }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #718096;
+            font-style: italic;
+            padding: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .threshold-control {
+                justify-content: center;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
 <body>
-
-    <h1>Question & Answer Similarity Analyzer</h1>
-
-    <div id="controls">
-        <button id="startButton">Start Analysis</button>
-        <p><strong>Note:</strong> For 20,000 questions, this can take a significant amount of time (minutes to tens of minutes) even with a Web Worker, depending on your computer's speed. The page will remain responsive.</p>
-    </div>
-
-    <div id="status">
-        <p>Status: Idle. Click "Start Analysis" to begin.</p>
-        <div id="progressBarContainer" style="display: none;">
-            <div id="progressBar" style="width: 0%; height: 20px; background-color: #4CAF50; text-align: center; line-height: 20px; color: white;">0%</div>
+    <div class="container">
+        <div class="header">
+            <h1>Question & Answer Similarity Analyzer</h1>
+            <p>Analyze similarities between questions and answers in your dataset</p>
         </div>
-    </div>
 
-    <div id="results">
-        <h2>Results</h2>
-        <div class="result-section">
-            <h3>Similar Questions (<span id="similarQuestionCount">0</span> found)</h3>
-            <div id="similarQuestionsOutput"></div>
+        <div class="controls">
+            <button id="analyzeBtn" class="btn">🔍 Analyze Similarities</button>
+            <div class="threshold-control">
+                <label for="threshold">Similarity Threshold:</label>
+                <input type="number" id="threshold" min="0" max="1" step="0.05" value="0.75">
+                <span>(0.0 - 1.0)</span>
+            </div>
         </div>
-        <div class="result-section">
-            <h3>Similar Answers (<span id="similarAnswerCount">0</span> found)</h3>
-            <div id="similarAnswersOutput"></div>
+
+        <div id="progressContainer" class="progress-container">
+            <div class="progress-text" id="progressText">Initializing...</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="eta-text" id="etaText"></div>
         </div>
+
+        <div id="status" class="status" style="display: none;"></div>
+
+        <div id="statsContainer" class="stats" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-number" id="totalQuestions">0</div>
+                <div class="stat-label">Total Questions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="similarGroups">0</div>
+                <div class="stat-label">Similar Groups</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalComparisons">0</div>
+                <div class="stat-label">Comparisons Made</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="processingTime">0</div>
+                <div class="stat-label">Processing Time (s)</div>
+            </div>
+        </div>
+
+        <div id="results" class="results" style="display: none;"></div>
     </div>
 
     <script>
-        // --- Main Thread JavaScript ---
-        const startButton = document.getElementById('startButton');
-        const statusDiv = document.querySelector('#status p');
-        const progressBarContainer = document.getElementById('progressBarContainer');
-        const progressBar = document.getElementById('progressBar');
-        const similarQuestionsOutput = document.getElementById('similarQuestionsOutput');
-        const similarAnswersOutput = document.getElementById('similarAnswersOutput');
-        const similarQuestionCountSpan = document.getElementById('similarQuestionCount');
-        const similarAnswerCountSpan = document.getElementById('similarAnswerCount');
+        class SimilarityAnalyzer {
+            constructor() {
+                this.jsonDataStorageKey = 'structuredSpreadsheetJsData_v2';
+                this.isAnalyzing = false;
+                this.startTime = 0;
+                
+                this.analyzeBtn = document.getElementById('analyzeBtn');
+                this.thresholdInput = document.getElementById('threshold');
+                this.progressContainer = document.getElementById('progressContainer');
+                this.progressFill = document.getElementById('progressFill');
+                this.progressText = document.getElementById('progressText');
+                this.etaText = document.getElementById('etaText');
+                this.status = document.getElementById('status');
+                this.results = document.getElementById('results');
+                this.statsContainer = document.getElementById('statsContainer');
+                
+                this.setupEventListeners();
+            }
 
-        let analysisWorker;
-        let totalItemsToProcess = 0;
-        let itemsProcessed = 0;
-        let similarQuestionResultsCount = 0;
-        let similarAnswerResultsCount = 0;
-
-        // --- Configuration (can be adjusted) ---
-        const SIMILARITY_THRESHOLD = 30; // 30%
-        const STOP_WORDS_LIST = [ // Made it a list for easier JSON transfer to worker
-            'a', 'an', 'the', 'is', 'are', 'was', 'were', 'be', 'been', 'being',
-            'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'should',
-            'can', 'could', 'may', 'might', 'must', 'am', 'i', 'you', 'he', 'she',
-            'it', 'we', 'they', 'me', 'him', 'her', 'us', 'them', 'my', 'your',
-            'his', 'its', 'our', 'their', 'mine', 'yours', 'hers', 'ours', 'theirs',
-            'to', 'of', 'in', 'on', 'at', 'for', 'with', 'from', 'by', 'about',
-            'as', 'into', 'like', 'through', 'after', 'over', 'between', 'out',
-            'against', 'during', 'without', 'before', 'under', 'around', 'among',
-            'what', 'which', 'who', 'whom', 'whose', 'why', 'how', 'when', 'where',
-            'and', 'but', 'or', 'so', 'if', 'because', 'then', 'once', 'while', 'also',
-            'this', 'that', 'these', 'those', 'not', 'no', 'nor', 'just', 'very'
-            // Consider adding more domain-specific common words if needed
-        ];
-
-        function addSampleDataToLocalStorage() {
-            const sampleData = [
-                { "id": "1", "questionText": "The fundamental unit which is common in F.P.S and M.K.S system is", "Subject": "physics", "Answer": "second", "Distraction_1": "kilogram", "Distraction_2": "meter", "Distraction_3": "foot", "Signature": "unika" },
-                { "id": "2", "questionText": "What is the fundamental unit common to F.P.S, C.G.S, and M.K.S systems?", "Subject": "physics", "Answer": "second", "Distraction_1": "mass", "Distraction_2": "length", "Distraction_3": "time unit", "Signature": "unika" },
-                { "id": "3", "questionText": "Velocity of light is maximum in", "Subject": "physics", "Answer": "vacuum", "Distraction_1": "diamond", "Distraction_2": "water", "Distraction_3": "glass", "Signature": "unika" },
-                { "id": "4", "questionText": "The speed of light reaches its peak in what medium?", "Subject": "physics", "Answer": "a vacuum", "Distraction_1": "air", "Distraction_2": "crystal", "Distraction_3": "fluid", "Signature": "unika" },
-                { "id": "5", "questionText": "This is a completely different question.", "Subject": "chemistry", "Answer": "A unique answer.", "Distraction_1": "d1", "Distraction_2": "d2", "Distraction_3": "d3", "Signature": "unika" },
-                { "id": "6", "questionText": "What system uses foot, pound, and second?", "Answer": "F.P.S system", "Subject": "physics"},
-                { "id": "7", "questionText": "The F.P.S system is based on which fundamental units?", "Answer": "foot pound second", "Subject": "physics"}
-            ];
-            // For testing with a larger dataset (approx 200 items)
-            // for (let i = 0; i < 30; i++) {
-            //   sampleData.push(...JSON.parse(JSON.stringify(sampleData.slice(0,6))).map((item,idx) => ({...item, id: `${i*10+idx+10}` })));
-            // }
-            localStorage.setItem('structuredSpreadsheetJsData_v2', JSON.stringify(sampleData));
-            console.log("Sample data added to localStorage.");
-        }
-        // Uncomment to add sample data if needed for testing:
-        // addSampleDataToLocalStorage();
-
-
-        startButton.addEventListener('click', () => {
-            startButton.disabled = true;
-            statusDiv.innerHTML = 'Loading data... <span class="loader"></span>';
-            similarQuestionsOutput.innerHTML = '';
-            similarAnswersOutput.innerHTML = '';
-            similarQuestionCountSpan.textContent = '0';
-            similarAnswerCountSpan.textContent = '0';
-            similarQuestionResultsCount = 0;
-            similarAnswerResultsCount = 0;
-            itemsProcessed = 0;
-            progressBarContainer.style.display = 'block';
-            progressBar.style.width = '0%';
-            progressBar.textContent = '0%';
-
-
-            // Give the browser a moment to update the UI before heavy lifting
-            setTimeout(() => {
-                try {
-                    const rawData = localStorage.getItem('structuredSpreadsheetJsData_v2');
-                    if (!rawData) {
-                        statusDiv.textContent = "Error: No data found in localStorage for 'structuredSpreadsheetJsData_v2'";
-                        startButton.disabled = false;
-                        progressBarContainer.style.display = 'none';
-                        return;
+            setupEventListeners() {
+                this.analyzeBtn.addEventListener('click', () => {
+                    if (!this.isAnalyzing) {
+                        this.startAnalysis();
                     }
-                    const data = JSON.parse(rawData);
+                });
+            }
+
+            // Levenshtein distance for string similarity
+            levenshteinDistance(str1, str2) {
+                const matrix = Array(str2.length + 1)
+                    .fill(null)
+                    .map(() => Array(str1.length + 1).fill(null));
+
+                for (let i = 0; i <= str1.length; i++) matrix[0][i] = i;
+                for (let j = 0; j <= str2.length; j++) matrix[j][0] = j;
+
+                for (let j = 1; j <= str2.length; j++) {
+                    for (let i = 1; i <= str1.length; i++) {
+                        const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1;
+                        matrix[j][i] = Math.min(
+                            matrix[j][i - 1] + 1,
+                            matrix[j - 1][i] + 1,
+                            matrix[j - 1][i - 1] + indicator
+                        );
+                    }
+                }
+
+                return matrix[str2.length][str1.length];
+            }
+
+            // Calculate similarity ratio between two strings
+            similarityRatio(str1, str2) {
+                if (!str1 || !str2) return 0;
+                
+                str1 = str1.toLowerCase().trim();
+                str2 = str2.toLowerCase().trim();
+                
+                if (str1 === str2) return 1;
+                
+                const maxLength = Math.max(str1.length, str2.length);
+                if (maxLength === 0) return 1;
+                
+                const distance = this.levenshteinDistance(str1, str2);
+                return 1 - (distance / maxLength);
+            }
+
+            // Normalize text for better comparison
+            normalizeText(text) {
+                if (!text) return '';
+                return text
+                    .toLowerCase()
+                    .replace(/[^\w\s]/g, ' ')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+            }
+
+            // Calculate combined similarity score for question and answer
+            calculateCombinedSimilarity(item1, item2) {
+                const q1 = this.normalizeText(item1.questionText || '');
+                const q2 = this.normalizeText(item2.questionText || '');
+                const a1 = this.normalizeText(item1.answerText || '');
+                const a2 = this.normalizeText(item2.answerText || '');
+
+                const questionSim = this.similarityRatio(q1, q2);
+                const answerSim = this.similarityRatio(a1, a2);
+
+                // Weight question similarity more heavily (70% question, 30% answer)
+                return (questionSim * 0.7) + (answerSim * 0.3);
+            }
+
+            // Load data from localStorage
+            loadData() {
+                try {
+                    const storedData = localStorage.getItem(this.jsonDataStorageKey);
+                    if (!storedData) {
+                        throw new Error('No data found in localStorage. Please sync data first.');
+                    }
+                    
+                    const data = JSON.parse(storedData);
                     if (!Array.isArray(data) || data.length === 0) {
-                        statusDiv.textContent = "Error: Data in localStorage is not a non-empty array.";
-                        startButton.disabled = false;
-                        progressBarContainer.style.display = 'none';
-                        return;
+                        throw new Error('No valid data found. Dataset is empty.');
                     }
-
-                    totalItemsToProcess = data.length;
-                    statusDiv.innerHTML = `Preprocessing ${totalItemsToProcess} items... <span class="loader"></span>`;
-
-                    // Start the Web Worker
-                    // Create a Blob from the worker code string
-                    const workerCode = `(${workerFunction.toString()})()`; // IIFE
-                    const blob = new Blob([workerCode], { type: 'application/javascript' });
-                    analysisWorker = new Worker(URL.createObjectURL(blob));
                     
-                    analysisWorker.onmessage = function(e) {
-                        const message = e.data;
-                        if (message.type === 'progress') {
-                            itemsProcessed = message.processedOuterLoop;
-                            const totalComparisons = (totalItemsToProcess * (totalItemsToProcess -1)) / 2;
-                            const completedComparisons = message.completedComparisons;
+                    return data;
+                } catch (error) {
+                    throw new Error(`Failed to load data: ${error.message}`);
+                }
+            }
 
-                            let percentComplete = 0;
-                            if (totalComparisons > 0) {
-                                percentComplete = Math.round((completedComparisons / totalComparisons) * 100);
-                            } else if (totalItemsToProcess <=1) {
-                                percentComplete = 100;
-                            }
-                            
-                            progressBar.style.width = percentComplete + '%';
-                            progressBar.textContent = percentComplete + '%';
-                            statusDiv.innerHTML = `Processing... Compared ${completedComparisons} pairs. Item ${itemsProcessed}/${totalItemsToProcess} of outer loop. <span class="loader"></span>`;
-                        } else if (message.type === 'similarQuestionPair') {
-                            displaySimilarPair(message.pair, similarQuestionsOutput, 'Question');
-                            similarQuestionResultsCount++;
-                            similarQuestionCountSpan.textContent = similarQuestionResultsCount;
-                        } else if (message.type === 'similarAnswerPair') {
-                            displaySimilarPair(message.pair, similarAnswersOutput, 'Answer');
-                            similarAnswerResultsCount++;
-                            similarAnswerCountSpan.textContent = similarAnswerResultsCount;
-                        } else if (message.type === 'complete') {
-                            statusDiv.textContent = `Analysis complete! Took ${message.durationSeconds.toFixed(2)} seconds. Found ${similarQuestionResultsCount} similar question pairs and ${similarAnswerResultsCount} similar answer pairs.`;
-                            startButton.disabled = false;
-                            progressBar.style.width = '100%';
-                            progressBar.textContent = '100%';
-                            if (analysisWorker) {
-                                analysisWorker.terminate(); // Clean up the worker
-                                analysisWorker = null;
-                            }
-                        } else if (message.type === 'error') {
-                             statusDiv.textContent = `Worker Error: ${message.error}`;
-                             console.error("Worker error:", message.error);
-                             startButton.disabled = false;
-                             progressBarContainer.style.display = 'none';
-                             if (analysisWorker) {
-                                analysisWorker.terminate();
-                                analysisWorker = null;
-                            }
-                        }
-                    };
+            // Show status message
+            showStatus(message, type = 'info') {
+                this.status.textContent = message;
+                this.status.className = `status ${type}`;
+                this.status.style.display = 'block';
+            }
 
-                    analysisWorker.onerror = function(error) {
-                        console.error("Worker script error:", error);
-                        statusDiv.textContent = `Error initializing or running worker: ${error.message}. Check console.`;
-                        startButton.disabled = false;
-                        progressBarContainer.style.display = 'none';
-                        if (analysisWorker) {
-                            analysisWorker.terminate();
-                            analysisWorker = null;
-                        }
-                    };
-                    
-                    statusDiv.innerHTML = `Sending ${data.length} items to worker for analysis... <span class="loader"></span>`;
-                    analysisWorker.postMessage({
-                        data: data,
-                        config: {
-                            SIMILARITY_THRESHOLD: SIMILARITY_THRESHOLD,
-                            STOP_WORDS: STOP_WORDS_LIST // Send as array
-                        }
+            // Update progress
+            updateProgress(current, total, message = '') {
+                const percentage = (current / total) * 100;
+                this.progressFill.style.width = `${percentage}%`;
+                
+                if (message) {
+                    this.progressText.textContent = message;
+                }
+
+                // Calculate ETA
+                const elapsed = (Date.now() - this.startTime) / 1000;
+                const rate = current / elapsed;
+                const remaining = total - current;
+                const eta = remaining / rate;
+
+                if (eta > 0 && eta < Infinity) {
+                    this.etaText.textContent = `ETA: ${eta.toFixed(1)}s (${current}/${total})`;
+                } else {
+                    this.etaText.textContent = `Progress: ${current}/${total}`;
+                }
+            }
+
+            // Update statistics
+            updateStats(totalQuestions, similarGroups, totalComparisons, processingTime) {
+                document.getElementById('totalQuestions').textContent = totalQuestions.toLocaleString();
+                document.getElementById('similarGroups').textContent = similarGroups.toLocaleString();
+                document.getElementById('totalComparisons').textContent = totalComparisons.toLocaleString();
+                document.getElementById('processingTime').textContent = processingTime.toFixed(2);
+                this.statsContainer.style.display = 'grid';
+            }
+
+            // Render results
+            renderResults(similarityGroups) {
+                if (similarityGroups.length === 0) {
+                    this.results.innerHTML = '<div class="no-data">No similar questions found with the current threshold.</div>';
+                    this.results.style.display = 'block';
+                    return;
+                }
+
+                let html = '';
+                similarityGroups.forEach((group, groupIndex) => {
+                    html += `
+                        <div class="similarity-group">
+                            <div class="similarity-header">
+                                Similar Group ${groupIndex + 1} (${group.length} questions)
+                            </div>
+                    `;
+
+                    group.forEach((item, index) => {
+                        html += `
+                            <div class="question-pair">
+                                <div class="question-id">Question ID: ${item.data.id || 'N/A'}</div>
+                                <div class="question-text"><strong>Q:</strong> ${item.data.questionText || 'No question text'}</div>
+                                <div class="answer-text"><strong>A:</strong> ${item.data.answerText || 'No answer text'}</div>
+                                ${item.similarity ? `<div class="similarity-score">Similarity: ${(item.similarity * 100).toFixed(1)}%</div>` : ''}
+                            </div>
+                        `;
                     });
 
-                } catch (error) {
-                    statusDiv.textContent = `Error: ${error.message}`;
-                    console.error("Error during setup:", error);
-                    startButton.disabled = false;
-                    progressBarContainer.style.display = 'none';
-                }
-            }, 100); // setTimeout to allow UI update
-        });
+                    html += '</div>';
+                });
 
-        function displaySimilarPair(pair, outputElement, type) {
-            const pairDiv = document.createElement('div');
-            pairDiv.className = 'pair';
-            let content = `
-                <p><strong>Pair ID:</strong> ${pair.pairId} | <strong>Similarity:</strong> ${pair.similarity}%</p>`;
-            if (type === 'Question') {
-                content += `
-                    <p><strong>Q1 (ID ${pair.item1_id}):</strong> ${escapeHtml(pair.item1_question)}</p>
-                    <p><strong>Q2 (ID ${pair.item2_id}):</strong> ${escapeHtml(pair.item2_question)}</p>`;
-            } else { // Answer
-                content += `
-                    <p><strong>A1 (ID ${pair.item1_id} for Q: "${escapeHtml(pair.item1_questionContext)}"):</strong> ${escapeHtml(pair.item1_answer)}</p>
-                    <p><strong>A2 (ID ${pair.item2_id} for Q: "${escapeHtml(pair.item2_questionContext)}"):</strong> ${escapeHtml(pair.item2_answer)}</p>`;
-            }
-            pairDiv.innerHTML = content;
-            outputElement.appendChild(pairDiv);
-        }
-
-        function escapeHtml(unsafe) {
-            if (typeof unsafe !== 'string') return unsafe;
-            return unsafe
-                 .replace(/&/g, "&")
-                 .replace(/</g, "<")
-                 .replace(/>/g, ">")
-                 .replace(/"/g, """)
-                 .replace(/'/g, "'");
-        }
-
-        // --- Web Worker Code (will be run in a separate thread) ---
-        // This function is stringified and turned into a Blob URL for the worker.
-        function workerFunction() {
-            // Worker scope - 'self' refers to the worker global scope
-            let STOP_WORDS_SET; // Will be initialized from message
-            let SIMILARITY_THRESHOLD_WORKER; // Will be initialized
-
-            // 1. Normalise and 2. Tokenize (and remove stop words)
-            function preprocessText(text) {
-                if (!text || typeof text !== 'string') {
-                    return [];
-                }
-                const lowerText = text.toLowerCase();
-                const words = lowerText.split(/\W+/).filter(word => word.length > 0);
-                return words.filter(word => !STOP_WORDS_SET.has(word));
+                this.results.innerHTML = html;
+                this.results.style.display = 'block';
             }
 
-            function calculateSimilarity(words1, words2) {
-                if (!words1.length || !words2.length) {
-                    return 0;
-                }
-                const set1 = new Set(words1);
-                const set2 = new Set(words2);
-                let intersectionCount = 0;
-                for (const word of set1) {
-                    if (set2.has(word)) {
-                        intersectionCount++;
-                    }
-                }
-                const averageTotalWords = (words1.length + words2.length) / 2;
-                if (averageTotalWords === 0) return 0;
-                return (intersectionCount / averageTotalWords) * 100;
-            }
+            // Process data in chunks to avoid blocking UI
+            async processInChunks(data, threshold) {
+                const chunkSize = 50; // Process 50 comparisons at a time
+                const totalComparisons = (data.length * (data.length - 1)) / 2;
+                let processedComparisons = 0;
+                const similarities = [];
 
-            self.onmessage = function(e) {
-                try {
-                    const { data, config } = e.data;
-                    STOP_WORDS_SET = new Set(config.STOP_WORDS);
-                    SIMILARITY_THRESHOLD_WORKER = config.SIMILARITY_THRESHOLD;
-
-                    const startTime = performance.now();
-
-                    const processedData = data.map(item => ({
-                        id: item.id,
-                        originalQuestionText: item.questionText, // Keep original for display
-                        originalAnswer: item.Answer,             // Keep original for display
-                        processedQuestionText: preprocessText(item.questionText),
-                        processedAnswer: preprocessText(item.Answer)
-                    }));
-
-                    let completedComparisons = 0;
-                    const totalItems = processedData.length;
-                    const totalExpectedComparisons = (totalItems * (totalItems - 1)) / 2;
-                    let lastProgressUpdate = 0;
-
-
-                    for (let i = 0; i < totalItems; i++) {
-                        for (let j = i + 1; j < totalItems; j++) {
-                            const item1 = processedData[i];
-                            const item2 = processedData[j];
-                            const pairId = `${item1.id}-${item2.id}`;
-
-                            const questionSimilarity = calculateSimilarity(item1.processedQuestionText, item2.processedQuestionText);
-                            if (questionSimilarity > SIMILARITY_THRESHOLD_WORKER) {
-                                self.postMessage({
-                                    type: 'similarQuestionPair',
-                                    pair: {
-                                        pairId: pairId,
-                                        item1_id: item1.id,
-                                        item1_question: item1.originalQuestionText,
-                                        item2_id: item2.id,
-                                        item2_question: item2.originalQuestionText,
-                                        similarity: questionSimilarity.toFixed(2)
-                                    }
-                                });
-                            }
-
-                            const answerSimilarity = calculateSimilarity(item1.processedAnswer, item2.processedAnswer);
-                            if (answerSimilarity > SIMILARITY_THRESHOLD_WORKER) {
-                                self.postMessage({
-                                    type: 'similarAnswerPair',
-                                    pair: {
-                                        pairId: pairId,
-                                        item1_id: item1.id,
-                                        item1_answer: item1.originalAnswer,
-                                        item1_questionContext: item1.originalQuestionText,
-                                        item2_id: item2.id,
-                                        item2_answer: item2.originalAnswer,
-                                        item2_questionContext: item2.originalQuestionText,
-                                        similarity: answerSimilarity.toFixed(2)
-                                    }
-                                });
-                            }
-                            completedComparisons++;
-                        }
-                        // Send progress update: either every item in outer loop or if 1 second passed
-                        const currentTime = performance.now();
-                        if (i % 10 === 0 || currentTime - lastProgressUpdate > 1000) { // Update every 10 outer loops or every second
-                             self.postMessage({
-                                type: 'progress',
-                                processedOuterLoop: i + 1,
-                                completedComparisons: completedComparisons,
+                for (let i = 0; i < data.length; i++) {
+                    const chunk = [];
+                    const remainingItems = Math.min(chunkSize, data.length - i - 1);
+                    
+                    for (let j = i + 1; j < i + 1 + remainingItems && j < data.length; j++) {
+                        const similarity = this.calculateCombinedSimilarity(data[i], data[j]);
+                        processedComparisons++;
+                        
+                        if (similarity >= threshold) {
+                            similarities.push({
+                                item1: data[i],
+                                item2: data[j],
+                                similarity: similarity
                             });
-                            lastProgressUpdate = currentTime;
                         }
+                        
+                        chunk.push({ i, j, similarity });
                     }
 
-                    const endTime = performance.now();
-                    self.postMessage({
-                        type: 'complete',
-                        durationSeconds: (endTime - startTime) / 1000,
+                    // Update progress
+                    this.updateProgress(
+                        processedComparisons,
+                        totalComparisons,
+                        `Comparing questions... (${i + 1}/${data.length})`
+                    );
+
+                    // Yield control to prevent UI freezing
+                    if (i % 10 === 0) {
+                        await new Promise(resolve => setTimeout(resolve, 1));
+                    }
+                }
+
+                return { similarities, totalComparisons };
+            }
+
+            // Group similar items
+            groupSimilarItems(similarities) {
+                const groups = [];
+                const processed = new Set();
+
+                similarities.forEach(sim => {
+                    const key1 = sim.item1.id || JSON.stringify(sim.item1);
+                    const key2 = sim.item2.id || JSON.stringify(sim.item2);
+                    
+                    if (processed.has(key1) || processed.has(key2)) return;
+
+                    const group = [
+                        { data: sim.item1, similarity: null },
+                        { data: sim.item2, similarity: sim.similarity }
+                    ];
+
+                    // Find other items similar to either item in this group
+                    similarities.forEach(otherSim => {
+                        const otherKey1 = otherSim.item1.id || JSON.stringify(otherSim.item1);
+                        const otherKey2 = otherSim.item2.id || JSON.stringify(otherSim.item2);
+                        
+                        if (otherSim === sim) return;
+                        if (processed.has(otherKey1) || processed.has(otherKey2)) return;
+
+                        if ((otherKey1 === key1 || otherKey1 === key2) && !group.some(g => (g.data.id || JSON.stringify(g.data)) === otherKey2)) {
+                            group.push({ data: otherSim.item2, similarity: otherSim.similarity });
+                            processed.add(otherKey2);
+                        } else if ((otherKey2 === key1 || otherKey2 === key2) && !group.some(g => (g.data.id || JSON.stringify(g.data)) === otherKey1)) {
+                            group.push({ data: otherSim.item1, similarity: otherSim.similarity });
+                            processed.add(otherKey1);
+                        }
                     });
+
+                    groups.push(group);
+                    processed.add(key1);
+                    processed.add(key2);
+                });
+
+                return groups.sort((a, b) => b.length - a.length);
+            }
+
+            // Main analysis function
+            async startAnalysis() {
+                try {
+                    this.isAnalyzing = true;
+                    this.startTime = Date.now();
+                    this.analyzeBtn.disabled = true;
+                    this.analyzeBtn.textContent = '⏳ Analyzing...';
+                    
+                    this.progressContainer.style.display = 'block';
+                    this.results.style.display = 'none';
+                    this.statsContainer.style.display = 'none';
+                    this.status.style.display = 'none';
+
+                    // Load data
+                    this.updateProgress(0, 100, 'Loading data from localStorage...');
+                    const data = this.loadData();
+                    
+                    if (data.length < 2) {
+                        throw new Error('Need at least 2 questions to compare similarities.');
+                    }
+
+                    const threshold = parseFloat(this.thresholdInput.value);
+                    if (isNaN(threshold) || threshold < 0 || threshold > 1) {
+                        throw new Error('Threshold must be a number between 0 and 1.');
+                    }
+
+                    // Process similarities
+                    this.updateProgress(10, 100, 'Starting similarity analysis...');
+                    const { similarities, totalComparisons } = await this.processInChunks(data, threshold);
+
+                    // Group similar items
+                    this.updateProgress(90, 100, 'Grouping similar questions...');
+                    const groups = this.groupSimilarItems(similarities);
+
+                    // Complete
+                    this.updateProgress(100, 100, 'Analysis complete!');
+                    const processingTime = (Date.now() - this.startTime) / 1000;
+
+                    // Show results
+                    this.updateStats(data.length, groups.length, totalComparisons, processingTime);
+                    this.renderResults(groups);
+                    
+                    this.showStatus(
+                        `Analysis completed! Found ${groups.length} groups of similar questions using threshold ${threshold}.`,
+                        'success'
+                    );
 
                 } catch (error) {
-                    self.postMessage({
-                        type: 'error',
-                        error: error.message + (error.stack ? `\nStack: ${error.stack}`: '')
-                    });
-                     // Optional: close the worker on error, or let main thread decide
-                    // self.close();
+                    this.showStatus(error.message, 'error');
+                    console.error('Analysis error:', error);
+                } finally {
+                    this.isAnalyzing = false;
+                    this.analyzeBtn.disabled = false;
+                    this.analyzeBtn.textContent = '🔍 Analyze Similarities';
+                    this.progressContainer.style.display = 'none';
                 }
-            };
+            }
         }
 
+        // Initialize the analyzer when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new SimilarityAnalyzer();
+        });
     </script>
 </body>
 </html>
