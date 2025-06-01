@@ -19,15 +19,19 @@
             -webkit-text-size-adjust: 100%;
         }
 
-        .viewport-container {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            position: relative;
-        }
+        /* Find this existing style in your e.html */
+.viewport-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    /* align-items: center; /* REMOVE or COMMENT OUT this line */
+    align-items: flex-start; /* ADD THIS LINE - to align content to the top */
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    padding-top: 30px;       /* ADD THIS LINE - to create some space from the top edge. Adjust 30px as needed. */
+    box-sizing: border-box;  /* ADD THIS LINE - to ensure padding is included correctly within the container's dimensions */
+}
 
         .paper-scaler {
             transition: transform 0.1s ease-out;
@@ -762,18 +766,32 @@
         }
 
 
-        function fitPaperToViewport() {
-            const vpWidth = viewportContainer.clientWidth;
-            const vpHeight = viewportContainer.clientHeight;
-            const paddingHorizontal = 40;
-            const paddingTopBottom = 80; // Increased slightly for control panel and nav buttons
-            const availableWidth = vpWidth - paddingHorizontal;
-            const availableHeight = vpHeight - paddingTopBottom;
-            const scaleX = availableWidth / A4_PAGE_WIDTH_PX;
-            const scaleY = availableHeight / A4_PAGE_HEIGHT_PX;
-            currentZoomScale = Math.min(scaleX, scaleY, 2.0); // Max zoom 2x
-            paperScaler.style.transform = `scale(${currentZoomScale})`;
-        }
+        // Find this function in your e.html's <script> tag
+
+function fitPaperToViewport() {
+    const vpWidth = viewportContainer.clientWidth;
+    const vpHeight = viewportContainer.clientHeight; // This height includes the padding-top if box-sizing: border-box
+
+    const paddingHorizontal = 40; // For calculating available width
+
+    // New calculation for vertical reserved space:
+    const spaceReservedAtTopByCSS = 30;         // This MUST match the CSS padding-top of .viewport-container
+    const spaceToReserveAtBottomForControls = 65; // Space for Prev/Next buttons etc. (approx button height + margin)
+                                                // Adjust 65px if your bottom controls need more/less space
+
+    const totalVerticalReservedSpace = spaceReservedAtTopByCSS + spaceToReserveAtBottomForControls;
+    // Example: 30px (top gap) + 65px (bottom clearance) = 95px total reserved
+
+    const availableWidth = vpWidth - paddingHorizontal;
+    // The available height for the paper is the viewport's clientHeight minus the total reserved space.
+    const availableHeight = vpHeight - totalVerticalReservedSpace;
+
+    const scaleX = availableWidth / A4_PAGE_WIDTH_PX;
+    const scaleY = availableHeight / A4_PAGE_HEIGHT_PX;
+
+    currentZoomScale = Math.min(scaleX, scaleY, 2.0); // Max zoom 2x
+    paperScaler.style.transform = `scale(${currentZoomScale})`;
+}
 
         // --- Event Handlers ---
         prevButton.addEventListener('click', () => showPage(currentPageIdx - 1));
