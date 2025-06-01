@@ -10,7 +10,7 @@
             padding: 0;
             height: 100%;
             font-family: 'Times New Roman', Times, serif;
-            background-color: #DDE2E6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -35,11 +35,11 @@
         }
 
         .a4-page {
-            background-color: white;
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
             width: 794px;
             height: 1123px;
-            border: 1px solid #B0B8BF;
-            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            border: 1px solid #e9ecef;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.1);
             box-sizing: border-box;
             padding: 60px 45px;
             font-size: 12pt;
@@ -47,6 +47,7 @@
             overflow: hidden;
             position: relative;
             display: none;
+            border-radius: 8px;
         }
         .a4-page.active {
             display: block;
@@ -55,109 +56,174 @@
         .page-content-wrapper {
             height: 100%;
             width: 100%;
-            overflow: hidden;
+            overflow: hidden; /* Changed from auto/scroll to hidden to rely on paper scaling */
         }
 
         .subject-title-doc {
-            font-size: 18pt;
+            font-size: 20pt;
             font-weight: bold;
-            color: #222;
+            color: #2c3e50;
             margin-top: 25px;
             margin-bottom: 15px;
-            padding-bottom: 5px;
-            border-bottom: 1.5px solid #555;
+            padding-bottom: 8px;
+            border-bottom: 3px solid #3498db;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
         .a4-page .page-content-wrapper > .subject-title-doc:first-child {
             margin-top: 0;
         }
 
         .question-entry {
-            margin-bottom: 12px;
+            margin-bottom: 15px;
             font-size: 11pt;
+            padding: 8px;
+            border-left: 3px solid #e9ecef;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        .question-entry:hover {
+            border-left-color: #3498db;
+            background-color: #f0f4f8; /* Slightly different hover background */
         }
         .question-entry .q-sn {
             font-weight: bold;
             margin-right: 7px;
+            color: #3498db;
+        }
+        .question-entry .q-text-doc {
+            font-weight: 500;
         }
         .question-entry .q-answer-doc {
-            color: #333;
+            color: #555;
             font-style: italic;
             margin-left: 25px;
             display: block;
+            margin-top: 5px;
         }
 
+        /* Index Page Styling */
         .index-page-content h1 {
             text-align: center;
-            font-size: 24pt;
+            font-size: 28pt;
             margin-bottom: 40px;
             font-weight: bold;
+            color: #2c3e50;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .index-list-doc {
             list-style: none;
             padding: 0;
             font-size: 14pt;
         }
-        .index-list-doc li {
+        .index-list-doc li { /* Will be made clickable via JS */
             display: flex;
             justify-content: space-between;
-            margin-bottom: 18px;
+            align-items: center; /* Align items vertically */
+            margin-bottom: 20px;
             line-height: 1.6;
+            padding: 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
-        .index-list-doc .subject-name-idx {
+        .index-list-doc li:hover {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+        .index-list-doc .subject-name-idx { /* No <a> tag needed inside, li itself is clickable */
             white-space: nowrap;
+            font-weight: 600;
         }
-        .index-list-doc .subject-name-idx a { /* Style for index links */
-            text-decoration: none;
-            color: #003366; /* Dark blue for links */
-        }
-        .index-list-doc .subject-name-idx a:hover {
-            text-decoration: underline;
-            color: #0056b3;
+         .index-list-doc li:hover .subject-name-idx {
+            color: white; /* Ensure text color changes on hover */
         }
         .index-list-doc .dots-fill {
             flex-grow: 1;
-            border-bottom: 1px dotted #777;
-            margin: 0 10px;
+            border-bottom: 2px dotted #bdc3c7;
+            margin: 0 15px;
             position: relative;
-            bottom: 5px;
+            bottom: -2px; /* Adjusted for better alignment */
+        }
+        .index-list-doc li:hover .dots-fill {
+            border-bottom-color: rgba(255,255,255,0.7);
         }
         .index-list-doc .page-ref-idx {
             white-space: nowrap;
-            font-weight: normal;
-            color: #444;
+            font-weight: bold;
+            color: #2c3e50;
+            background: #ecf0f1;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .index-list-doc li:hover .page-ref-idx {
+            background: rgba(255,255,255,0.2);
+            color: white;
         }
 
         .page-number-display {
             position: absolute;
             bottom: 30px;
             right: 45px;
-            font-size: 10pt;
-            color: #666;
+            font-size: 11pt;
+            color: #7f8c8d;
+            background: #ecf0f1;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 500;
             user-select: none;
         }
         .a4-page.index-page .page-number-display {
             display: none;
         }
 
+        /* Bookmark Indicator on Page */
+        .bookmark-indicator-icon { /* JS will add this div if page is bookmarked */
+            position: absolute;
+            top: 20px; /* Position from user CSS */
+            right: 20px;/* Position from user CSS */
+            font-size: 24px; /* Size from user CSS */
+            color: #f39c12; /* Color from user CSS */
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3); /* Shadow from user CSS */
+            user-select: none;
+            z-index: 5;
+            display: none; /* Hidden by default */
+        }
+        .a4-page.has-bookmark .bookmark-indicator-icon { /* JS adds has-bookmark class */
+            display: block;
+            animation: bookmarkPulse 2s infinite; /* Animation from user CSS */
+        }
+
+        @keyframes bookmarkPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Navigation Buttons (Prev/Next/Back) */
         .nav-button {
             position: fixed;
-            background-color: rgba(40, 40, 40, 0.7);
+            background: linear-gradient(135deg, #2c3e50, #34495e);
             color: white;
             border: none;
             padding: 12px 18px;
             font-size: 16px;
             cursor: pointer;
-            border-radius: 6px;
+            border-radius: 8px;
             z-index: 1000;
             user-select: none;
-            transition: background-color 0.2s;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
         .nav-button:hover {
-            background-color: rgba(0, 0, 0, 0.9);
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
         }
         .nav-button:disabled {
-            background-color: rgba(100, 100, 100, 0.5);
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
             cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .back-arrow-doc {
@@ -175,117 +241,135 @@
             right: 15px;
         }
 
-        /* Page Controls Bar (New) */
-        .page-controls-bar {
+        /* Control Panel (from user's CSS) */
+        .control-panel {
             position: fixed;
-            bottom: 15px; /* Positioned above prev/next if they were at very bottom edge */
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(50, 50, 50, 0.85);
-            padding: 10px 15px;
-            border-radius: 8px;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); /* Safari */
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            z-index: 1001; /* Above nav buttons */
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 200px;
+        }
+
+        .current-page-info { /* Renamed from user's `current-page-info` to match JS `currentPageInfoEl` */
+            font-size: 12px;
+            color: #333; /* Darker for better readability */
+            text-align: center;
+            padding: 8px; /* More padding */
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-weight: 500;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .page-nav-section {
             display: flex;
             align-items: center;
-            gap: 12px;
-            z-index: 1001; /* Above nav buttons if they overlap */
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            gap: 10px;
         }
-        .page-controls-bar input[type="number"] {
-            width: 70px;
+        .page-nav-section span {
+            font-size: 12px; color: #2c3e50; user-select: none;
+        }
+
+        .page-input { /* Renamed from user's `page-input` to match JS `pageInputEl` */
+            width: 60px;
             padding: 8px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
+            border: 2px solid #ced4da; /* Slightly darker border */
+            border-radius: 6px;
             text-align: center;
             font-size: 14px;
+            transition: border-color 0.3s;
         }
-        .control-button { /* Common style for buttons in control bar */
-            background-color: #4A5568; /* Tailwind Gray 700 */
-            color: white;
-            border: none;
+        .page-input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 0.2rem rgba(52,152,219,.25);
+        }
+
+        /* Button styling for Go and Bookmark in control panel */
+        .control-panel-button { /* Common class for buttons in panel */
             padding: 8px 12px;
-            font-size: 14px;
-            cursor: pointer;
-            border-radius: 4px;
-            user-select: none;
-            transition: background-color 0.2s;
-        }
-        .control-button:hover {
-            background-color: #2D3748; /* Tailwind Gray 800 */
-        }
-        .control-button.bookmarked {
-            background-color: #DD6B20; /* Tailwind Orange 600 */
-        }
-        .page-info-display {
-            color: white;
-            font-size: 13px;
-            user-select: none;
-            margin: 0 5px;
-        }
-
-        /* Bookmarks Panel (New) */
-        .bookmarks-panel {
-            position: fixed;
-            top: 60px; /* Below back arrow */
-            right: 15px;
-            width: 220px;
-            background-color: #f9f9f9;
-            border: 1px solid #ccc;
+            border: none;
             border-radius: 6px;
-            padding: 12px;
-            z-index: 1002; /* Highest */
-            max-height: calc(100vh - 120px); /* Avoid full screen height */
-            overflow-y: auto;
-            display: none; /* Toggle with JS */
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        .bookmarks-panel h4 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            font-size: 13pt;
-            color: #333;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 5px;
-        }
-        #bookmarksList {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        #bookmarksList li {
-            padding: 8px 5px;
             cursor: pointer;
-            font-size: 11pt;
-            color: #0056b3;
-            border-bottom: 1px dashed #eee;
-            transition: background-color 0.15s;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        #bookmarksList li:last-child {
-            border-bottom: none;
+        .control-panel-button:hover {
+            transform: translateY(-1px);
         }
-        #bookmarksList li:hover {
-            background-color: #e9ecef;
+         /* Specific ID styles if needed, or use common class primarily */
+        #goButton { /* Was .go-btn */
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
         }
-        #bookmarksList .no-bookmarks {
-            color: #666;
-            font-style: italic;
+        #goButton:hover {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
         }
 
-        /* Bookmark Indicator on Page (New) */
-        .bookmark-indicator-icon {
-            position: absolute;
-            top: 25px;
-            left: 40px; /* Changed from right to left */
-            font-size: 22px;
-            color: #FFBF00; /* Amber/Gold */
+        #bookmarkButton { /* Was .bookmark-btn */
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            min-width: 30px; /* For the star icon */
+        }
+        #bookmarkButton:hover {
+            background: linear-gradient(135deg, #e67e22, #f39c12);
+        }
+        #bookmarkButton.bookmarked { /* Class added by JS */
+            background: linear-gradient(135deg, #e74c3c, #c0392b); /* Red when bookmarked */
+        }
+
+
+        .bookmarks-section {
+            border-top: 1px solid #e9ecef;
+            padding-top: 10px;
+        }
+
+        .bookmarks-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 8px;
             user-select: none;
-            z-index: 5; /* Above page content */
-            display: none; /* Shown by adding class to a4-page */
-        }
-        .a4-page.has-bookmark .bookmark-indicator-icon {
-            display: block;
         }
 
+        .bookmark-list { /* ID'd as `bookmarkListEl` in JS */
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            max-height: 100px; /* Prevent it from growing too large */
+            overflow-y: auto; /* Add scroll if many bookmarks */
+        }
+        .bookmark-list .no-bookmarks-message { /* Class for "None" message */
+             font-size: 11px; color: #7f8c8d; font-style: italic;
+        }
 
+        .bookmark-item { /* Class for individual bookmark links in the panel */
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.2s ease;
+        }
+        .bookmark-item:hover {
+            background: linear-gradient(135deg, #2980b9, #3498db);
+            transform: scale(1.05);
+        }
+
+        /* Hidden div for measuring content height */
         #contentMeasurer {
             position: absolute;
             visibility: hidden;
@@ -304,6 +388,47 @@
             margin-bottom: 12px; font-size: 11pt;
         }
 
+        /* Responsive adjustments from user CSS */
+        @media (max-width: 768px) {
+            .control-panel {
+                bottom: 70px; /* Position above prev/next buttons */
+                top: auto;
+                right: 15px;
+                left: 15px;
+                width: auto; /* Adjust width */
+                flex-direction: column; /* Stack sections vertically for better fit */
+                padding: 10px;
+            }
+             .page-nav-section {
+                flex-wrap: wrap; /* Allow items to wrap if needed */
+            }
+            .page-nav-section .page-input {
+                flex-grow: 1; /* Allow input to take available space */
+            }
+            .bookmarks-section {
+                border-top: 1px solid #e9ecef; /* Keep separator */
+                border-left: none;
+                padding-top: 10px;
+                padding-left: 0;
+            }
+            .prev-page-btn, .next-page-btn {
+                 font-size: 14px; /* Slightly smaller for mobile */
+                 padding: 10px 15px;
+            }
+            .back-arrow-doc {
+                font-size: 20px;
+                padding: 6px 12px;
+            }
+        }
+         @media (max-width: 480px) {
+            .control-panel {
+                gap: 8px; /* Reduce gap for smaller screens */
+            }
+            .page-nav-section span {
+                display: none; /* Hide "Go to:" label on very small screens */
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -318,23 +443,23 @@
     <button class="nav-button prev-page-btn" id="prevButton">« Prev</button>
     <button class="nav-button next-page-btn" id="nextButton">Next »</button>
 
-    <!-- New Page Controls Bar -->
-    <div class="page-controls-bar">
-        <button id="bookmarkBtn" class="control-button">🔖 Bookmark</button>
-        <input type="number" id="pageInput" min="0" placeholder="Page">
-        <button id="goToPageBtn" class="control-button">Go</button>
-        <span id="currentPageInfo" class="page-info-display">Page 0/0</span>
-        <button id="toggleBookmarksPanelBtn" class="control-button">
-            Bookmarks (<span id="bookmarkCount">0</span>)
-        </button>
-    </div>
+    <!-- Control Panel (Structure from user's HTML) -->
+    <div class="control-panel">
+        <div class="current-page-info" id="currentPageInfoEl">Page 1/1</div>
+        
+        <div class="page-nav-section">
+            <span>Go to:</span>
+            <input type="number" class="page-input" id="pageInputEl" min="0" placeholder="Page #">
+            <button class="control-panel-button" id="goButton">Go</button>
+            <button class="control-panel-button" id="bookmarkButton" title="Add bookmark">☆</button> <!-- Star outline for not bookmarked -->
+        </div>
 
-    <!-- New Bookmarks Panel -->
-    <div class="bookmarks-panel" id="bookmarksPanel">
-        <h4>Bookmarked Pages</h4>
-        <ul id="bookmarksList">
-            <!-- Bookmarked pages will be listed here -->
-        </ul>
+        <div class="bookmarks-section">
+            <div class="bookmarks-title">Bookmarks:</div>
+            <div class="bookmark-list" id="bookmarkListEl">
+                <!-- <span class="no-bookmarks-message">None</span> will be added by JS -->
+            </div>
+        </div>
     </div>
 
     <div id="contentMeasurer"></div>
@@ -348,15 +473,12 @@
         const prevButton = document.getElementById('prevButton');
         const nextButton = document.getElementById('nextButton');
 
-        // New UI Elements
-        const pageInput = document.getElementById('pageInput');
-        const goToPageBtn = document.getElementById('goToPageBtn');
-        const bookmarkBtn = document.getElementById('bookmarkBtn');
-        const currentPageInfoEl = document.getElementById('currentPageInfo');
-        const bookmarksPanel = document.getElementById('bookmarksPanel');
-        const bookmarksListEl = document.getElementById('bookmarksList');
-        const toggleBookmarksPanelBtn = document.getElementById('toggleBookmarksPanelBtn');
-        const bookmarkCountSpan = document.getElementById('bookmarkCount');
+        // Control Panel Elements
+        const pageInputEl = document.getElementById('pageInputEl');
+        const goButton = document.getElementById('goButton');
+        const bookmarkButton = document.getElementById('bookmarkButton');
+        const currentPageInfoEl = document.getElementById('currentPageInfoEl');
+        const bookmarkListEl = document.getElementById('bookmarkListEl');
 
         const KEY_MAPPING = { id: "id", questionText: "questionText", answer: "Answer", subject: "Subject" };
         const SUBJECT_ORDER = ["physics", "chemistry", "zoology", "botany", "mat"];
@@ -364,13 +486,13 @@
         const A4_PAGE_HEIGHT_PX = 1123;
         const A4_VERTICAL_PADDING_PX = 60;
         const A4_CONTENT_HEIGHT_PX = A4_PAGE_HEIGHT_PX - (2 * A4_VERTICAL_PADDING_PX);
-        const BOOKMARKS_STORAGE_KEY = 'studyDocBookmarks_v2';
+        const BOOKMARKS_STORAGE_KEY = 'studyDocBookmarks_v3'; // Changed key to avoid conflict if old data exists
 
-        let allPageElements = [];
-        let currentPageIdx = 0;
+        let allPageElements = []; // Holds the DOM elements for each page
+        let currentPageIdx = 0;   // 0-based index of the currently displayed page
         let currentZoomScale = 1;
-        let maxContentPageNumber = 0; // Highest 1-based content page number
-        let bookmarks = []; // Array of 0-based page indices
+        let maxContentPageNumber = 0; // Highest 1-based content page number (excluding index)
+        let bookmarks = new Set(); // Set of 0-based page indices that are bookmarked
 
         function sanitize(text) {
             const element = document.createElement('div');
@@ -382,85 +504,87 @@
         function loadBookmarks() {
             try {
                 const storedBookmarks = localStorage.getItem(BOOKMARKS_STORAGE_KEY);
-                bookmarks = storedBookmarks ? JSON.parse(storedBookmarks) : [];
+                bookmarks = storedBookmarks ? new Set(JSON.parse(storedBookmarks)) : new Set();
             } catch (e) {
                 console.warn("Could not load bookmarks from localStorage:", e);
-                bookmarks = [];
+                bookmarks = new Set();
             }
         }
 
         function saveBookmarks() {
             try {
-                localStorage.setItem(BOOKMARKS_STORAGE_KEY, JSON.stringify(bookmarks));
+                localStorage.setItem(BOOKMARKS_STORAGE_KEY, JSON.stringify([...bookmarks]));
             } catch (e) {
                 console.warn("Could not save bookmarks to localStorage:", e);
             }
         }
 
         function toggleBookmark() {
-            const pageIndex = currentPageIdx;
-            const bookmarkPosition = bookmarks.indexOf(pageIndex);
-            if (bookmarkPosition > -1) {
-                bookmarks.splice(bookmarkPosition, 1);
+            if (bookmarks.has(currentPageIdx)) {
+                bookmarks.delete(currentPageIdx);
             } else {
-                bookmarks.push(pageIndex);
-                bookmarks.sort((a, b) => a - b);
+                bookmarks.add(currentPageIdx);
             }
             saveBookmarks();
-            updateBookmarkUI(pageIndex);
-            renderBookmarksList();
+            updatePageBookmarkIndicator(currentPageIdx);
+            updateBookmarkButtonState();
+            renderBookmarksInControlPanel();
         }
 
-        function updateBookmarkUI(pageIndex) {
-            // Update button
-            if (bookmarks.includes(pageIndex)) {
-                bookmarkBtn.textContent = '🔖 Bookmarked';
-                bookmarkBtn.classList.add('bookmarked');
-            } else {
-                bookmarkBtn.textContent = '🔖 Bookmark';
-                bookmarkBtn.classList.remove('bookmarked');
+        // Updates the star icon on the physical page
+        function updatePageBookmarkIndicator(pageIndex) {
+            if (allPageElements[pageIndex]) {
+                allPageElements[pageIndex].classList.toggle('has-bookmark', bookmarks.has(pageIndex));
             }
-            // Update visual indicator on the page
-            allPageElements.forEach((pageEl, idx) => {
-                if (bookmarks.includes(idx)) {
-                    pageEl.classList.add('has-bookmark');
-                    if (!pageEl.querySelector('.bookmark-indicator-icon')) {
-                        const indicator = document.createElement('div');
-                        indicator.className = 'bookmark-indicator-icon';
-                        indicator.textContent = '★';
-                        pageEl.appendChild(indicator);
-                    }
-                } else {
-                    pageEl.classList.remove('has-bookmark');
-                }
-            });
         }
         
-        function renderBookmarksList() {
-            bookmarksListEl.innerHTML = '';
-            bookmarkCountSpan.textContent = bookmarks.length;
-            if (bookmarks.length === 0) {
-                bookmarksListEl.innerHTML = '<li class="no-bookmarks">No bookmarks yet.</li>';
-                return;
-            }
-            bookmarks.forEach(pageIndex => {
-                const li = document.createElement('li');
-                let pageName;
-                if (allPageElements[pageIndex] && allPageElements[pageIndex].classList.contains('index-page')) {
-                    pageName = "Index Page";
-                } else {
-                    pageName = `Page ${pageIndex}`; // pageIndex is 1-based for content pages when not index
-                }
-                li.textContent = pageName;
-                li.dataset.pageIndex = pageIndex;
-                bookmarksListEl.appendChild(li);
+        // Updates all visible page bookmark indicators (e.g. after loading)
+        function updateAllPageBookmarkIndicators() {
+            allPageElements.forEach((pageEl, idx) => {
+                pageEl.classList.toggle('has-bookmark', bookmarks.has(idx));
             });
         }
 
+        // Updates the bookmark button in the control panel
+        function updateBookmarkButtonState() {
+            const isBookmarked = bookmarks.has(currentPageIdx);
+            bookmarkButton.textContent = isBookmarked ? '★' : '☆'; // Solid star if bookmarked
+            bookmarkButton.classList.toggle('bookmarked', isBookmarked);
+            bookmarkButton.title = isBookmarked ? 'Remove bookmark' : 'Add bookmark';
+        }
+
+        // Renders the list of bookmarks in the control panel
+        function renderBookmarksInControlPanel() {
+            bookmarkListEl.innerHTML = ''; // Clear existing
+            if (bookmarks.size === 0) {
+                const noBookmarksMsg = document.createElement('span');
+                noBookmarksMsg.className = 'no-bookmarks-message';
+                noBookmarksMsg.textContent = 'None';
+                bookmarkListEl.appendChild(noBookmarksMsg);
+                return;
+            }
+
+            const sortedBookmarks = [...bookmarks].sort((a, b) => a - b);
+            sortedBookmarks.forEach(pageIndex => {
+                const item = document.createElement('div');
+                item.className = 'bookmark-item';
+                let pageLabel;
+                if (allPageElements[pageIndex] && allPageElements[pageIndex].classList.contains('index-page')) {
+                    pageLabel = "Index";
+                } else {
+                    // pageIndex is the 0-based array index. For content pages, this is also their 1-based page number.
+                    pageLabel = `P${pageIndex}`;
+                }
+                item.textContent = pageLabel;
+                item.title = `Go to ${pageLabel.toLowerCase().startsWith('p') ? 'page ' + pageLabel.substring(1) : pageLabel}`;
+                item.addEventListener('click', () => showPage(pageIndex));
+                bookmarkListEl.appendChild(item);
+            });
+        }
 
         function generatePagesFromData(data) {
-            const pages = [];
-            const subjectIndexInfo = [];
+            const pages = []; // Stores { html: string, isIndex: boolean }
+            const subjectIndexInfo = []; // { name: string, page: number (1-based content page) }
 
             const organizedData = {};
             SUBJECT_ORDER.forEach(subjKey => {
@@ -482,7 +606,6 @@
 
                 const subjectDisplayName = items[0][KEY_MAPPING.subject] || "Uncategorized";
                 let subjectHeaderHtml = `<div class="subject-title-doc">${sanitize(subjectDisplayName)}</div>`;
-                let subjectHeaderAddedToCurrentPage = false;
                 
                 contentMeasurer.innerHTML = currentContentHtml;
                 contentMeasurer.innerHTML += subjectHeaderHtml;
@@ -494,12 +617,10 @@
                     }
                     currentContentHtml = subjectHeaderHtml;
                     contentMeasurer.innerHTML = currentContentHtml;
-                    subjectHeaderAddedToCurrentPage = true;
                 } else {
-                    if (!currentContentHtml.includes(subjectHeaderHtml)) {
+                    if (!currentContentHtml.includes(subjectHeaderHtml)) { // Avoid duplicate
                         currentContentHtml += subjectHeaderHtml;
                     }
-                    subjectHeaderAddedToCurrentPage = true;
                 }
                 subjectIndexInfo.push({ name: subjectDisplayName, page: currentVisiblePageNumber });
 
@@ -522,10 +643,10 @@
                         let tempSubjectHeader = `<div class="subject-title-doc">${sanitize(subjectDisplayName)} (cont.)</div>`;
                         contentMeasurer.innerHTML = tempSubjectHeader + questionHtml;
 
-                        if(contentMeasurer.offsetHeight > A4_CONTENT_HEIGHT_PX){
-                            pages.push({ html: tempSubjectHeader, isIndex: false });
+                        if(contentMeasurer.offsetHeight > A4_CONTENT_HEIGHT_PX){ // question alone overflows even with new header
+                            pages.push({ html: tempSubjectHeader, isIndex: false }); // page with only continued header
                             currentVisiblePageNumber++;
-                            currentContentHtml = questionHtml;
+                            currentContentHtml = questionHtml; // new page with only question
                             contentMeasurer.innerHTML = currentContentHtml;
                         } else {
                              currentContentHtml = tempSubjectHeader + questionHtml;
@@ -544,14 +665,18 @@
             let indexHtml = `<div class="index-page-content"><h1>Index</h1><ul class="index-list-doc">`;
             const seenSubjects = new Set();
             subjectIndexInfo.forEach(info => {
-                if(!seenSubjects.has(info.name.toLowerCase() + "_" + info.page)){
-                    // Link to the 1-based content page number. showPage() will handle the array index.
-                    indexHtml += `<li><span class="subject-name-idx"><a href="#" data-page-target="${info.page}">${sanitize(info.name)}</a></span> <span class="dots-fill"></span> <span class="page-ref-idx">Page ${info.page}</span></li>`;
-                    seenSubjects.add(info.name.toLowerCase() + "_" + info.page);
+                // Ensure unique subject-page entries for index (name + page combination)
+                const uniqueKey = info.name.toLowerCase() + "_" + info.page;
+                if(!seenSubjects.has(uniqueKey)){
+                    // data-page stores the 1-based content page number.
+                    // This 1-based number directly maps to the 0-based array index for content pages
+                    // because the index page itself is at array index 0.
+                    indexHtml += `<li data-page="${info.page}"><span class="subject-name-idx">${sanitize(info.name)}</span> <span class="dots-fill"></span> <span class="page-ref-idx">Page ${info.page}</span></li>`;
+                    seenSubjects.add(uniqueKey);
                 }
             });
             indexHtml += `</ul></div>`;
-            pages.unshift({ html: indexHtml, isIndex: true });
+            pages.unshift({ html: indexHtml, isIndex: true }); // Index page is at array index 0
 
             return pages;
         }
@@ -559,18 +684,26 @@
         function displayPages(generatedPages) {
             paperScaler.innerHTML = '';
             allPageElements = [];
-            let contentPageCounter = 0; // Tracks 1-based content page number for display
+            let contentPageCounter = 0; // Tracks 1-based content page number for display on A4
 
-            generatedPages.forEach((pageData, i) => {
+            generatedPages.forEach((pageData, i) => { // i is the 0-based array index
                 const pageDiv = document.createElement('div');
                 pageDiv.classList.add('a4-page');
+                pageDiv.dataset.pageIndex = i; // Store 0-based index
+
+                // Add bookmark indicator icon div (will be shown/hidden by 'has-bookmark' class)
+                const bookmarkIconDiv = document.createElement('div');
+                bookmarkIconDiv.className = 'bookmark-indicator-icon';
+                bookmarkIconDiv.textContent = '★';
+                pageDiv.appendChild(bookmarkIconDiv);
+
                 if (pageData.isIndex) {
                     pageDiv.classList.add('index-page');
                 } else {
                     contentPageCounter++;
                     const pageNumDiv = document.createElement('div');
                     pageNumDiv.className = 'page-number-display';
-                    pageNumDiv.textContent = `${contentPageCounter}`;
+                    pageNumDiv.textContent = `${contentPageCounter}`; // Display 1-based number
                     pageDiv.appendChild(pageNumDiv);
                 }
 
@@ -583,21 +716,23 @@
                 allPageElements.push(pageDiv);
             });
             
-            maxContentPageNumber = contentPageCounter; // Set max 1-based content page number
+            maxContentPageNumber = contentPageCounter;
 
             if (allPageElements.length > 0) {
-                pageInput.max = maxContentPageNumber; // For content pages (1 to N)
-                pageInput.min = 0; // 0 for index
-                pageInput.placeholder = `0-${maxContentPageNumber}`;
+                pageInputEl.min = 0; // 0 for Index
+                pageInputEl.max = maxContentPageNumber; // Max 1-based content page number
+                pageInputEl.placeholder = `0-${maxContentPageNumber}`;
                 showPage(0); // Show index page first
+            } else {
+                 currentPageInfoEl.textContent = "No Pages";
             }
             updateNavButtonStates();
             fitPaperToViewport();
-            updateBookmarkUI(currentPageIdx); // Initialize bookmark states for all pages
-            renderBookmarksList(); // Populate bookmarks panel
+            updateAllPageBookmarkIndicators(); // Set initial bookmark states on pages
+            renderBookmarksInControlPanel();   // Populate bookmarks in control panel
         }
 
-        function showPage(index) {
+        function showPage(index) { // index is 0-based array index
             if (index < 0 || index >= allPageElements.length) return;
             
             allPageElements.forEach((page, i) => {
@@ -605,8 +740,9 @@
             });
             currentPageIdx = index;
             updateNavButtonStates();
-            updateBookmarkUI(index); // Update bookmark button and page indicator
-            updatePageNumberInfoDisplay(index);
+            updateCurrentPageInfoDisplay();
+            updatePageBookmarkIndicator(index); // Update current page's star
+            updateBookmarkButtonState();    // Update control panel bookmark button
         }
 
         function updateNavButtonStates() {
@@ -614,15 +750,15 @@
             nextButton.disabled = currentPageIdx === allPageElements.length - 1;
         }
 
-        function updatePageNumberInfoDisplay(index) {
-            let currentPageDisplay;
-            if (allPageElements[index] && allPageElements[index].classList.contains('index-page')) {
-                currentPageDisplay = "Index";
+        function updateCurrentPageInfoDisplay() {
+            let displayLabel;
+            if (currentPageIdx === 0 && allPageElements[0]?.classList.contains('index-page')) {
+                displayLabel = "Index Page";
             } else {
-                // `index` is the 0-based array index. For content pages, it's also the 1-based page number.
-                currentPageDisplay = `Page ${index}`;
+                // currentPageIdx is the 1-based number for content pages.
+                displayLabel = `Page ${currentPageIdx} of ${maxContentPageNumber}`;
             }
-            currentPageInfoEl.textContent = `${currentPageDisplay} / ${maxContentPageNumber} (Content)`;
+            currentPageInfoEl.textContent = displayLabel;
         }
 
 
@@ -630,12 +766,12 @@
             const vpWidth = viewportContainer.clientWidth;
             const vpHeight = viewportContainer.clientHeight;
             const paddingHorizontal = 40;
-            const paddingTopBottom = 80; // Increased slightly for control bar visibility
+            const paddingTopBottom = 80; // Increased slightly for control panel and nav buttons
             const availableWidth = vpWidth - paddingHorizontal;
             const availableHeight = vpHeight - paddingTopBottom;
             const scaleX = availableWidth / A4_PAGE_WIDTH_PX;
             const scaleY = availableHeight / A4_PAGE_HEIGHT_PX;
-            currentZoomScale = Math.min(scaleX, scaleY, 1.5);
+            currentZoomScale = Math.min(scaleX, scaleY, 2.0); // Max zoom 2x
             paperScaler.style.transform = `scale(${currentZoomScale})`;
         }
 
@@ -644,62 +780,52 @@
         nextButton.addEventListener('click', () => showPage(currentPageIdx + 1));
         window.addEventListener('resize', fitPaperToViewport);
 
-        // Index link clicks (delegated)
+        // Index list item clicks (delegated to paperScaler)
         paperScaler.addEventListener('click', (e) => {
-            if (e.target.tagName === 'A' && e.target.closest('.index-list-doc')) {
+            const listItem = e.target.closest('.index-list-doc li[data-page]');
+            if (listItem) {
                 e.preventDefault();
-                const targetPageNum = parseInt(e.target.dataset.pageTarget, 10);
-                // targetPageNum is the 1-based content page number, which is also the array index
-                // for content pages because index page is at [0].
+                const targetPageNum = parseInt(listItem.dataset.page, 10);
+                // targetPageNum is 1-based content page, which is also its 0-based array index
                 if (!isNaN(targetPageNum) && targetPageNum >= 1 && targetPageNum < allPageElements.length) {
                     showPage(targetPageNum);
                 }
             }
         });
 
-        // Go to Page button
-        goToPageBtn.addEventListener('click', () => {
-            const val = pageInput.value;
+        // Go to Page button (Control Panel)
+        goButton.addEventListener('click', () => {
+            const val = pageInputEl.value.trim();
+            if (val === "") return;
+
             const pageNum = parseInt(val, 10);
 
-            if (val.trim() === "") return; // Ignore empty input
-
-            if (pageNum === 0) { // User wants index page
+            if (val.toLowerCase() === "index" || pageNum === 0) {
                 if (allPageElements[0] && allPageElements[0].classList.contains('index-page')) {
                     showPage(0);
-                    pageInput.value = '';
+                    pageInputEl.value = '';
                     return;
                 }
             }
-            // pageNum here is 1-based content page number from input
+            
+            // pageNum from input is 1-based for content pages.
+            // This directly maps to the 0-based array index for content pages.
             if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= maxContentPageNumber) {
-                // showPage expects 0-based array index. For content pages, 1-based page 'pageNum' is at allPageElements[pageNum].
                 showPage(pageNum);
-                pageInput.value = '';
+                pageInputEl.value = '';
             } else {
-                alert(`Invalid page. Enter 0 (for Index) or a content page number between 1 and ${maxContentPageNumber}.`);
+                alert(`Invalid page. Enter 0 or "Index", or a content page number between 1 and ${maxContentPageNumber}.`);
+                pageInputEl.focus();
             }
         });
-        pageInput.addEventListener('keypress', (e) => {
+        pageInputEl.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                goToPageBtn.click();
+                goButton.click();
             }
         });
 
-        // Bookmark controls
-        bookmarkBtn.addEventListener('click', toggleBookmark);
-        bookmarksListEl.addEventListener('click', (e) => {
-            if (e.target.tagName === 'LI' && e.target.dataset.pageIndex) {
-                const pageIdx = parseInt(e.target.dataset.pageIndex, 10);
-                showPage(pageIdx);
-                bookmarksPanel.style.display = 'none'; // Hide panel after selection
-            }
-        });
-        toggleBookmarksPanelBtn.addEventListener('click', () => {
-            bookmarksPanel.style.display = bookmarksPanel.style.display === 'none' ? 'block' : 'none';
-            if (bookmarksPanel.style.display === 'block') renderBookmarksList(); // Refresh list when shown
-        });
-
+        // Bookmark button (Control Panel)
+        bookmarkButton.addEventListener('click', toggleBookmark);
 
         // Swipe Navigation
         let touchStartX = 0;
@@ -718,9 +844,9 @@
             const deltaX = touchEndX - touchStartX;
             const deltaY = touchEndY - touchStartY;
 
-            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
-                if (deltaX < 0) showPage(currentPageIdx + 1);
-                else showPage(currentPageIdx - 1);
+            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) { // Threshold
+                if (deltaX < 0) showPage(currentPageIdx + 1); // Swipe Left
+                else showPage(currentPageIdx - 1); // Swipe Right
             }
             touchStartX = 0; touchStartY = 0;
         }, { passive: true });
@@ -730,7 +856,7 @@
         let lastZoomScale = currentZoomScale;
         viewportContainer.addEventListener('touchstart', (e) => {
             if (e.touches.length === 2) {
-                e.preventDefault();
+                e.preventDefault(); // Prevent default browser zoom
                 const dx = e.touches[0].clientX - e.touches[1].clientX;
                 const dy = e.touches[0].clientY - e.touches[1].clientY;
                 initialPinchDistance = Math.sqrt(dx * dx + dy * dy);
@@ -745,7 +871,7 @@
                 const dy = e.touches[0].clientY - e.touches[1].clientY;
                 const currentPinchDistance = Math.sqrt(dx * dx + dy * dy);
                 const scaleRatio = currentPinchDistance / initialPinchDistance;
-                currentZoomScale = Math.max(0.2, Math.min(lastZoomScale * scaleRatio, 4));
+                currentZoomScale = Math.max(0.2, Math.min(lastZoomScale * scaleRatio, 4)); // Clamp zoom
                 paperScaler.style.transform = `scale(${currentZoomScale})`;
             }
         }, { passive: false });
@@ -753,6 +879,46 @@
         viewportContainer.addEventListener('touchend', (e) => {
             if (e.touches.length < 2) initialPinchDistance = null;
         });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Don't interfere if an input field is focused
+            if (document.activeElement === pageInputEl || 
+                document.activeElement.tagName === 'INPUT' ||
+                document.activeElement.tagName === 'TEXTAREA') {
+                return;
+            }
+
+            if (e.ctrlKey || e.metaKey) { // CMD on Mac
+                switch(e.key.toLowerCase()) {
+                    case 'b':
+                        e.preventDefault();
+                        toggleBookmark();
+                        break;
+                    case 'g':
+                        e.preventDefault();
+                        pageInputEl.focus();
+                        pageInputEl.select();
+                        break;
+                }
+            } else {
+                 switch(e.key) {
+                    case 'ArrowLeft':
+                        if (currentPageIdx > 0) {
+                            e.preventDefault();
+                            showPage(currentPageIdx - 1);
+                        }
+                        break;
+                    case 'ArrowRight':
+                        if (currentPageIdx < allPageElements.length - 1) {
+                            e.preventDefault();
+                            showPage(currentPageIdx + 1);
+                        }
+                        break;
+                }
+            }
+        });
+
 
         // --- Initialization ---
         function init() {
@@ -762,21 +928,27 @@
             if (storedDataString) {
                 try {
                     const data = JSON.parse(storedDataString);
-                    if (data && data.length > 0) {
+                    if (data && Array.isArray(data) && data.length > 0) {
                         const generatedPages = generatePagesFromData(data);
-                        displayPages(generatedPages); // This will also call showPage(0) and relevant UI updates
+                        displayPages(generatedPages);
+                        // Initial UI updates that depend on currentPageIdx being set by displayPages -> showPage
+                        updateBookmarkButtonState(); 
+                        updatePageBookmarkIndicator(currentPageIdx);
                     } else {
-                        paperScaler.innerHTML = '<div class="a4-page active" style="text-align:center; padding-top:100px;">No data to display.</div>';
+                        paperScaler.innerHTML = '<div class="a4-page active" style="text-align:center; padding-top:100px; display:block;">No data to display.</div>';
                         currentPageInfoEl.textContent = "No Data";
+                         renderBookmarksInControlPanel(); // Show "None" if no bookmarks
                     }
                 } catch (err) {
                     console.error("Error parsing data:", err);
-                    paperScaler.innerHTML = '<div class="a4-page active" style="text-align:center; padding-top:100px;">Error loading data.</div>';
+                    paperScaler.innerHTML = '<div class="a4-page active" style="text-align:center; padding-top:100px; display:block;">Error loading data.</div>';
                     currentPageInfoEl.textContent = "Error";
+                     renderBookmarksInControlPanel();
                 }
             } else {
-                paperScaler.innerHTML = '<div class="a4-page active" style="text-align:center; padding-top:100px;">No data found. Please sync first.</div>';
+                paperScaler.innerHTML = '<div class="a4-page active" style="text-align:center; padding-top:100px; display:block;">No data found. Please sync first.</div>';
                 currentPageInfoEl.textContent = "No Data Loaded";
+                 renderBookmarksInControlPanel();
             }
         }
 
