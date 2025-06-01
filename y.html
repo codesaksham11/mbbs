@@ -504,12 +504,37 @@
 
         const KEY_MAPPING = { id: "id", questionText: "questionText", answer: "Answer", subject: "Subject" };
         const SUBJECT_ORDER = ["physics", "chemistry", "zoology", "botany", "mat"];
-        const A4_PAGE_WIDTH_PX = 794;
-        const A4_PAGE_HEIGHT_PX = 1123;
-        const A4_VERTICAL_PADDING_PX = 60;
-        const A4_CONTENT_HEIGHT_PX = A4_PAGE_HEIGHT_PX - (2 * A4_VERTICAL_PADDING_PX);
+        //const A4_PAGE_WIDTH_PX = 794;
+        //const A4_PAGE_HEIGHT_PX = 1123;
+        //const A4_VERTICAL_PADDING_PX = 60;
+        //const A4_CONTENT_HEIGHT_PX = A4_PAGE_HEIGHT_PX - (2 * A4_VERTICAL_PADDING_PX);
         const BOOKMARKS_STORAGE_KEY = 'studyDocBookmarks_v3'; 
+/**
+ * Return the maximum height (in px) that the <.a4-page> can actually
+ * use for content, accounting for its current CSS height and vertical padding.
+ */
+function getA4ContentHeightPx() {
+  // Create a temporary <div> with the same .a4-page styles,
+  // insert it off-screen, measure, then remove it.
+  const tempPage = document.createElement('div');
+  tempPage.className = 'a4-page';
+  // Make sure it doesn’t flash on-screen:
+  tempPage.style.visibility = 'hidden';
+  tempPage.style.position = 'absolute';
+  tempPage.style.top = '-9999px';
+  tempPage.style.left = '-9999px';
+  document.body.appendChild(tempPage);
 
+  // getComputedStyle to read its padding
+  const style = window.getComputedStyle(tempPage);
+  const totalHeight = tempPage.clientHeight; 
+  const paddingTop   = parseFloat(style.paddingTop);
+  const paddingBottom= parseFloat(style.paddingBottom);
+  const usable = totalHeight - (paddingTop + paddingBottom);
+
+  document.body.removeChild(tempPage);
+  return usable;
+}
         let allPageElements = []; 
         let currentPageIdx = 0;   
         let currentZoomScale = 1;
@@ -600,8 +625,14 @@
         }
 
         function generatePagesFromData(data) {
-            const pages = []; 
-            const subjectIndexInfo = []; 
+  const pages = [];
+  const subjectIndexInfo = [];
+  
+  // Figure out “how tall is the <.a4-page> right now”
+  const A4_CONTENT_HEIGHT_PX = getA4ContentHeightPx();
+
+  // …the rest of your logic stays identical…
+        } 
 
             const organizedData = {};
             SUBJECT_ORDER.forEach(subjKey => {
