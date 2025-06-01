@@ -8,30 +8,31 @@
         body, html {
             margin: 0;
             padding: 0;
-            width: 100vw; /* Use viewport units */
-            height: 100vh; /* Use viewport units */
+            height: 100%;
             font-family: 'Times New Roman', Times, serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            overflow: hidden; /* Prevent scrollbars on body itself */
-            display: flex; 
-            flex-direction: column; 
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             -webkit-text-size-adjust: 100%;
         }
 
         .viewport-container {
             width: 100%;
-            height: 100%; /* Will take full body height, JS will add padding */
+            height: 100%;
             display: flex;
-            align-items: center;
+            align-items: flex-start; /* Changed to top alignment */
             justify-content: center;
-            overflow: hidden; 
-            position: relative; 
-            box-sizing: border-box; /* Important for padding adjustments by JS */
+            overflow: hidden;
+            position: relative;
+            padding-top: 30px; /* Added top padding */
         }
 
         .paper-scaler {
             transition: transform 0.1s ease-out;
-            transform-origin: center center;
+            transform-origin: center top; /* Anchor scaling to top */
         }
 
         .a4-page {
@@ -48,6 +49,7 @@
             position: relative;
             display: none;
             border-radius: 8px;
+            margin-top: 20px; /* Added top margin */
         }
         .a4-page.active {
             display: block;
@@ -56,7 +58,7 @@
         .page-content-wrapper {
             height: 100%;
             width: 100%;
-            overflow: hidden; 
+            overflow: hidden;
         }
 
         .subject-title-doc {
@@ -82,7 +84,7 @@
         }
         .question-entry:hover {
             border-left-color: #3498db;
-            background-color: #f0f4f8; 
+            background-color: #f0f4f8;
         }
         .question-entry .q-sn {
             font-weight: bold;
@@ -114,10 +116,10 @@
             padding: 0;
             font-size: 14pt;
         }
-        .index-list-doc li { 
+        .index-list-doc li {
             display: flex;
             justify-content: space-between;
-            align-items: center; 
+            align-items: center;
             margin-bottom: 20px;
             line-height: 1.6;
             padding: 12px;
@@ -131,19 +133,19 @@
             transform: translateX(10px);
             box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
         }
-        .index-list-doc .subject-name-idx { 
+        .index-list-doc .subject-name-idx {
             white-space: nowrap;
             font-weight: 600;
         }
          .index-list-doc li:hover .subject-name-idx {
-            color: white; 
+            color: white;
         }
         .index-list-doc .dots-fill {
             flex-grow: 1;
             border-bottom: 2px dotted #bdc3c7;
             margin: 0 15px;
             position: relative;
-            bottom: -2px; 
+            bottom: -2px;
         }
         .index-list-doc li:hover .dots-fill {
             border-bottom-color: rgba(255,255,255,0.7);
@@ -178,20 +180,20 @@
         }
 
         /* Bookmark Indicator on Page */
-        .bookmark-indicator-icon { 
+        .bookmark-indicator-icon {
             position: absolute;
-            top: 20px; 
+            top: 20px;
             right: 20px;
-            font-size: 24px; 
-            color: #f39c12; 
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3); 
+            font-size: 24px;
+            color: #f39c12;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
             user-select: none;
             z-index: 5;
-            display: none; 
+            display: none;
         }
-        .a4-page.has-bookmark .bookmark-indicator-icon { 
+        .a4-page.has-bookmark .bookmark-indicator-icon {
             display: block;
-            animation: bookmarkPulse 2s infinite; 
+            animation: bookmarkPulse 2s infinite;
         }
 
         @keyframes bookmarkPulse {
@@ -199,8 +201,8 @@
             50% { transform: scale(1.1); }
         }
 
-        /* Navigation Buttons (Only Back Arrow now) */
-        .nav-button { /* General style for back arrow */
+        /* Navigation Buttons - Removed prev/next buttons */
+        .nav-button {
             position: fixed;
             background: linear-gradient(135deg, #2c3e50, #34495e);
             color: white;
@@ -209,7 +211,7 @@
             font-size: 16px;
             cursor: pointer;
             border-radius: 8px;
-            z-index: 1000; /* Below control panel footer */
+            z-index: 1000;
             user-select: none;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
@@ -219,6 +221,12 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0,0,0,0.3);
         }
+        .nav-button:disabled {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
 
         .back-arrow-doc {
             top: 15px;
@@ -227,58 +235,48 @@
             padding: 8px 15px;
         }
 
-        /* Control Panel (Footer) */
+        /* Control Panel */
         .control-panel {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            width: 100%; 
+            top: 15px;
+            right: 15px;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border-top-left-radius: 12px; 
-            border-top-right-radius: 12px; 
-            padding: 10px 15px; 
-            box-shadow: 0 -8px 25px rgba(0,0,0,0.15); 
-            z-index: 1001; 
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            z-index: 1001;
             display: flex;
-            flex-direction: row; /* Default: items in a row */
-            flex-wrap: wrap; /* Allow items to wrap if not enough space */
-            align-items: center; 
-            justify-content: space-around; /* Distribute items */
-            gap: 15px; 
-            box-sizing: border-box;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 200px;
         }
 
         .current-page-info {
             font-size: 12px;
-            color: #333; 
+            color: #333;
             text-align: center;
-            padding: 8px; 
+            padding: 8px;
             background: #f8f9fa;
             border-radius: 6px;
             font-weight: 500;
             border: 1px solid #e0e0e0;
-            flex-shrink: 0; /* Prevent shrinking */
         }
         
         .page-nav-section {
             display: flex;
             align-items: center;
             gap: 10px;
-            flex-grow: 1; /* Allow to take available space */
-            min-width: 220px; /* Prevent too much squishing */
-            justify-content: center;
         }
         .page-nav-section span {
             font-size: 12px; color: #2c3e50; user-select: none;
         }
 
-        .page-input { 
+        .page-input {
             width: 60px;
             padding: 8px;
-            border: 2px solid #ced4da; 
+            border: 2px solid #ced4da;
             border-radius: 6px;
             text-align: center;
             font-size: 14px;
@@ -290,7 +288,8 @@
             box-shadow: 0 0 0 0.2rem rgba(52,152,219,.25);
         }
 
-        .control-panel-button { 
+        /* Button styling for Go and Bookmark in control panel */
+        .control-panel-button {
             padding: 8px 12px;
             border: none;
             border-radius: 6px;
@@ -306,40 +305,28 @@
         .control-panel-button:hover {
             transform: translateY(-1px);
         }
-         .control-panel-button:disabled {
-            background: linear-gradient(135deg, #bdc3c7, #95a5a6);
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        #goButton { 
+        #goButton {
             background: linear-gradient(135deg, #27ae60, #2ecc71);
         }
-        #goButton:hover:not(:disabled) {
+        #goButton:hover {
             background: linear-gradient(135deg, #2ecc71, #27ae60);
         }
 
-        #bookmarkButton { 
+        #bookmarkButton {
             background: linear-gradient(135deg, #f39c12, #e67e22);
-            min-width: 30px; 
+            min-width: 30px;
         }
-        #bookmarkButton:hover:not(:disabled) {
+        #bookmarkButton:hover {
             background: linear-gradient(135deg, #e67e22, #f39c12);
         }
-        #bookmarkButton.bookmarked { 
-            background: linear-gradient(135deg, #e74c3c, #c0392b); 
-        }
-        #bookmarkButton.bookmarked:hover:not(:disabled) {
-            background: linear-gradient(135deg, #c0392b, #e74c3c);
+        #bookmarkButton.bookmarked {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
         }
 
 
         .bookmarks-section {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start; 
-            flex-grow: 1; 
-            min-width: 150px; 
+            border-top: 1px solid #e9ecef;
+            padding-top: 10px;
         }
 
         .bookmarks-title {
@@ -350,19 +337,18 @@
             user-select: none;
         }
 
-        .bookmark-list { 
+        .bookmark-list {
             display: flex;
             flex-wrap: wrap;
             gap: 5px;
-            max-height: 50px; 
-            overflow-y: auto; 
-            width: 100%; 
+            max-height: 100px;
+            overflow-y: auto;
         }
-        .bookmark-list .no-bookmarks-message { 
+        .bookmark-list .no-bookmarks-message {
              font-size: 11px; color: #7f8c8d; font-style: italic;
         }
 
-        .bookmark-item { 
+        .bookmark-item {
             background: linear-gradient(135deg, #3498db, #2980b9);
             color: white;
             padding: 4px 8px;
@@ -376,6 +362,7 @@
             transform: scale(1.05);
         }
 
+        /* Hidden div for measuring content height */
         #contentMeasurer {
             position: absolute;
             visibility: hidden;
@@ -394,34 +381,56 @@
             margin-bottom: 12px; font-size: 11pt;
         }
 
+        /* Touch area for swipe navigation */
+        .swipe-area {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 20%;
+            z-index: 10;
+        }
+        .swipe-left {
+            left: 0;
+        }
+        .swipe-right {
+            right: 0;
+        }
+
+        /* Responsive adjustments */
         @media (max-width: 768px) {
-            .control-panel {
-                flex-direction: column; 
-                align-items: stretch; 
-                padding: 10px;
-                gap: 10px; 
+            .viewport-container {
+                padding-top: 40px; /* More top space on mobile */
             }
-            .current-page-info {
-                order: -1; 
-                margin-bottom: 5px;
+            
+            .control-panel {
+                bottom: 15px;
+                top: auto;
+                right: 15px;
+                left: 15px;
+                width: auto;
+                flex-direction: column;
+                padding: 10px;
             }
              .page-nav-section {
-                flex-wrap: wrap; 
-                justify-content: space-between; 
-                min-width: unset; 
+                flex-wrap: wrap;
             }
             .page-nav-section .page-input {
-                flex-grow: 1; 
+                flex-grow: 1;
             }
             .bookmarks-section {
-                border-top: 1px solid #e9ecef; 
+                border-top: 1px solid #e9ecef;
+                border-left: none;
                 padding-top: 10px;
-                align-items: stretch; 
-                min-width: unset;
+                padding-left: 0;
             }
-            .bookmark-list {
-                max-height: 70px; 
+            
+            .a4-page {
+                width: 95vw;
+                height: 135vw; /* Maintain A4 aspect ratio */
+                padding: 40px 30px;
+                margin-top: 10px;
             }
+            
             .back-arrow-doc {
                 font-size: 20px;
                 padding: 6px 12px;
@@ -429,28 +438,10 @@
         }
          @media (max-width: 480px) {
             .control-panel {
-                gap: 8px; 
+                gap: 8px;
             }
-             .page-nav-section {
-                flex-direction: column; 
-                align-items: stretch; 
-            }
-            .page-nav-section > * { 
-                width: 100%;
-                box-sizing: border-box; 
-                margin-bottom: 5px; 
-            }
-            .page-nav-section > *:last-child {
-                margin-bottom: 0;
-            }
-            .page-nav-section span { 
-                 display: block; 
-                 width: 100%;
-                 text-align: left;
-                 margin-bottom: 3px;
-            }
-             .current-page-info {
-                font-size: 11px;
+            .page-nav-section span {
+                display: none;
             }
         }
 
@@ -460,12 +451,16 @@
     <a href="index.html" class="nav-button back-arrow-doc">←</a>
 
     <div class="viewport-container" id="viewportContainer">
+        <!-- Swipe areas for navigation -->
+        <div class="swipe-area swipe-left" id="swipeLeft"></div>
+        <div class="swipe-area swipe-right" id="swipeRight"></div>
+        
         <div class="paper-scaler" id="paperScaler">
             <!-- A4 pages will be injected here by JS -->
         </div>
     </div>
 
-    <!-- Control Panel (Footer) -->
+    <!-- Control Panel -->
     <div class="control-panel">
         <div class="current-page-info" id="currentPageInfoEl">Page 1/1</div>
         
@@ -473,13 +468,13 @@
             <span>Go to:</span>
             <input type="number" class="page-input" id="pageInputEl" min="0" placeholder="Page #">
             <button class="control-panel-button" id="goButton">Go</button>
-            <button class="control-panel-button" id="bookmarkButton" title="Add bookmark">☆</button> 
+            <button class="control-panel-button" id="bookmarkButton" title="Add bookmark">☆</button>
         </div>
 
         <div class="bookmarks-section">
             <div class="bookmarks-title">Bookmarks:</div>
             <div class="bookmark-list" id="bookmarkListEl">
-                <!-- <span class="no-bookmarks-message">None</span> will be added by JS -->
+                <!-- Bookmarks will be added here -->
             </div>
         </div>
     </div>
@@ -492,7 +487,12 @@
         const paperScaler = document.getElementById('paperScaler');
         const contentMeasurer = document.getElementById('contentMeasurer');
         const viewportContainer = document.getElementById('viewportContainer');
+        
+        // Swipe areas
+        const swipeLeft = document.getElementById('swipeLeft');
+        const swipeRight = document.getElementById('swipeRight');
 
+        // Control Panel Elements
         const pageInputEl = document.getElementById('pageInputEl');
         const goButton = document.getElementById('goButton');
         const bookmarkButton = document.getElementById('bookmarkButton');
@@ -506,27 +506,27 @@
         const SUBJECT_ORDER = ["physics", "chemistry", "zoology", "botany", "mat"];
         const A4_PAGE_WIDTH_PX = 794;
         const A4_PAGE_HEIGHT_PX = 1123;
-        const A4_VERTICAL_PADDING_PX = 60; 
+        const A4_VERTICAL_PADDING_PX = 60;
         const A4_CONTENT_HEIGHT_PX = A4_PAGE_HEIGHT_PX - (2 * A4_VERTICAL_PADDING_PX);
         const BOOKMARKS_STORAGE_KEY = 'studyDocBookmarks_v3'; 
 
         let allPageElements = []; 
-        let currentPageIdx = 0;   // This is the 0-based array index of the current page
-        let currentZoomScale = 1; // Base scale set by fitPaperToViewport
-        let maxContentPageNumber = 0; // Highest *visible* page number for content (1-based)
+        let currentPageIdx = 0;   
+        let currentZoomScale = 1;
+        let maxContentPageNumber = 0; 
         let bookmarks = new Set(); 
 
         function sanitize(text) {
-            if (typeof text !== 'string') text = String(text); // Ensure text is a string
             const element = document.createElement('div');
             element.innerText = text;
             return element.innerHTML;
         }
 
+        // --- Bookmark Functions ---
         function loadBookmarks() {
             try {
                 const storedBookmarks = localStorage.getItem(BOOKMARKS_STORAGE_KEY);
-                bookmarks = storedBookmarks ? new Set(JSON.parse(storedBookmarks).map(Number)) : new Set(); // Ensure numbers
+                bookmarks = storedBookmarks ? new Set(JSON.parse(storedBookmarks)) : new Set();
             } catch (e) {
                 console.warn("Could not load bookmarks from localStorage:", e);
                 bookmarks = new Set();
@@ -542,7 +542,6 @@
         }
 
         function toggleBookmark() {
-            if (currentPageIdx < 0 || currentPageIdx >= allPageElements.length) return;
             if (bookmarks.has(currentPageIdx)) {
                 bookmarks.delete(currentPageIdx);
             } else {
@@ -554,9 +553,9 @@
             renderBookmarksInControlPanel();
         }
 
-        function updatePageBookmarkIndicator(pageArrayIndex) {
-            if (allPageElements[pageArrayIndex]) {
-                allPageElements[pageArrayIndex].classList.toggle('has-bookmark', bookmarks.has(pageArrayIndex));
+        function updatePageBookmarkIndicator(pageIndex) {
+            if (allPageElements[pageIndex]) {
+                allPageElements[pageIndex].classList.toggle('has-bookmark', bookmarks.has(pageIndex));
             }
         }
         
@@ -567,14 +566,6 @@
         }
 
         function updateBookmarkButtonState() {
-            if (currentPageIdx < 0 || currentPageIdx >= allPageElements.length) {
-                bookmarkButton.textContent = '☆';
-                bookmarkButton.classList.remove('bookmarked');
-                bookmarkButton.title = 'Add bookmark';
-                bookmarkButton.disabled = true;
-                return;
-            }
-            bookmarkButton.disabled = false;
             const isBookmarked = bookmarks.has(currentPageIdx);
             bookmarkButton.textContent = isBookmarked ? '★' : '☆'; 
             bookmarkButton.classList.toggle('bookmarked', isBookmarked);
@@ -592,76 +583,63 @@
             }
 
             const sortedBookmarks = [...bookmarks].sort((a, b) => a - b);
-            sortedBookmarks.forEach(pageArrayIndex => {
-                if (!allPageElements[pageArrayIndex]) return; // Skip if page element doesn't exist
-
+            sortedBookmarks.forEach(pageIndex => {
                 const item = document.createElement('div');
                 item.className = 'bookmark-item';
-                const pageData = allPageElements[pageArrayIndex];
                 let pageLabel;
-
-                if (pageData.classList.contains('index-page')) {
+                if (allPageElements[pageIndex] && allPageElements[pageIndex].classList.contains('index-page')) {
                     pageLabel = "Index";
                 } else {
-                    pageLabel = `P${pageData.dataset.visiblePageNum}`;
+                    pageLabel = `P${pageIndex}`;
                 }
                 item.textContent = pageLabel;
-                item.title = `Go to ${pageLabel.toLowerCase().startsWith('p') && pageLabel !== 'Index' ? 'page ' + pageLabel.substring(1) : pageLabel}`;
-                item.addEventListener('click', () => showPage(pageArrayIndex));
+                item.title = `Go to ${pageLabel.toLowerCase().startsWith('p') ? 'page ' + pageLabel.substring(1) : pageLabel}`;
+                item.addEventListener('click', () => showPage(pageIndex));
                 bookmarkListEl.appendChild(item);
             });
         }
-        
+
         function generatePagesFromData(data) {
             const pages = []; 
             const subjectIndexInfo = []; 
 
             const organizedData = {};
-            SUBJECT_ORDER.forEach(subjKey => { // Ensure predefined subjects are properties, even if empty initially
-                if ((item[KEY_MAPPING.subject] || '').toLowerCase() === subjKey) {
-                     if (!organizedData[subjKey]) organizedData[subjKey] = [];
-                     organizedData[subjKey].push(item);
+            SUBJECT_ORDER.forEach(subjKey => {
+                organizedData[subjKey] = data.filter(item => (item[KEY_MAPPING.subject] || '').toLowerCase() === subjKey);
+            });
+            data.forEach(item => {
+                const subjKey = (item[KEY_MAPPING.subject] || 'uncategorized').toLowerCase();
+                if (!organizedData.hasOwnProperty(subjKey)) {
+                    organizedData[subjKey] = data.filter(it => (it[KEY_MAPPING.subject] || '').toLowerCase() === subjKey);
                 }
             });
-             data.forEach(item => { // Populate with actual data
-                const subjKey = (item[KEY_MAPPING.subject] || 'uncategorized').toLowerCase();
-                 if (!organizedData[subjKey]) organizedData[subjKey] = [];
-                 if (!organizedData[subjKey].find(i => i.id === item.id)) { // Avoid duplicates if already processed
-                    organizedData[subjKey].push(item);
-                 }
-            });
-            
-            // Use SUBJECT_ORDER for iterating, then any other subjects
-            const subjectKeysToProcess = [...SUBJECT_ORDER, ...Object.keys(organizedData).filter(k => !SUBJECT_ORDER.includes(k))];
-            const processedSubjectKeys = new Set();
-
 
             let currentContentHtml = '';
             let currentVisiblePageNumber = 1; 
 
-            for (const subjectKey of subjectKeysToProcess) {
-                if (processedSubjectKeys.has(subjectKey) || !organizedData[subjectKey]) continue;
-                processedSubjectKeys.add(subjectKey);
-
+            for (const subjectKey of Object.keys(organizedData)) {
                 const items = organizedData[subjectKey];
                 if (items.length === 0) continue;
 
-                const subjectDisplayName = items[0][KEY_MAPPING.subject] || subjectKey.charAt(0).toUpperCase() + subjectKey.slice(1); // Better fallback for subject name
+                const subjectDisplayName = items[0][KEY_MAPPING.subject] || "Uncategorized";
                 let subjectHeaderHtml = `<div class="subject-title-doc">${sanitize(subjectDisplayName)}</div>`;
                 
-                contentMeasurer.innerHTML = currentContentHtml + subjectHeaderHtml; // Test adding header
+                contentMeasurer.innerHTML = currentContentHtml;
+                contentMeasurer.innerHTML += subjectHeaderHtml;
 
-                if (contentMeasurer.offsetHeight > A4_CONTENT_HEIGHT_PX && currentContentHtml.trim() !== '') {
-                     pages.push({ html: currentContentHtml, isIndex: false, visiblePageNum: currentVisiblePageNumber });
-                     currentVisiblePageNumber++;
-                     currentContentHtml = subjectHeaderHtml; 
-                } else if (currentContentHtml.trim() === ''){ 
+                if (contentMeasurer.offsetHeight > A4_CONTENT_HEIGHT_PX) {
+                    if (currentContentHtml.trim() !== '') {
+                        pages.push({ html: currentContentHtml, isIndex: false });
+                        currentVisiblePageNumber++;
+                    }
                     currentContentHtml = subjectHeaderHtml;
+                    contentMeasurer.innerHTML = currentContentHtml;
+                } else {
+                    if (!currentContentHtml.includes(subjectHeaderHtml)) { 
+                        currentContentHtml += subjectHeaderHtml;
+                    }
                 }
-                 else { 
-                    currentContentHtml += subjectHeaderHtml;
-                }
-                subjectIndexInfo.push({ name: subjectDisplayName, page: currentVisiblePageNumber }); 
+                subjectIndexInfo.push({ name: subjectDisplayName, page: currentVisiblePageNumber });
 
                 let questionSN = 1;
                 for (const item of items) {
@@ -674,20 +652,21 @@
                     contentMeasurer.innerHTML = currentContentHtml + questionHtml;
 
                     if (contentMeasurer.offsetHeight > A4_CONTENT_HEIGHT_PX) {
-                        pages.push({ html: currentContentHtml, isIndex: false, visiblePageNum: currentVisiblePageNumber });
+                        pages.push({ html: currentContentHtml, isIndex: false });
                         currentVisiblePageNumber++;
-                        currentContentHtml = ''; 
+                        currentContentHtml = '';
                         contentMeasurer.innerHTML = '';
                         
                         let tempSubjectHeader = `<div class="subject-title-doc">${sanitize(subjectDisplayName)} (cont.)</div>`;
-                        contentMeasurer.innerHTML = tempSubjectHeader + questionHtml; 
+                        contentMeasurer.innerHTML = tempSubjectHeader + questionHtml;
 
-                        if(contentMeasurer.offsetHeight > A4_CONTENT_HEIGHT_PX && questionHtml.length < A4_CONTENT_HEIGHT_PX * 0.8){ // Avoid pushing tiny question alone if header is too big
-                            pages.push({ html: tempSubjectHeader, isIndex: false, visiblePageNum: currentVisiblePageNumber }); 
+                        if(contentMeasurer.offsetHeight > A4_CONTENT_HEIGHT_PX){ 
+                            pages.push({ html: tempSubjectHeader, isIndex: false }); 
                             currentVisiblePageNumber++;
                             currentContentHtml = questionHtml; 
+                            contentMeasurer.innerHTML = currentContentHtml;
                         } else {
-                             currentContentHtml = tempSubjectHeader + questionHtml; 
+                             currentContentHtml = tempSubjectHeader + questionHtml;
                         }
                     } else {
                         currentContentHtml += questionHtml;
@@ -697,36 +676,33 @@
             }
 
             if (currentContentHtml.trim() !== '') {
-                pages.push({ html: currentContentHtml, isIndex: false, visiblePageNum: currentVisiblePageNumber });
+                pages.push({ html: currentContentHtml, isIndex: false });
             }
-            
-            maxContentPageNumber = currentVisiblePageNumber; 
 
             let indexHtml = `<div class="index-page-content"><h1>Index</h1><ul class="index-list-doc">`;
-            const seenSubjectsForIndex = new Set();
+            const seenSubjects = new Set();
             subjectIndexInfo.forEach(info => {
-                const uniqueKey = info.name.toLowerCase() + "_" + info.page; 
-                if(!seenSubjectsForIndex.has(uniqueKey)){
-                    indexHtml += `<li data-visible-page-num="${info.page}"><span class="subject-name-idx">${sanitize(info.name)}</span> <span class="dots-fill"></span> <span class="page-ref-idx">Page ${info.page}</span></li>`;
-                    seenSubjectsForIndex.add(uniqueKey);
+                const uniqueKey = info.name.toLowerCase() + "_" + info.page;
+                if(!seenSubjects.has(uniqueKey)){
+                    indexHtml += `<li data-page="${info.page}"><span class="subject-name-idx">${sanitize(info.name)}</span> <span class="dots-fill"></span> <span class="page-ref-idx">Page ${info.page}</span></li>`;
+                    seenSubjects.add(uniqueKey);
                 }
             });
             indexHtml += `</ul></div>`;
-            pages.unshift({ html: indexHtml, isIndex: true, visiblePageNum: 0 }); 
+            pages.unshift({ html: indexHtml, isIndex: true }); 
 
             return pages;
         }
 
-
         function displayPages(generatedPages) {
             paperScaler.innerHTML = '';
             allPageElements = [];
+            let contentPageCounter = 0; 
 
             generatedPages.forEach((pageData, i) => { 
                 const pageDiv = document.createElement('div');
                 pageDiv.classList.add('a4-page');
-                pageDiv.dataset.pageArrayIndex = i; 
-                pageDiv.dataset.visiblePageNum = pageData.visiblePageNum; 
+                pageDiv.dataset.pageIndex = i; 
 
                 const bookmarkIconDiv = document.createElement('div');
                 bookmarkIconDiv.className = 'bookmark-indicator-icon';
@@ -736,9 +712,10 @@
                 if (pageData.isIndex) {
                     pageDiv.classList.add('index-page');
                 } else {
+                    contentPageCounter++;
                     const pageNumDiv = document.createElement('div');
                     pageNumDiv.className = 'page-number-display';
-                    pageNumDiv.textContent = `${pageData.visiblePageNum}`; 
+                    pageNumDiv.textContent = `${contentPageCounter}`; 
                     pageDiv.appendChild(pageNumDiv);
                 }
 
@@ -751,6 +728,8 @@
                 allPageElements.push(pageDiv);
             });
             
+            maxContentPageNumber = contentPageCounter;
+
             if (allPageElements.length > 0) {
                 pageInputEl.min = 0; 
                 pageInputEl.max = maxContentPageNumber; 
@@ -758,115 +737,99 @@
                 showPage(0); 
             } else {
                  currentPageInfoEl.textContent = "No Pages";
-                 pageInputEl.disabled = true;
-                 goButton.disabled = true;
             }
             fitPaperToViewport(); 
             updateAllPageBookmarkIndicators(); 
             renderBookmarksInControlPanel();   
         }
 
-        function showPage(arrayIndex) { 
-            if (arrayIndex < 0 || arrayIndex >= allPageElements.length) return;
+        function showPage(index) { 
+            if (index < 0 || index >= allPageElements.length) return;
             
             allPageElements.forEach((page, i) => {
-                page.classList.toggle('active', i === arrayIndex);
+                page.classList.toggle('active', i === index);
             });
-            currentPageIdx = arrayIndex; 
+            currentPageIdx = index;
             updateCurrentPageInfoDisplay();
-            updatePageBookmarkIndicator(arrayIndex); 
+            updatePageBookmarkIndicator(index); 
             updateBookmarkButtonState();    
-            // After changing page, re-apply base zoom if pinch zoom was active
-            paperScaler.style.transform = `scale(${currentZoomScale})`; // currentZoomScale holds the base fit scale
         }
 
         function updateCurrentPageInfoDisplay() {
-            if (currentPageIdx < 0 || currentPageIdx >= allPageElements.length) {
-                currentPageInfoEl.textContent = "N/A";
-                return;
-            }
-            const currentPageElement = allPageElements[currentPageIdx];
             let displayLabel;
-            if (currentPageElement.classList.contains('index-page')) {
+            if (currentPageIdx === 0 && allPageElements[0]?.classList.contains('index-page')) {
                 displayLabel = "Index Page";
             } else {
-                displayLabel = `Page ${currentPageElement.dataset.visiblePageNum} of ${maxContentPageNumber}`;
+                displayLabel = `Page ${currentPageIdx} of ${maxContentPageNumber}`;
             }
             currentPageInfoEl.textContent = displayLabel;
         }
-        
+
         function fitPaperToViewport() {
-            viewportContainer.style.paddingTop = '0px'; // Reset for measurement
-            viewportContainer.style.paddingBottom = '0px';
+            const vpWidth = viewportContainer.clientWidth;
+            const vpHeight = viewportContainer.clientHeight;
 
-            const vpFullWidth = window.innerWidth; 
-            const vpFullHeight = window.innerHeight; 
+            let effectiveTopClearance = 20; // Minimum clearance from top
+            let effectiveBottomClearance = 20; // Minimum clearance from bottom
+            const horizontalPadding = 40; 
 
-            let topOffset = 15; // Default top gap
-            if (backArrowEl && window.getComputedStyle(backArrowEl).display !== 'none' && window.getComputedStyle(backArrowEl).position === 'fixed') {
+            // Account for fixed UI elements
+            if (backArrowEl) {
                 const rect = backArrowEl.getBoundingClientRect();
-                // Ensure it's actually positioned at the top and visible
-                if (rect.height > 0 && rect.top < vpFullHeight * 0.25) { 
-                    topOffset = Math.max(topOffset, rect.bottom + 10); 
+                if (rect.height > 0 && rect.top < vpHeight * 0.25) {
+                    effectiveTopClearance = Math.max(effectiveTopClearance, rect.bottom + 10);
                 }
             }
 
-            let bottomOffset = 15; // Default bottom gap
-            if (controlPanelEl && window.getComputedStyle(controlPanelEl).display !== 'none' && window.getComputedStyle(controlPanelEl).position === 'fixed') {
+            if (controlPanelEl) {
                 const rect = controlPanelEl.getBoundingClientRect();
-                 // Ensure it's actually positioned at the bottom and visible
-                if (rect.height > 0 && rect.bottom > vpFullHeight * 0.75 && rect.top + rect.height <= vpFullHeight + 5 /*tolerance*/) { 
-                    bottomOffset = Math.max(bottomOffset, controlPanelEl.offsetHeight + 10); 
+                const style = window.getComputedStyle(controlPanelEl);
+                if (style.position === 'fixed' && rect.height > 0) {
+                    if (style.top !== 'auto' && style.top !== '' && parseFloat(style.top) < vpHeight * 0.5) {
+                        effectiveTopClearance = Math.max(effectiveTopClearance, rect.bottom + 10);
+                    }
+                    else if (style.bottom !== 'auto' && style.bottom !== '' && parseFloat(style.bottom) < vpHeight * 0.5) {
+                         effectiveBottomClearance = Math.max(effectiveBottomClearance, (vpHeight - rect.top) + 10);
+                    }
                 }
             }
             
-            viewportContainer.style.paddingTop = `${topOffset}px`;
-            viewportContainer.style.paddingBottom = `${bottomOffset}px`;
+            const availableWidth = vpWidth - horizontalPadding;
+            const availableHeight = vpHeight - effectiveTopClearance - effectiveBottomClearance;
             
-            const containerContentWidth = viewportContainer.clientWidth; 
-            const containerContentHeight = viewportContainer.clientHeight;
-
-            const paperHorizontalMargin = 40; 
-
-            const availableWidthForPaper = containerContentWidth - paperHorizontalMargin;
-            const availableHeightForPaper = containerContentHeight;
-
-            if (availableWidthForPaper <= 0 || availableHeightForPaper <= 0) {
+            if (availableWidth <= 0 || availableHeight <= 0) {
                 paperScaler.style.transform = `scale(0.1)`;
-                currentZoomScale = 0.1; // Store this base scale
                 return;
             }
 
-            const scaleX = availableWidthForPaper / A4_PAGE_WIDTH_PX;
-            const scaleY = availableHeightForPaper / A4_PAGE_HEIGHT_PX;
+            const scaleX = availableWidth / A4_PAGE_WIDTH_PX;
+            const scaleY = availableHeight / A4_PAGE_HEIGHT_PX;
             
             let newBaseScale = Math.min(scaleX, scaleY);
-            newBaseScale = Math.max(0.1, newBaseScale); 
+            newBaseScale = Math.max(0.1, newBaseScale);
 
-            currentZoomScale = newBaseScale; // Store this as the base scale for fitting
+            currentZoomScale = newBaseScale; 
             paperScaler.style.transform = `scale(${currentZoomScale})`;
         }
 
+        // --- Event Handlers ---
+        swipeLeft.addEventListener('click', () => {
+            if (currentPageIdx > 0) showPage(currentPageIdx - 1);
+        });
+        
+        swipeRight.addEventListener('click', () => {
+            if (currentPageIdx < allPageElements.length - 1) showPage(currentPageIdx + 1);
+        });
+        
         window.addEventListener('resize', fitPaperToViewport);
 
         paperScaler.addEventListener('click', (e) => {
-            const listItem = e.target.closest('.index-list-doc li[data-visible-page-num]');
+            const listItem = e.target.closest('.index-list-doc li[data-page]');
             if (listItem) {
                 e.preventDefault();
-                const targetVisiblePageNum = parseInt(listItem.dataset.visiblePageNum, 10);
-                if (!isNaN(targetVisiblePageNum)) {
-                    let targetArrayIndex = -1;
-                    if (targetVisiblePageNum === 0 && allPageElements[0]?.classList.contains('index-page')) {
-                        targetArrayIndex = 0; 
-                    } else {
-                         for(let i=0; i < allPageElements.length; i++) {
-                            if(parseInt(allPageElements[i].dataset.visiblePageNum, 10) === targetVisiblePageNum && !allPageElements[i].classList.contains('index-page')) {
-                                targetArrayIndex = i;
-                                break;
-                            }
-                        }
-                    }
-                    if (targetArrayIndex !== -1) showPage(targetArrayIndex);
+                const targetPageNum = parseInt(listItem.dataset.page, 10);
+                if (!isNaN(targetPageNum) && targetPageNum >= 1 && targetPageNum < allPageElements.length) {
+                    showPage(targetPageNum);
                 }
             }
         });
@@ -874,36 +837,29 @@
         goButton.addEventListener('click', () => {
             const val = pageInputEl.value.trim();
             if (val === "") return;
-            const requestedVisiblePageNum = parseInt(val, 10);
 
-            if (val.toLowerCase() === "index" || requestedVisiblePageNum === 0) {
-                showPage(0); 
-                pageInputEl.value = '';
-                return;
+            const pageNum = parseInt(val, 10);
+
+            if (val.toLowerCase() === "index" || pageNum === 0) {
+                if (allPageElements[0] && allPageElements[0].classList.contains('index-page')) {
+                    showPage(0);
+                    pageInputEl.value = '';
+                    return;
+                }
             }
             
-            if (!isNaN(requestedVisiblePageNum) && requestedVisiblePageNum >= 1 && requestedVisiblePageNum <= maxContentPageNumber) {
-                let targetArrayIndex = -1;
-                for(let i=0; i < allPageElements.length; i++) {
-                    if(parseInt(allPageElements[i].dataset.visiblePageNum, 10) === requestedVisiblePageNum && !allPageElements[i].classList.contains('index-page')) {
-                        targetArrayIndex = i;
-                        break;
-                    }
-                }
-                if (targetArrayIndex !== -1) {
-                    showPage(targetArrayIndex);
-                    pageInputEl.value = '';
-                } else {
-                     alert(`Page ${requestedVisiblePageNum} not found. (Max content page: ${maxContentPageNumber})`);
-                }
+            if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= maxContentPageNumber) {
+                showPage(pageNum);
+                pageInputEl.value = '';
             } else {
                 alert(`Invalid page. Enter 0 or "Index", or a content page number between 1 and ${maxContentPageNumber}.`);
                 pageInputEl.focus();
             }
         });
-
         pageInputEl.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') goButton.click();
+            if (e.key === 'Enter') {
+                goButton.click();
+            }
         });
 
         bookmarkButton.addEventListener('click', toggleBookmark);
@@ -911,7 +867,7 @@
         let touchStartX = 0;
         let touchStartY = 0;
         viewportContainer.addEventListener('touchstart', (e) => {
-            if (e.touches.length === 1 && !e.target.closest('.control-panel')) { // Ignore swipes starting on control panel
+            if (e.touches.length === 1) {
                 touchStartX = e.touches[0].clientX;
                 touchStartY = e.touches[0].clientY;
             }
@@ -919,65 +875,44 @@
 
         viewportContainer.addEventListener('touchend', (e) => {
             if (touchStartX === 0 || e.changedTouches.length !== 1) return;
-            if (e.target.closest('.control-panel')) { // Ignore swipes ending on control panel
-                 touchStartX = 0; touchStartY = 0;
-                return;
-            }
             const touchEndX = e.changedTouches[0].clientX;
             const touchEndY = e.changedTouches[0].clientY;
             const deltaX = touchEndX - touchStartX;
             const deltaY = touchEndY - touchStartY;
 
             if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) { 
-                if (deltaX < 0 && currentPageIdx < allPageElements.length - 1) { 
-                     showPage(currentPageIdx + 1); 
-                } else if (deltaX > 0 && currentPageIdx > 0) { 
-                     showPage(currentPageIdx - 1); 
-                }
+                if (deltaX < 0) showPage(currentPageIdx + 1); 
+                else showPage(currentPageIdx - 1); 
             }
             touchStartX = 0; touchStartY = 0;
         }, { passive: true });
 
         let initialPinchDistance = null;
-        let lastPinchScale = 1; // Scale at the start of the current pinch gesture
-        
+        let lastZoomScale = currentZoomScale;
         viewportContainer.addEventListener('touchstart', (e) => {
-            if (e.touches.length === 2 && !e.target.closest('.control-panel')) {
+            if (e.touches.length === 2) {
                 e.preventDefault(); 
                 const dx = e.touches[0].clientX - e.touches[1].clientX;
                 const dy = e.touches[0].clientY - e.touches[1].clientY;
                 initialPinchDistance = Math.sqrt(dx * dx + dy * dy);
-                // Get current scale from transform, fallback to currentZoomScale (base fit scale)
-                const currentTransform = paperScaler.style.transform;
-                const match = currentTransform.match(/scale\(([^)]+)\)/);
-                lastPinchScale = (match && match[1]) ? parseFloat(match[1]) : currentZoomScale;
+                lastZoomScale = currentZoomScale;
             }
         }, { passive: false });
 
         viewportContainer.addEventListener('touchmove', (e) => {
-            if (e.touches.length === 2 && initialPinchDistance && !e.target.closest('.control-panel')) {
+            if (e.touches.length === 2 && initialPinchDistance) {
                 e.preventDefault();
                 const dx = e.touches[0].clientX - e.touches[1].clientX;
                 const dy = e.touches[0].clientY - e.touches[1].clientY;
                 const currentPinchDistance = Math.sqrt(dx * dx + dy * dy);
                 const scaleRatio = currentPinchDistance / initialPinchDistance;
-                
-                let newCalculatedScale = lastPinchScale * scaleRatio;
-
-                const minZoomFactor = 0.5; 
-                const maxZoomFactor = 3;   
-                // Clamp against absolute min/max or relative to base fit scale
-                newCalculatedScale = Math.max(currentZoomScale * minZoomFactor, Math.min(newCalculatedScale, currentZoomScale * maxZoomFactor));
-                newCalculatedScale = Math.max(0.1, newCalculatedScale); // Absolute minimum
-                
-                paperScaler.style.transform = `scale(${newCalculatedScale})`;
+                currentZoomScale = Math.max(0.2, Math.min(lastZoomScale * scaleRatio, 4)); 
+                paperScaler.style.transform = `scale(${currentZoomScale})`;
             }
         }, { passive: false });
 
         viewportContainer.addEventListener('touchend', (e) => {
-            if (e.touches.length < 2) {
-                initialPinchDistance = null;
-            }
+            if (e.touches.length < 2) initialPinchDistance = null;
         });
         
         document.addEventListener('keydown', (e) => {
@@ -989,45 +924,66 @@
 
             if (e.ctrlKey || e.metaKey) { 
                 switch(e.key.toLowerCase()) {
-                    case 'b': e.preventDefault(); toggleBookmark(); break;
-                    case 'g': e.preventDefault(); pageInputEl.focus(); pageInputEl.select(); break;
+                    case 'b':
+                        e.preventDefault();
+                        toggleBookmark();
+                        break;
+                    case 'g':
+                        e.preventDefault();
+                        pageInputEl.focus();
+                        pageInputEl.select();
+                        break;
                 }
             } else {
                  switch(e.key) {
-                    case 'ArrowLeft': if (currentPageIdx > 0) { e.preventDefault(); showPage(currentPageIdx - 1); } break;
-                    case 'ArrowRight': if (currentPageIdx < allPageElements.length - 1) { e.preventDefault(); showPage(currentPageIdx + 1); } break;
-                    case 'Home': e.preventDefault(); if (allPageElements.length > 0) showPage(0); break;
-                    case 'End': e.preventDefault(); if (allPageElements.length > 0) showPage(allPageElements.length - 1); break;
+                    case 'ArrowLeft':
+                        if (currentPageIdx > 0) {
+                            e.preventDefault();
+                            showPage(currentPageIdx - 1);
+                        }
+                        break;
+                    case 'ArrowRight':
+                        if (currentPageIdx < allPageElements.length - 1) {
+                            e.preventDefault();
+                            showPage(currentPageIdx + 1);
+                        }
+                        break;
                 }
             }
         });
 
+        // --- Initialization ---
         function init() {
             loadBookmarks(); 
+
             const storedDataString = localStorage.getItem(jsonDataStorageKey);
             if (storedDataString) {
                 try {
                     const data = JSON.parse(storedDataString);
                     if (data && Array.isArray(data) && data.length > 0) {
                         const generatedPages = generatePagesFromData(data);
-                        displayPages(generatedPages); 
+                        displayPages(generatedPages);
+                        updateBookmarkButtonState(); 
+                        updatePageBookmarkIndicator(currentPageIdx);
                     } else {
                         paperScaler.innerHTML = '<div class="a4-page active" style="text-align:center; padding-top:100px; display:block;">No data to display.</div>';
                         currentPageInfoEl.textContent = "No Data";
+                        renderBookmarksInControlPanel(); 
                     }
                 } catch (err) {
                     console.error("Error parsing data:", err);
                     paperScaler.innerHTML = '<div class="a4-page active" style="text-align:center; padding-top:100px; display:block;">Error loading data.</div>';
                     currentPageInfoEl.textContent = "Error";
+                    renderBookmarksInControlPanel();
                 }
             } else {
                 paperScaler.innerHTML = '<div class="a4-page active" style="text-align:center; padding-top:100px; display:block;">No data found. Please sync first.</div>';
                 currentPageInfoEl.textContent = "No Data Loaded";
+                renderBookmarksInControlPanel();
             }
-            renderBookmarksInControlPanel(); // Call after potential data load
-            updateBookmarkButtonState(); // Call after potential data load
-            fitPaperToViewport(); // Call once after initial setup
+            fitPaperToViewport();
         }
+
         init();
     });
     </script>
