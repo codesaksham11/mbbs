@@ -19,19 +19,15 @@
             -webkit-text-size-adjust: 100%;
         }
 
-        /* Find this existing style in your e.html */
-.viewport-container {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    /* align-items: center; /* REMOVE or COMMENT OUT this line */
-    align-items: flex-start; /* ADD THIS LINE - to align content to the top */
-    justify-content: center;
-    overflow: hidden;
-    position: relative;
-    padding-top: 30px;       /* ADD THIS LINE - to create some space from the top edge. Adjust 30px as needed. */
-    box-sizing: border-box;  /* ADD THIS LINE - to ensure padding is included correctly within the container's dimensions */
-}
+        .viewport-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
 
         .paper-scaler {
             transition: transform 0.1s ease-out;
@@ -766,42 +762,18 @@
         }
 
 
-        // Find this function in your e.html's <script> tag
-// Find this function in your e.html's <script> tag
-
-function fitPaperToViewport() {
-    const vpWidth = viewportContainer.clientWidth;
-    const vpHeight = viewportContainer.clientHeight; // This is the total height of the viewport-container
-
-    const paddingHorizontal = 40; // For calculating available width
-
-    // Space taken by the CSS padding-top inside the viewport-container
-    const cssTopPadding = 30; // MUST match the CSS padding-top of .viewport-container
-
-    // Space to reserve at the very bottom of the screen for Prev/Next buttons
-    const spaceForBottomControls = 65; // Approx: 15px (button bottom offset) + 40px (button height) + 10px buffer
-
-    // The actual height available for the scaled paper is the viewport's total height
-    // MINUS the top padding (where the paper cannot start)
-    // MINUS the space needed at the bottom for controls.
-    const availableHeightForPaper = vpHeight - cssTopPadding - spaceForBottomControls;
-
-    const availableWidthForPaper = vpWidth - paddingHorizontal;
-
-    const scaleX = availableWidthForPaper / A4_PAGE_WIDTH_PX;
-    const scaleY = availableHeightForPaper / A4_PAGE_HEIGHT_PX;
-
-    currentZoomScale = Math.min(scaleX, scaleY, 2.0); // Max zoom 2x
-    currentZoomScale = Math.max(0.1, currentZoomScale); // Ensure scale is not too small or negative
-
-    paperScaler.style.transform = `scale(${currentZoomScale})`;
-
-    // Optional: If you want to explicitly position the paper-scaler's top edge
-    // after scaling, you could do this. However, `align-items: flex-start`
-    // and the viewport's `padding-top` should already handle this.
-    // If still issues, this might be needed:
-    // paperScaler.style.marginTop = '0px'; // Reset any previous margins
-}
+        function fitPaperToViewport() {
+            const vpWidth = viewportContainer.clientWidth;
+            const vpHeight = viewportContainer.clientHeight;
+            const paddingHorizontal = 40;
+            const paddingTopBottom = 80; // Increased slightly for control panel and nav buttons
+            const availableWidth = vpWidth - paddingHorizontal;
+            const availableHeight = vpHeight - paddingTopBottom;
+            const scaleX = availableWidth / A4_PAGE_WIDTH_PX;
+            const scaleY = availableHeight / A4_PAGE_HEIGHT_PX;
+            currentZoomScale = Math.min(scaleX, scaleY, 2.0); // Max zoom 2x
+            paperScaler.style.transform = `scale(${currentZoomScale})`;
+        }
 
         // --- Event Handlers ---
         prevButton.addEventListener('click', () => showPage(currentPageIdx - 1));
