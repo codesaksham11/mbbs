@@ -9,14 +9,14 @@
             margin: 0;
             padding: 0;
             height: 100%;
-            font-family: 'Times New Roman', Times, serif; /* Classic document font */
-            background-color: #DDE2E6; /* Light grey background */
-            overflow: hidden; /* Prevent body scrolling */
+            font-family: 'Times New Roman', Times, serif;
+            background-color: #DDE2E6;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            -webkit-text-size-adjust: 100%; /* Prevent iOS font scaling on orientation change */
+            -webkit-text-size-adjust: 100%;
         }
 
         .viewport-container {
@@ -25,39 +25,34 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden; /* Key for containing the scaled paper */
+            overflow: hidden;
             position: relative;
         }
 
         .paper-scaler {
-            /* This div will be scaled for zoom */
             transition: transform 0.1s ease-out;
             transform-origin: center center;
-            /* Initial size will be set by JS to fit A4 within viewport */
         }
 
         .a4-page {
             background-color: white;
-            /* A4 dimensions at 96 DPI: 210mm x 297mm
-               Width: (210 / 25.4) * 96 = 793.7px ~ 794px
-               Height: (297 / 25.4) * 96 = 1122.5px ~ 1123px */
             width: 794px;
             height: 1123px;
             border: 1px solid #B0B8BF;
             box-shadow: 0 0 15px rgba(0,0,0,0.2);
             box-sizing: border-box;
-            padding: 60px 45px; /* Typical A4 margins (e.g., ~1.5in top/bottom, ~1in sides) */
-            font-size: 12pt; /* Standard document font size */
+            padding: 60px 45px;
+            font-size: 12pt;
             line-height: 1.5;
-            overflow: hidden; /* Content must not spill */
-            position: relative; /* For page number */
-            display: none; /* Hidden by default */
+            overflow: hidden;
+            position: relative;
+            display: none;
         }
         .a4-page.active {
             display: block;
         }
 
-        .page-content-wrapper { /* Inner div to respect padding */
+        .page-content-wrapper {
             height: 100%;
             width: 100%;
             overflow: hidden;
@@ -67,32 +62,30 @@
             font-size: 18pt;
             font-weight: bold;
             color: #222;
-            margin-top: 25px; /* Space before new subject */
+            margin-top: 25px;
             margin-bottom: 15px;
             padding-bottom: 5px;
             border-bottom: 1.5px solid #555;
         }
         .a4-page .page-content-wrapper > .subject-title-doc:first-child {
-            margin-top: 0; /* No top margin if it's the first element on page */
+            margin-top: 0;
         }
 
         .question-entry {
             margin-bottom: 12px;
-            font-size: 11pt; /* Slightly smaller for question details */
+            font-size: 11pt;
         }
         .question-entry .q-sn {
             font-weight: bold;
             margin-right: 7px;
         }
-        .question-entry .q-text-doc {}
         .question-entry .q-answer-doc {
-            color: #333; /* Less prominent than in study mode */
+            color: #333;
             font-style: italic;
             margin-left: 25px;
-            display: block; /* Answer on new line */
+            display: block;
         }
 
-        /* Index Page Styling */
         .index-page-content h1 {
             text-align: center;
             font-size: 24pt;
@@ -113,12 +106,20 @@
         .index-list-doc .subject-name-idx {
             white-space: nowrap;
         }
+        .index-list-doc .subject-name-idx a { /* Style for index links */
+            text-decoration: none;
+            color: #003366; /* Dark blue for links */
+        }
+        .index-list-doc .subject-name-idx a:hover {
+            text-decoration: underline;
+            color: #0056b3;
+        }
         .index-list-doc .dots-fill {
             flex-grow: 1;
             border-bottom: 1px dotted #777;
             margin: 0 10px;
             position: relative;
-            bottom: 5px; /* Align dots visually */
+            bottom: 5px;
         }
         .index-list-doc .page-ref-idx {
             white-space: nowrap;
@@ -128,16 +129,16 @@
 
         .page-number-display {
             position: absolute;
-            bottom: 30px; /* Inside padding */
-            right: 45px;  /* Inside padding */
+            bottom: 30px;
+            right: 45px;
             font-size: 10pt;
             color: #666;
+            user-select: none;
         }
         .a4-page.index-page .page-number-display {
             display: none;
         }
 
-        /* Navigation Controls */
         .nav-button {
             position: fixed;
             background-color: rgba(40, 40, 40, 0.7);
@@ -174,20 +175,129 @@
             right: 15px;
         }
 
-        /* Hidden div for measuring content height */
+        /* Page Controls Bar (New) */
+        .page-controls-bar {
+            position: fixed;
+            bottom: 15px; /* Positioned above prev/next if they were at very bottom edge */
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(50, 50, 50, 0.85);
+            padding: 10px 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1001; /* Above nav buttons if they overlap */
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+        .page-controls-bar input[type="number"] {
+            width: 70px;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            text-align: center;
+            font-size: 14px;
+        }
+        .control-button { /* Common style for buttons in control bar */
+            background-color: #4A5568; /* Tailwind Gray 700 */
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 4px;
+            user-select: none;
+            transition: background-color 0.2s;
+        }
+        .control-button:hover {
+            background-color: #2D3748; /* Tailwind Gray 800 */
+        }
+        .control-button.bookmarked {
+            background-color: #DD6B20; /* Tailwind Orange 600 */
+        }
+        .page-info-display {
+            color: white;
+            font-size: 13px;
+            user-select: none;
+            margin: 0 5px;
+        }
+
+        /* Bookmarks Panel (New) */
+        .bookmarks-panel {
+            position: fixed;
+            top: 60px; /* Below back arrow */
+            right: 15px;
+            width: 220px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            padding: 12px;
+            z-index: 1002; /* Highest */
+            max-height: calc(100vh - 120px); /* Avoid full screen height */
+            overflow-y: auto;
+            display: none; /* Toggle with JS */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .bookmarks-panel h4 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 13pt;
+            color: #333;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        #bookmarksList {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #bookmarksList li {
+            padding: 8px 5px;
+            cursor: pointer;
+            font-size: 11pt;
+            color: #0056b3;
+            border-bottom: 1px dashed #eee;
+            transition: background-color 0.15s;
+        }
+        #bookmarksList li:last-child {
+            border-bottom: none;
+        }
+        #bookmarksList li:hover {
+            background-color: #e9ecef;
+        }
+        #bookmarksList .no-bookmarks {
+            color: #666;
+            font-style: italic;
+        }
+
+        /* Bookmark Indicator on Page (New) */
+        .bookmark-indicator-icon {
+            position: absolute;
+            top: 25px;
+            left: 40px; /* Changed from right to left */
+            font-size: 22px;
+            color: #FFBF00; /* Amber/Gold */
+            user-select: none;
+            z-index: 5; /* Above page content */
+            display: none; /* Shown by adding class to a4-page */
+        }
+        .a4-page.has-bookmark .bookmark-indicator-icon {
+            display: block;
+        }
+
+
         #contentMeasurer {
             position: absolute;
             visibility: hidden;
-            top: -5000px; /* Way off screen */
+            top: -5000px;
             left: 0;
-            /* Must match A4 page's content area width and font styles */
-            width: calc(794px - 2 * 45px); /* A4 width - 2 * horizontal padding */
+            width: calc(794px - 2 * 45px);
             font-family: 'Times New Roman', Times, serif;
             font-size: 12pt;
             line-height: 1.5;
             box-sizing: border-box;
         }
-        #contentMeasurer .subject-title-doc { /* Copy relevant styles for accuracy */
+        #contentMeasurer .subject-title-doc {
             font-size: 18pt; font-weight: bold; margin-top: 25px; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 1.5px solid #555;
         }
         #contentMeasurer .question-entry {
@@ -208,6 +318,25 @@
     <button class="nav-button prev-page-btn" id="prevButton">« Prev</button>
     <button class="nav-button next-page-btn" id="nextButton">Next »</button>
 
+    <!-- New Page Controls Bar -->
+    <div class="page-controls-bar">
+        <button id="bookmarkBtn" class="control-button">🔖 Bookmark</button>
+        <input type="number" id="pageInput" min="0" placeholder="Page">
+        <button id="goToPageBtn" class="control-button">Go</button>
+        <span id="currentPageInfo" class="page-info-display">Page 0/0</span>
+        <button id="toggleBookmarksPanelBtn" class="control-button">
+            Bookmarks (<span id="bookmarkCount">0</span>)
+        </button>
+    </div>
+
+    <!-- New Bookmarks Panel -->
+    <div class="bookmarks-panel" id="bookmarksPanel">
+        <h4>Bookmarked Pages</h4>
+        <ul id="bookmarksList">
+            <!-- Bookmarked pages will be listed here -->
+        </ul>
+    </div>
+
     <div id="contentMeasurer"></div>
 
     <script>
@@ -219,29 +348,29 @@
         const prevButton = document.getElementById('prevButton');
         const nextButton = document.getElementById('nextButton');
 
-        // --- CONFIGURATION ---
-        // !!! IMPORTANT: Update these key names to match your data !!!
-        const KEY_MAPPING = {
-            id: "id",                   
-            questionText: "questionText",
-            answer: "Answer",           
-            subject: "Subject",         
-            // Distractions are NOT included in this t.html version for brevity of A4 pages
-            // If you need them, you'll need to add logic to include and measure them.
-        };
-        // Desired order of subjects, all lowercase
-        const SUBJECT_ORDER = ["physics", "chemistry", "zoology", "botany", "mat"];
+        // New UI Elements
+        const pageInput = document.getElementById('pageInput');
+        const goToPageBtn = document.getElementById('goToPageBtn');
+        const bookmarkBtn = document.getElementById('bookmarkBtn');
+        const currentPageInfoEl = document.getElementById('currentPageInfo');
+        const bookmarksPanel = document.getElementById('bookmarksPanel');
+        const bookmarksListEl = document.getElementById('bookmarksList');
+        const toggleBookmarksPanelBtn = document.getElementById('toggleBookmarksPanelBtn');
+        const bookmarkCountSpan = document.getElementById('bookmarkCount');
 
+        const KEY_MAPPING = { id: "id", questionText: "questionText", answer: "Answer", subject: "Subject" };
+        const SUBJECT_ORDER = ["physics", "chemistry", "zoology", "botany", "mat"];
         const A4_PAGE_WIDTH_PX = 794;
         const A4_PAGE_HEIGHT_PX = 1123;
         const A4_VERTICAL_PADDING_PX = 60;
-        const A4_HORIZONTAL_PADDING_PX = 45;
         const A4_CONTENT_HEIGHT_PX = A4_PAGE_HEIGHT_PX - (2 * A4_VERTICAL_PADDING_PX);
+        const BOOKMARKS_STORAGE_KEY = 'studyDocBookmarks_v2';
 
         let allPageElements = [];
         let currentPageIdx = 0;
         let currentZoomScale = 1;
-
+        let maxContentPageNumber = 0; // Highest 1-based content page number
+        let bookmarks = []; // Array of 0-based page indices
 
         function sanitize(text) {
             const element = document.createElement('div');
@@ -249,16 +378,94 @@
             return element.innerHTML;
         }
 
-        function generatePagesFromData(data) {
-            const pages = []; // Stores { html: string, isIndex: boolean, subject?: string }
-            const subjectIndexInfo = []; // { name: string, page: number }
+        // --- Bookmark Functions ---
+        function loadBookmarks() {
+            try {
+                const storedBookmarks = localStorage.getItem(BOOKMARKS_STORAGE_KEY);
+                bookmarks = storedBookmarks ? JSON.parse(storedBookmarks) : [];
+            } catch (e) {
+                console.warn("Could not load bookmarks from localStorage:", e);
+                bookmarks = [];
+            }
+        }
 
-            // Sort and filter data by subject order
+        function saveBookmarks() {
+            try {
+                localStorage.setItem(BOOKMARKS_STORAGE_KEY, JSON.stringify(bookmarks));
+            } catch (e) {
+                console.warn("Could not save bookmarks to localStorage:", e);
+            }
+        }
+
+        function toggleBookmark() {
+            const pageIndex = currentPageIdx;
+            const bookmarkPosition = bookmarks.indexOf(pageIndex);
+            if (bookmarkPosition > -1) {
+                bookmarks.splice(bookmarkPosition, 1);
+            } else {
+                bookmarks.push(pageIndex);
+                bookmarks.sort((a, b) => a - b);
+            }
+            saveBookmarks();
+            updateBookmarkUI(pageIndex);
+            renderBookmarksList();
+        }
+
+        function updateBookmarkUI(pageIndex) {
+            // Update button
+            if (bookmarks.includes(pageIndex)) {
+                bookmarkBtn.textContent = '🔖 Bookmarked';
+                bookmarkBtn.classList.add('bookmarked');
+            } else {
+                bookmarkBtn.textContent = '🔖 Bookmark';
+                bookmarkBtn.classList.remove('bookmarked');
+            }
+            // Update visual indicator on the page
+            allPageElements.forEach((pageEl, idx) => {
+                if (bookmarks.includes(idx)) {
+                    pageEl.classList.add('has-bookmark');
+                    if (!pageEl.querySelector('.bookmark-indicator-icon')) {
+                        const indicator = document.createElement('div');
+                        indicator.className = 'bookmark-indicator-icon';
+                        indicator.textContent = '★';
+                        pageEl.appendChild(indicator);
+                    }
+                } else {
+                    pageEl.classList.remove('has-bookmark');
+                }
+            });
+        }
+        
+        function renderBookmarksList() {
+            bookmarksListEl.innerHTML = '';
+            bookmarkCountSpan.textContent = bookmarks.length;
+            if (bookmarks.length === 0) {
+                bookmarksListEl.innerHTML = '<li class="no-bookmarks">No bookmarks yet.</li>';
+                return;
+            }
+            bookmarks.forEach(pageIndex => {
+                const li = document.createElement('li');
+                let pageName;
+                if (allPageElements[pageIndex] && allPageElements[pageIndex].classList.contains('index-page')) {
+                    pageName = "Index Page";
+                } else {
+                    pageName = `Page ${pageIndex}`; // pageIndex is 1-based for content pages when not index
+                }
+                li.textContent = pageName;
+                li.dataset.pageIndex = pageIndex;
+                bookmarksListEl.appendChild(li);
+            });
+        }
+
+
+        function generatePagesFromData(data) {
+            const pages = [];
+            const subjectIndexInfo = [];
+
             const organizedData = {};
             SUBJECT_ORDER.forEach(subjKey => {
                 organizedData[subjKey] = data.filter(item => (item[KEY_MAPPING.subject] || '').toLowerCase() === subjKey);
             });
-            // Add any other subjects not in the predefined order
             data.forEach(item => {
                 const subjKey = (item[KEY_MAPPING.subject] || 'uncategorized').toLowerCase();
                 if (!organizedData.hasOwnProperty(subjKey)) {
@@ -266,10 +473,8 @@
                 }
             });
 
-
-            // --- Start Pagination ---
             let currentContentHtml = '';
-            let currentVisiblePageNumber = 1; // Page numbers start from 1 for content pages
+            let currentVisiblePageNumber = 1; // 1-based for content pages
 
             for (const subjectKey of Object.keys(organizedData)) {
                 const items = organizedData[subjectKey];
@@ -278,30 +483,25 @@
                 const subjectDisplayName = items[0][KEY_MAPPING.subject] || "Uncategorized";
                 let subjectHeaderHtml = `<div class="subject-title-doc">${sanitize(subjectDisplayName)}</div>`;
                 let subjectHeaderAddedToCurrentPage = false;
-                let isNewSubject = true;
-
-                contentMeasurer.innerHTML = currentContentHtml; // Existing content on current page
-                // Try adding subject header
+                
+                contentMeasurer.innerHTML = currentContentHtml;
                 contentMeasurer.innerHTML += subjectHeaderHtml;
 
                 if (contentMeasurer.offsetHeight > A4_CONTENT_HEIGHT_PX) {
-                    // Subject header alone overflows, push previous page
                     if (currentContentHtml.trim() !== '') {
                         pages.push({ html: currentContentHtml, isIndex: false });
                         currentVisiblePageNumber++;
                     }
-                    currentContentHtml = subjectHeaderHtml; // New page starts with this header
+                    currentContentHtml = subjectHeaderHtml;
                     contentMeasurer.innerHTML = currentContentHtml;
                     subjectHeaderAddedToCurrentPage = true;
                 } else {
-                    // Subject header fits (or currentContentHtml was empty)
-                    if (!currentContentHtml.includes(subjectHeaderHtml)) { // Avoid duplicate if page was empty
+                    if (!currentContentHtml.includes(subjectHeaderHtml)) {
                         currentContentHtml += subjectHeaderHtml;
                     }
                     subjectHeaderAddedToCurrentPage = true;
                 }
-                 subjectIndexInfo.push({ name: subjectDisplayName, page: currentVisiblePageNumber });
-                 isNewSubject = false; // consume the new subject flag
+                subjectIndexInfo.push({ name: subjectDisplayName, page: currentVisiblePageNumber });
 
                 let questionSN = 1;
                 for (const item of items) {
@@ -314,27 +514,22 @@
                     contentMeasurer.innerHTML = currentContentHtml + questionHtml;
 
                     if (contentMeasurer.offsetHeight > A4_CONTENT_HEIGHT_PX) {
-                        // Question makes it overflow
                         pages.push({ html: currentContentHtml, isIndex: false });
                         currentVisiblePageNumber++;
-                        currentContentHtml = ''; // Start new page
+                        currentContentHtml = '';
                         contentMeasurer.innerHTML = '';
-                        subjectHeaderAddedToCurrentPage = false; // Header will need to be re-added
-
-                        // Re-add subject header to new page if it's not a new subject entirely
+                        
                         let tempSubjectHeader = `<div class="subject-title-doc">${sanitize(subjectDisplayName)} (cont.)</div>`;
                         contentMeasurer.innerHTML = tempSubjectHeader + questionHtml;
 
-                        if(contentMeasurer.offsetHeight > A4_CONTENT_HEIGHT_PX){ // question alone overflows with header
-                            pages.push({ html: tempSubjectHeader, isIndex: false }); // page with only header
+                        if(contentMeasurer.offsetHeight > A4_CONTENT_HEIGHT_PX){
+                            pages.push({ html: tempSubjectHeader, isIndex: false });
                             currentVisiblePageNumber++;
-                            currentContentHtml = questionHtml; // new page with only question
+                            currentContentHtml = questionHtml;
                             contentMeasurer.innerHTML = currentContentHtml;
                         } else {
                              currentContentHtml = tempSubjectHeader + questionHtml;
                         }
-                        subjectHeaderAddedToCurrentPage = true;
-
                     } else {
                         currentContentHtml += questionHtml;
                     }
@@ -342,18 +537,16 @@
                 }
             }
 
-            // Add any remaining content
             if (currentContentHtml.trim() !== '') {
                 pages.push({ html: currentContentHtml, isIndex: false });
             }
 
-            // --- Prepend Index Page ---
             let indexHtml = `<div class="index-page-content"><h1>Index</h1><ul class="index-list-doc">`;
-            const uniqueSubjectEntries = [];
             const seenSubjects = new Set();
             subjectIndexInfo.forEach(info => {
-                if(!seenSubjects.has(info.name.toLowerCase() + "_" + info.page)){ // Ensure unique subject-page entries for index
-                    indexHtml += `<li><span class="subject-name-idx">${sanitize(info.name)}</span> <span class="dots-fill"></span> <span class="page-ref-idx">Page ${info.page}</span></li>`;
+                if(!seenSubjects.has(info.name.toLowerCase() + "_" + info.page)){
+                    // Link to the 1-based content page number. showPage() will handle the array index.
+                    indexHtml += `<li><span class="subject-name-idx"><a href="#" data-page-target="${info.page}">${sanitize(info.name)}</a></span> <span class="dots-fill"></span> <span class="page-ref-idx">Page ${info.page}</span></li>`;
                     seenSubjects.add(info.name.toLowerCase() + "_" + info.page);
                 }
             });
@@ -363,11 +556,10 @@
             return pages;
         }
 
-
         function displayPages(generatedPages) {
-            paperScaler.innerHTML = ''; // Clear previous
+            paperScaler.innerHTML = '';
             allPageElements = [];
-            let contentPageCounter = 0;
+            let contentPageCounter = 0; // Tracks 1-based content page number for display
 
             generatedPages.forEach((pageData, i) => {
                 const pageDiv = document.createElement('div');
@@ -390,23 +582,31 @@
                 paperScaler.appendChild(pageDiv);
                 allPageElements.push(pageDiv);
             });
+            
+            maxContentPageNumber = contentPageCounter; // Set max 1-based content page number
 
             if (allPageElements.length > 0) {
-                showPage(0);
+                pageInput.max = maxContentPageNumber; // For content pages (1 to N)
+                pageInput.min = 0; // 0 for index
+                pageInput.placeholder = `0-${maxContentPageNumber}`;
+                showPage(0); // Show index page first
             }
             updateNavButtonStates();
             fitPaperToViewport();
+            updateBookmarkUI(currentPageIdx); // Initialize bookmark states for all pages
+            renderBookmarksList(); // Populate bookmarks panel
         }
 
         function showPage(index) {
-            if (index < 0 || index >= allPageElements.length) {
-                return;
-            }
+            if (index < 0 || index >= allPageElements.length) return;
+            
             allPageElements.forEach((page, i) => {
                 page.classList.toggle('active', i === index);
             });
             currentPageIdx = index;
             updateNavButtonStates();
+            updateBookmarkUI(index); // Update bookmark button and page indicator
+            updatePageNumberInfoDisplay(index);
         }
 
         function updateNavButtonStates() {
@@ -414,21 +614,28 @@
             nextButton.disabled = currentPageIdx === allPageElements.length - 1;
         }
 
+        function updatePageNumberInfoDisplay(index) {
+            let currentPageDisplay;
+            if (allPageElements[index] && allPageElements[index].classList.contains('index-page')) {
+                currentPageDisplay = "Index";
+            } else {
+                // `index` is the 0-based array index. For content pages, it's also the 1-based page number.
+                currentPageDisplay = `Page ${index}`;
+            }
+            currentPageInfoEl.textContent = `${currentPageDisplay} / ${maxContentPageNumber} (Content)`;
+        }
+
+
         function fitPaperToViewport() {
             const vpWidth = viewportContainer.clientWidth;
             const vpHeight = viewportContainer.clientHeight;
-
-            // Desired padding around the scaled paper
-            const paddingHorizontal = 40; // 20px each side
-            const paddingTopBottom = 60;  // 30px top/bottom
-
+            const paddingHorizontal = 40;
+            const paddingTopBottom = 80; // Increased slightly for control bar visibility
             const availableWidth = vpWidth - paddingHorizontal;
             const availableHeight = vpHeight - paddingTopBottom;
-
             const scaleX = availableWidth / A4_PAGE_WIDTH_PX;
             const scaleY = availableHeight / A4_PAGE_HEIGHT_PX;
-
-            currentZoomScale = Math.min(scaleX, scaleY, 1.5); // Cap initial max scale
+            currentZoomScale = Math.min(scaleX, scaleY, 1.5);
             paperScaler.style.transform = `scale(${currentZoomScale})`;
         }
 
@@ -437,50 +644,99 @@
         nextButton.addEventListener('click', () => showPage(currentPageIdx + 1));
         window.addEventListener('resize', fitPaperToViewport);
 
+        // Index link clicks (delegated)
+        paperScaler.addEventListener('click', (e) => {
+            if (e.target.tagName === 'A' && e.target.closest('.index-list-doc')) {
+                e.preventDefault();
+                const targetPageNum = parseInt(e.target.dataset.pageTarget, 10);
+                // targetPageNum is the 1-based content page number, which is also the array index
+                // for content pages because index page is at [0].
+                if (!isNaN(targetPageNum) && targetPageNum >= 1 && targetPageNum < allPageElements.length) {
+                    showPage(targetPageNum);
+                }
+            }
+        });
+
+        // Go to Page button
+        goToPageBtn.addEventListener('click', () => {
+            const val = pageInput.value;
+            const pageNum = parseInt(val, 10);
+
+            if (val.trim() === "") return; // Ignore empty input
+
+            if (pageNum === 0) { // User wants index page
+                if (allPageElements[0] && allPageElements[0].classList.contains('index-page')) {
+                    showPage(0);
+                    pageInput.value = '';
+                    return;
+                }
+            }
+            // pageNum here is 1-based content page number from input
+            if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= maxContentPageNumber) {
+                // showPage expects 0-based array index. For content pages, 1-based page 'pageNum' is at allPageElements[pageNum].
+                showPage(pageNum);
+                pageInput.value = '';
+            } else {
+                alert(`Invalid page. Enter 0 (for Index) or a content page number between 1 and ${maxContentPageNumber}.`);
+            }
+        });
+        pageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                goToPageBtn.click();
+            }
+        });
+
+        // Bookmark controls
+        bookmarkBtn.addEventListener('click', toggleBookmark);
+        bookmarksListEl.addEventListener('click', (e) => {
+            if (e.target.tagName === 'LI' && e.target.dataset.pageIndex) {
+                const pageIdx = parseInt(e.target.dataset.pageIndex, 10);
+                showPage(pageIdx);
+                bookmarksPanel.style.display = 'none'; // Hide panel after selection
+            }
+        });
+        toggleBookmarksPanelBtn.addEventListener('click', () => {
+            bookmarksPanel.style.display = bookmarksPanel.style.display === 'none' ? 'block' : 'none';
+            if (bookmarksPanel.style.display === 'block') renderBookmarksList(); // Refresh list when shown
+        });
+
+
         // Swipe Navigation
         let touchStartX = 0;
         let touchStartY = 0;
         viewportContainer.addEventListener('touchstart', (e) => {
-            if (e.touches.length === 1) { // Only for single touch swipes
+            if (e.touches.length === 1) {
                 touchStartX = e.touches[0].clientX;
                 touchStartY = e.touches[0].clientY;
             }
         }, { passive: true });
 
         viewportContainer.addEventListener('touchend', (e) => {
-            if (touchStartX === 0) return; // No swipe started or multi-touch
-            if (e.changedTouches.length === 1) {
-                const touchEndX = e.changedTouches[0].clientX;
-                const touchEndY = e.changedTouches[0].clientY;
-                const deltaX = touchEndX - touchStartX;
-                const deltaY = touchEndY - touchStartY;
+            if (touchStartX === 0 || e.changedTouches.length !== 1) return;
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            const deltaX = touchEndX - touchStartX;
+            const deltaY = touchEndY - touchStartY;
 
-                // Check for significant horizontal swipe vs vertical scroll intention
-                if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) { // 50px threshold
-                    if (deltaX < 0) { // Swipe left
-                        showPage(currentPageIdx + 1);
-                    } else { // Swipe right
-                        showPage(currentPageIdx - 1);
-                    }
-                }
+            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+                if (deltaX < 0) showPage(currentPageIdx + 1);
+                else showPage(currentPageIdx - 1);
             }
             touchStartX = 0; touchStartY = 0;
         }, { passive: true });
 
-
         // Pinch Zoom
         let initialPinchDistance = null;
         let lastZoomScale = currentZoomScale;
-
         viewportContainer.addEventListener('touchstart', (e) => {
             if (e.touches.length === 2) {
-                e.preventDefault(); // Prevent default browser zoom
+                e.preventDefault();
                 const dx = e.touches[0].clientX - e.touches[1].clientX;
                 const dy = e.touches[0].clientY - e.touches[1].clientY;
                 initialPinchDistance = Math.sqrt(dx * dx + dy * dy);
-                lastZoomScale = currentZoomScale; // Store scale at pinch start
+                lastZoomScale = currentZoomScale;
             }
-        }, { passive: false }); // Not passive to allow preventDefault
+        }, { passive: false });
 
         viewportContainer.addEventListener('touchmove', (e) => {
             if (e.touches.length === 2 && initialPinchDistance) {
@@ -489,39 +745,38 @@
                 const dy = e.touches[0].clientY - e.touches[1].clientY;
                 const currentPinchDistance = Math.sqrt(dx * dx + dy * dy);
                 const scaleRatio = currentPinchDistance / initialPinchDistance;
-
-                currentZoomScale = lastZoomScale * scaleRatio;
-                currentZoomScale = Math.max(0.2, Math.min(currentZoomScale, 4)); // Clamp zoom
-
+                currentZoomScale = Math.max(0.2, Math.min(lastZoomScale * scaleRatio, 4));
                 paperScaler.style.transform = `scale(${currentZoomScale})`;
             }
         }, { passive: false });
 
         viewportContainer.addEventListener('touchend', (e) => {
-            if (e.touches.length < 2) {
-                initialPinchDistance = null; // Reset if not two fingers
-            }
+            if (e.touches.length < 2) initialPinchDistance = null;
         });
-
 
         // --- Initialization ---
         function init() {
+            loadBookmarks(); // Load bookmarks first
+
             const storedDataString = localStorage.getItem(jsonDataStorageKey);
             if (storedDataString) {
                 try {
                     const data = JSON.parse(storedDataString);
                     if (data && data.length > 0) {
                         const generatedPages = generatePagesFromData(data);
-                        displayPages(generatedPages);
+                        displayPages(generatedPages); // This will also call showPage(0) and relevant UI updates
                     } else {
                         paperScaler.innerHTML = '<div class="a4-page active" style="text-align:center; padding-top:100px;">No data to display.</div>';
+                        currentPageInfoEl.textContent = "No Data";
                     }
                 } catch (err) {
                     console.error("Error parsing data:", err);
                     paperScaler.innerHTML = '<div class="a4-page active" style="text-align:center; padding-top:100px;">Error loading data.</div>';
+                    currentPageInfoEl.textContent = "Error";
                 }
             } else {
-                paperScaler.innerHTML = '<div class="a4-page active" style="text-align:center; padding-top:100px;">No data found in local storage. Please sync first.</div>';
+                paperScaler.innerHTML = '<div class="a4-page active" style="text-align:center; padding-top:100px;">No data found. Please sync first.</div>';
+                currentPageInfoEl.textContent = "No Data Loaded";
             }
         }
 
