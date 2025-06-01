@@ -479,20 +479,25 @@
         const bookmarkButton = document.getElementById('bookmarkButton');
         const currentPageInfoEl = document.getElementById('currentPageInfoEl');
         const bookmarkListEl = document.getElementById('bookmarkListEl');
+        
+        // References to fixed UI elements that might obstruct content
+        const backArrowEl = document.querySelector('.back-arrow-doc');
+        const controlPanelEl = document.querySelector('.control-panel');
+
 
         const KEY_MAPPING = { id: "id", questionText: "questionText", answer: "Answer", subject: "Subject" };
         const SUBJECT_ORDER = ["physics", "chemistry", "zoology", "botany", "mat"];
         const A4_PAGE_WIDTH_PX = 794;
         const A4_PAGE_HEIGHT_PX = 1123;
-        const A4_VERTICAL_PADDING_PX = 60;
+        const A4_VERTICAL_PADDING_PX = 60; // This is padding INSIDE the A4 page
         const A4_CONTENT_HEIGHT_PX = A4_PAGE_HEIGHT_PX - (2 * A4_VERTICAL_PADDING_PX);
-        const BOOKMARKS_STORAGE_KEY = 'studyDocBookmarks_v3'; // Changed key to avoid conflict if old data exists
+        const BOOKMARKS_STORAGE_KEY = 'studyDocBookmarks_v3'; 
 
-        let allPageElements = []; // Holds the DOM elements for each page
-        let currentPageIdx = 0;   // 0-based index of the currently displayed page
+        let allPageElements = []; 
+        let currentPageIdx = 0;   
         let currentZoomScale = 1;
-        let maxContentPageNumber = 0; // Highest 1-based content page number (excluding index)
-        let bookmarks = new Set(); // Set of 0-based page indices that are bookmarked
+        let maxContentPageNumber = 0; 
+        let bookmarks = new Set(); 
 
         function sanitize(text) {
             const element = document.createElement('div');
@@ -531,31 +536,27 @@
             renderBookmarksInControlPanel();
         }
 
-        // Updates the star icon on the physical page
         function updatePageBookmarkIndicator(pageIndex) {
             if (allPageElements[pageIndex]) {
                 allPageElements[pageIndex].classList.toggle('has-bookmark', bookmarks.has(pageIndex));
             }
         }
         
-        // Updates all visible page bookmark indicators (e.g. after loading)
         function updateAllPageBookmarkIndicators() {
             allPageElements.forEach((pageEl, idx) => {
                 pageEl.classList.toggle('has-bookmark', bookmarks.has(idx));
             });
         }
 
-        // Updates the bookmark button in the control panel
         function updateBookmarkButtonState() {
             const isBookmarked = bookmarks.has(currentPageIdx);
-            bookmarkButton.textContent = isBookmarked ? '★' : '☆'; // Solid star if bookmarked
+            bookmarkButton.textContent = isBookmarked ? '★' : '☆'; 
             bookmarkButton.classList.toggle('bookmarked', isBookmarked);
             bookmarkButton.title = isBookmarked ? 'Remove bookmark' : 'Add bookmark';
         }
 
-        // Renders the list of bookmarks in the control panel
         function renderBookmarksInControlPanel() {
-            bookmarkListEl.innerHTML = ''; // Clear existing
+            bookmarkListEl.innerHTML = ''; 
             if (bookmarks.size === 0) {
                 const noBookmarksMsg = document.createElement('span');
                 noBookmarksMsg.className = 'no-bookmarks-message';
@@ -572,7 +573,6 @@
                 if (allPageElements[pageIndex] && allPageElements[pageIndex].classList.contains('index-page')) {
                     pageLabel = "Index";
                 } else {
-                    // pageIndex is the 0-based array index. For content pages, this is also their 1-based page number.
                     pageLabel = `P${pageIndex}`;
                 }
                 item.textContent = pageLabel;
@@ -583,8 +583,8 @@
         }
 
         function generatePagesFromData(data) {
-            const pages = []; // Stores { html: string, isIndex: boolean }
-            const subjectIndexInfo = []; // { name: string, page: number (1-based content page) }
+            const pages = []; 
+            const subjectIndexInfo = []; 
 
             const organizedData = {};
             SUBJECT_ORDER.forEach(subjKey => {
@@ -598,7 +598,7 @@
             });
 
             let currentContentHtml = '';
-            let currentVisiblePageNumber = 1; // 1-based for content pages
+            let currentVisiblePageNumber = 1; 
 
             for (const subjectKey of Object.keys(organizedData)) {
                 const items = organizedData[subjectKey];
@@ -618,7 +618,7 @@
                     currentContentHtml = subjectHeaderHtml;
                     contentMeasurer.innerHTML = currentContentHtml;
                 } else {
-                    if (!currentContentHtml.includes(subjectHeaderHtml)) { // Avoid duplicate
+                    if (!currentContentHtml.includes(subjectHeaderHtml)) { 
                         currentContentHtml += subjectHeaderHtml;
                     }
                 }
@@ -643,10 +643,10 @@
                         let tempSubjectHeader = `<div class="subject-title-doc">${sanitize(subjectDisplayName)} (cont.)</div>`;
                         contentMeasurer.innerHTML = tempSubjectHeader + questionHtml;
 
-                        if(contentMeasurer.offsetHeight > A4_CONTENT_HEIGHT_PX){ // question alone overflows even with new header
-                            pages.push({ html: tempSubjectHeader, isIndex: false }); // page with only continued header
+                        if(contentMeasurer.offsetHeight > A4_CONTENT_HEIGHT_PX){ 
+                            pages.push({ html: tempSubjectHeader, isIndex: false }); 
                             currentVisiblePageNumber++;
-                            currentContentHtml = questionHtml; // new page with only question
+                            currentContentHtml = questionHtml; 
                             contentMeasurer.innerHTML = currentContentHtml;
                         } else {
                              currentContentHtml = tempSubjectHeader + questionHtml;
@@ -665,18 +665,14 @@
             let indexHtml = `<div class="index-page-content"><h1>Index</h1><ul class="index-list-doc">`;
             const seenSubjects = new Set();
             subjectIndexInfo.forEach(info => {
-                // Ensure unique subject-page entries for index (name + page combination)
                 const uniqueKey = info.name.toLowerCase() + "_" + info.page;
                 if(!seenSubjects.has(uniqueKey)){
-                    // data-page stores the 1-based content page number.
-                    // This 1-based number directly maps to the 0-based array index for content pages
-                    // because the index page itself is at array index 0.
                     indexHtml += `<li data-page="${info.page}"><span class="subject-name-idx">${sanitize(info.name)}</span> <span class="dots-fill"></span> <span class="page-ref-idx">Page ${info.page}</span></li>`;
                     seenSubjects.add(uniqueKey);
                 }
             });
             indexHtml += `</ul></div>`;
-            pages.unshift({ html: indexHtml, isIndex: true }); // Index page is at array index 0
+            pages.unshift({ html: indexHtml, isIndex: true }); 
 
             return pages;
         }
@@ -684,14 +680,13 @@
         function displayPages(generatedPages) {
             paperScaler.innerHTML = '';
             allPageElements = [];
-            let contentPageCounter = 0; // Tracks 1-based content page number for display on A4
+            let contentPageCounter = 0; 
 
-            generatedPages.forEach((pageData, i) => { // i is the 0-based array index
+            generatedPages.forEach((pageData, i) => { 
                 const pageDiv = document.createElement('div');
                 pageDiv.classList.add('a4-page');
-                pageDiv.dataset.pageIndex = i; // Store 0-based index
+                pageDiv.dataset.pageIndex = i; 
 
-                // Add bookmark indicator icon div (will be shown/hidden by 'has-bookmark' class)
                 const bookmarkIconDiv = document.createElement('div');
                 bookmarkIconDiv.className = 'bookmark-indicator-icon';
                 bookmarkIconDiv.textContent = '★';
@@ -703,7 +698,7 @@
                     contentPageCounter++;
                     const pageNumDiv = document.createElement('div');
                     pageNumDiv.className = 'page-number-display';
-                    pageNumDiv.textContent = `${contentPageCounter}`; // Display 1-based number
+                    pageNumDiv.textContent = `${contentPageCounter}`; 
                     pageDiv.appendChild(pageNumDiv);
                 }
 
@@ -719,20 +714,20 @@
             maxContentPageNumber = contentPageCounter;
 
             if (allPageElements.length > 0) {
-                pageInputEl.min = 0; // 0 for Index
-                pageInputEl.max = maxContentPageNumber; // Max 1-based content page number
+                pageInputEl.min = 0; 
+                pageInputEl.max = maxContentPageNumber; 
                 pageInputEl.placeholder = `0-${maxContentPageNumber}`;
-                showPage(0); // Show index page first
+                showPage(0); 
             } else {
                  currentPageInfoEl.textContent = "No Pages";
             }
             updateNavButtonStates();
-            fitPaperToViewport();
-            updateAllPageBookmarkIndicators(); // Set initial bookmark states on pages
-            renderBookmarksInControlPanel();   // Populate bookmarks in control panel
+            fitPaperToViewport(); 
+            updateAllPageBookmarkIndicators(); 
+            renderBookmarksInControlPanel();   
         }
 
-        function showPage(index) { // index is 0-based array index
+        function showPage(index) { 
             if (index < 0 || index >= allPageElements.length) return;
             
             allPageElements.forEach((page, i) => {
@@ -741,8 +736,8 @@
             currentPageIdx = index;
             updateNavButtonStates();
             updateCurrentPageInfoDisplay();
-            updatePageBookmarkIndicator(index); // Update current page's star
-            updateBookmarkButtonState();    // Update control panel bookmark button
+            updatePageBookmarkIndicator(index); 
+            updateBookmarkButtonState();    
         }
 
         function updateNavButtonStates() {
@@ -755,45 +750,98 @@
             if (currentPageIdx === 0 && allPageElements[0]?.classList.contains('index-page')) {
                 displayLabel = "Index Page";
             } else {
-                // currentPageIdx is the 1-based number for content pages.
                 displayLabel = `Page ${currentPageIdx} of ${maxContentPageNumber}`;
             }
             currentPageInfoEl.textContent = displayLabel;
         }
 
-
+        // --- MODIFIED FUNCTION ---
         function fitPaperToViewport() {
             const vpWidth = viewportContainer.clientWidth;
             const vpHeight = viewportContainer.clientHeight;
-            const paddingHorizontal = 40;
-            const paddingTopBottom = 80; // Increased slightly for control panel and nav buttons
-            const availableWidth = vpWidth - paddingHorizontal;
-            const availableHeight = vpHeight - paddingTopBottom;
+
+            let effectiveTopClearance = 15; // Minimum clearance from viewport top edge + visual gap
+            let effectiveBottomClearance = 15; // Minimum clearance from viewport bottom edge + visual gap
+            const horizontalPadding = 40; // Total horizontal padding (e.g., 20px left, 20px right)
+
+            // Calculate top clearance needed for fixed elements
+            if (backArrowEl) {
+                const rect = backArrowEl.getBoundingClientRect();
+                // Element is visible and positioned near the top
+                if (rect.height > 0 && rect.top < vpHeight * 0.25) { // Heuristic: in top 25% of viewport
+                    effectiveTopClearance = Math.max(effectiveTopClearance, rect.bottom + 10 /* desired visual gap */);
+                }
+            }
+
+            if (controlPanelEl) {
+                const rect = controlPanelEl.getBoundingClientRect();
+                const style = window.getComputedStyle(controlPanelEl);
+                if (style.position === 'fixed' && rect.height > 0) {
+                    // Check if anchored to top (e.g., style.top is '15px')
+                    if (style.top !== 'auto' && style.top !== '' && parseFloat(style.top) < vpHeight * 0.5) { // Heuristic: top is set and in upper half
+                        effectiveTopClearance = Math.max(effectiveTopClearance, rect.bottom + 10 /* desired visual gap */);
+                    }
+                    // Check if anchored to bottom (e.g., style.bottom is '70px' on mobile)
+                    // Space occupied from bottom = (vpHeight - rect.top) which is (distanceFromBottomEdge + elementHeight)
+                    else if (style.bottom !== 'auto' && style.bottom !== '' && parseFloat(style.bottom) < vpHeight * 0.5) { // Heuristic: bottom is set and positioning element in lower half
+                         effectiveBottomClearance = Math.max(effectiveBottomClearance, (vpHeight - rect.top) + 10 /* desired visual gap */);
+                    }
+                }
+            }
+
+            // Calculate bottom clearance needed for fixed elements (prevButton and nextButton are script-globals)
+            if (prevButton) {
+                const rect = prevButton.getBoundingClientRect();
+                 // Element is visible and positioned near the bottom
+                if (rect.height > 0 && rect.bottom > vpHeight * 0.75) { // Heuristic: in bottom 25% of viewport
+                    effectiveBottomClearance = Math.max(effectiveBottomClearance, (vpHeight - rect.top) + 10 /* desired visual gap */);
+                }
+            }
+            if (nextButton) {
+                const rect = nextButton.getBoundingClientRect();
+                if (rect.height > 0 && rect.bottom > vpHeight * 0.75) { // Heuristic: in bottom 25% of viewport
+                    effectiveBottomClearance = Math.max(effectiveBottomClearance, (vpHeight - rect.top) + 10 /* desired visual gap */);
+                }
+            }
+            
+            const availableWidth = vpWidth - horizontalPadding;
+            const availableHeight = vpHeight - effectiveTopClearance - effectiveBottomClearance;
+            
+            if (availableWidth <= 0 || availableHeight <= 0) {
+                paperScaler.style.transform = `scale(0.1)`; // Fallback scale
+                // console.warn("FitPaperToViewport: Calculated available space is too small or negative.", 
+                //              { vpWidth, vpHeight, effectiveTopClearance, effectiveBottomClearance, availableWidth, availableHeight });
+                return;
+            }
+
             const scaleX = availableWidth / A4_PAGE_WIDTH_PX;
             const scaleY = availableHeight / A4_PAGE_HEIGHT_PX;
-            currentZoomScale = Math.min(scaleX, scaleY, 2.0); // Max zoom 2x
+            
+            let newBaseScale = Math.min(scaleX, scaleY);
+            newBaseScale = Math.max(0.1, newBaseScale); // Ensure scale is not too small or zero/negative
+
+            currentZoomScale = newBaseScale; 
             paperScaler.style.transform = `scale(${currentZoomScale})`;
         }
+        // --- END OF MODIFIED FUNCTION ---
+
 
         // --- Event Handlers ---
         prevButton.addEventListener('click', () => showPage(currentPageIdx - 1));
         nextButton.addEventListener('click', () => showPage(currentPageIdx + 1));
         window.addEventListener('resize', fitPaperToViewport);
 
-        // Index list item clicks (delegated to paperScaler)
         paperScaler.addEventListener('click', (e) => {
             const listItem = e.target.closest('.index-list-doc li[data-page]');
             if (listItem) {
                 e.preventDefault();
                 const targetPageNum = parseInt(listItem.dataset.page, 10);
-                // targetPageNum is 1-based content page, which is also its 0-based array index
                 if (!isNaN(targetPageNum) && targetPageNum >= 1 && targetPageNum < allPageElements.length) {
                     showPage(targetPageNum);
                 }
             }
         });
 
-        // Go to Page button (Control Panel)
         goButton.addEventListener('click', () => {
             const val = pageInputEl.value.trim();
             if (val === "") return;
@@ -808,8 +856,6 @@
                 }
             }
             
-            // pageNum from input is 1-based for content pages.
-            // This directly maps to the 0-based array index for content pages.
             if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= maxContentPageNumber) {
                 showPage(pageNum);
                 pageInputEl.value = '';
@@ -824,10 +870,8 @@
             }
         });
 
-        // Bookmark button (Control Panel)
         bookmarkButton.addEventListener('click', toggleBookmark);
 
-        // Swipe Navigation
         let touchStartX = 0;
         let touchStartY = 0;
         viewportContainer.addEventListener('touchstart', (e) => {
@@ -844,19 +888,18 @@
             const deltaX = touchEndX - touchStartX;
             const deltaY = touchEndY - touchStartY;
 
-            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) { // Threshold
-                if (deltaX < 0) showPage(currentPageIdx + 1); // Swipe Left
-                else showPage(currentPageIdx - 1); // Swipe Right
+            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) { 
+                if (deltaX < 0) showPage(currentPageIdx + 1); 
+                else showPage(currentPageIdx - 1); 
             }
             touchStartX = 0; touchStartY = 0;
         }, { passive: true });
 
-        // Pinch Zoom
         let initialPinchDistance = null;
         let lastZoomScale = currentZoomScale;
         viewportContainer.addEventListener('touchstart', (e) => {
             if (e.touches.length === 2) {
-                e.preventDefault(); // Prevent default browser zoom
+                e.preventDefault(); 
                 const dx = e.touches[0].clientX - e.touches[1].clientX;
                 const dy = e.touches[0].clientY - e.touches[1].clientY;
                 initialPinchDistance = Math.sqrt(dx * dx + dy * dy);
@@ -871,7 +914,7 @@
                 const dy = e.touches[0].clientY - e.touches[1].clientY;
                 const currentPinchDistance = Math.sqrt(dx * dx + dy * dy);
                 const scaleRatio = currentPinchDistance / initialPinchDistance;
-                currentZoomScale = Math.max(0.2, Math.min(lastZoomScale * scaleRatio, 4)); // Clamp zoom
+                currentZoomScale = Math.max(0.2, Math.min(lastZoomScale * scaleRatio, 4)); 
                 paperScaler.style.transform = `scale(${currentZoomScale})`;
             }
         }, { passive: false });
@@ -880,16 +923,14 @@
             if (e.touches.length < 2) initialPinchDistance = null;
         });
         
-        // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
-            // Don't interfere if an input field is focused
             if (document.activeElement === pageInputEl || 
                 document.activeElement.tagName === 'INPUT' ||
                 document.activeElement.tagName === 'TEXTAREA') {
                 return;
             }
 
-            if (e.ctrlKey || e.metaKey) { // CMD on Mac
+            if (e.ctrlKey || e.metaKey) { 
                 switch(e.key.toLowerCase()) {
                     case 'b':
                         e.preventDefault();
@@ -922,7 +963,7 @@
 
         // --- Initialization ---
         function init() {
-            loadBookmarks(); // Load bookmarks first
+            loadBookmarks(); 
 
             const storedDataString = localStorage.getItem(jsonDataStorageKey);
             if (storedDataString) {
@@ -930,14 +971,13 @@
                     const data = JSON.parse(storedDataString);
                     if (data && Array.isArray(data) && data.length > 0) {
                         const generatedPages = generatePagesFromData(data);
-                        displayPages(generatedPages);
-                        // Initial UI updates that depend on currentPageIdx being set by displayPages -> showPage
+                        displayPages(generatedPages); // This calls showPage and fitPaperToViewport
                         updateBookmarkButtonState(); 
                         updatePageBookmarkIndicator(currentPageIdx);
                     } else {
                         paperScaler.innerHTML = '<div class="a4-page active" style="text-align:center; padding-top:100px; display:block;">No data to display.</div>';
                         currentPageInfoEl.textContent = "No Data";
-                         renderBookmarksInControlPanel(); // Show "None" if no bookmarks
+                         renderBookmarksInControlPanel(); 
                     }
                 } catch (err) {
                     console.error("Error parsing data:", err);
@@ -950,6 +990,8 @@
                 currentPageInfoEl.textContent = "No Data Loaded";
                  renderBookmarksInControlPanel();
             }
+             // Ensure fitPaperToViewport is called once after everything is potentially set up
+            fitPaperToViewport();
         }
 
         init();
