@@ -244,9 +244,11 @@
         /* Open Control Panel Button */
         .open-control-panel-btn {
             position: fixed;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
+            /* MODIFIED: Centered horizontally at the bottom */
+            left: 50%;
+            bottom: 10px; /* Positioned above prev/next buttons */
+            transform: translateX(-50%); /* Center horizontally */
+            /* END MODIFIED */
             z-index: 1000; 
             background: linear-gradient(135deg, #2c3e50, #34495e);
             color: white;
