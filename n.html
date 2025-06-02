@@ -180,18 +180,18 @@
         /* Bookmark Indicator on Page */
         .bookmark-indicator-icon { /* JS will add this div if page is bookmarked */
             position: absolute;
-            top: 20px; /* Position from user CSS */
-            right: 20px;/* Position from user CSS */
-            font-size: 24px; /* Size from user CSS */
-            color: #f39c12; /* Color from user CSS */
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3); /* Shadow from user CSS */
+            top: 20px; 
+            right: 20px;
+            font-size: 24px; 
+            color: #f39c12; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3); 
             user-select: none;
             z-index: 5;
-            display: none; /* Hidden by default */
+            display: none; 
         }
-        .a4-page.has-bookmark .bookmark-indicator-icon { /* JS adds has-bookmark class */
+        .a4-page.has-bookmark .bookmark-indicator-icon { 
             display: block;
-            animation: bookmarkPulse 2s infinite; /* Animation from user CSS */
+            animation: bookmarkPulse 2s infinite; 
         }
 
         @keyframes bookmarkPulse {
@@ -241,29 +241,88 @@
             right: 15px;
         }
 
-        /* Control Panel (from user's CSS) */
+        /* Open Control Panel Button */
+        .open-control-panel-btn {
+            position: fixed;
+            /* MODIFIED: Centered horizontally at the bottom */
+            left: 50%;
+            bottom: 10px; /* Positioned above prev/next buttons */
+            transform: translateX(-50%); /* Center horizontally */
+            /* END MODIFIED */
+            z-index: 1000; 
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            border: none;
+            width: 44px; 
+            height: 44px; 
+            font-size: 22px; 
+            cursor: pointer;
+            border-radius: 50%; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            user-select: none;
+            display: flex; /* For centering icon */
+            align-items: center;
+            justify-content: center;
+        }
+        .open-control-panel-btn:hover {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            transform: translateY(-50%) scale(1.1); 
+        }
+        /* JS will set display: none when panel is open */
+
+        /* Control Panel */
         .control-panel {
             position: fixed;
             top: 15px;
             right: 15px;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px); /* Safari */
+            -webkit-backdrop-filter: blur(10px);
             border-radius: 12px;
             padding: 15px;
+            padding-top: 40px; /* Extra padding for close button */
             box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            z-index: 1001; /* Above nav buttons */
-            display: flex;
+            z-index: 1001; 
+            display: flex; /* Set by JS, but default flex for layout */
             flex-direction: column;
             gap: 10px;
             min-width: 200px;
+            
+            /* Animation properties */
+            opacity: 0;
+            transform: translateX(100%); /* Default: slide from right */
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+            /* visibility: hidden; JS handles display:none after transition */
+        }
+        .control-panel.visible { /* Added by JS to show */
+            opacity: 1;
+            transform: translateX(0);
+            /* visibility: visible; */
         }
 
-        .current-page-info { /* Renamed from user's `current-page-info` to match JS `currentPageInfoEl` */
+        .close-control-panel-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            color: #7f8c8d;
+            cursor: pointer;
+            padding: 5px 8px;
+            line-height: 1;
+            z-index: 10; /* Above other panel content */
+        }
+        .close-control-panel-btn:hover {
+            color: #e74c3c;
+        }
+
+        .current-page-info { 
             font-size: 12px;
-            color: #333; /* Darker for better readability */
+            color: #333; 
             text-align: center;
-            padding: 8px; /* More padding */
+            padding: 8px; 
             background: #f8f9fa;
             border-radius: 6px;
             font-weight: 500;
@@ -279,10 +338,10 @@
             font-size: 12px; color: #2c3e50; user-select: none;
         }
 
-        .page-input { /* Renamed from user's `page-input` to match JS `pageInputEl` */
+        .page-input { 
             width: 60px;
             padding: 8px;
-            border: 2px solid #ced4da; /* Slightly darker border */
+            border: 2px solid #ced4da; 
             border-radius: 6px;
             text-align: center;
             font-size: 14px;
@@ -294,8 +353,7 @@
             box-shadow: 0 0 0 0.2rem rgba(52,152,219,.25);
         }
 
-        /* Button styling for Go and Bookmark in control panel */
-        .control-panel-button { /* Common class for buttons in panel */
+        .control-panel-button { 
             padding: 8px 12px;
             border: none;
             border-radius: 6px;
@@ -311,23 +369,22 @@
         .control-panel-button:hover {
             transform: translateY(-1px);
         }
-         /* Specific ID styles if needed, or use common class primarily */
-        #goButton { /* Was .go-btn */
+        #goButton { 
             background: linear-gradient(135deg, #27ae60, #2ecc71);
         }
         #goButton:hover {
             background: linear-gradient(135deg, #2ecc71, #27ae60);
         }
 
-        #bookmarkButton { /* Was .bookmark-btn */
+        #bookmarkButton { 
             background: linear-gradient(135deg, #f39c12, #e67e22);
-            min-width: 30px; /* For the star icon */
+            min-width: 30px; 
         }
         #bookmarkButton:hover {
             background: linear-gradient(135deg, #e67e22, #f39c12);
         }
-        #bookmarkButton.bookmarked { /* Class added by JS */
-            background: linear-gradient(135deg, #e74c3c, #c0392b); /* Red when bookmarked */
+        #bookmarkButton.bookmarked { 
+            background: linear-gradient(135deg, #e74c3c, #c0392b); 
         }
 
 
@@ -344,18 +401,18 @@
             user-select: none;
         }
 
-        .bookmark-list { /* ID'd as `bookmarkListEl` in JS */
+        .bookmark-list { 
             display: flex;
             flex-wrap: wrap;
             gap: 5px;
-            max-height: 100px; /* Prevent it from growing too large */
-            overflow-y: auto; /* Add scroll if many bookmarks */
+            max-height: 100px; 
+            overflow-y: auto; 
         }
-        .bookmark-list .no-bookmarks-message { /* Class for "None" message */
+        .bookmark-list .no-bookmarks-message { 
              font-size: 11px; color: #7f8c8d; font-style: italic;
         }
 
-        .bookmark-item { /* Class for individual bookmark links in the panel */
+        .bookmark-item { 
             background: linear-gradient(135deg, #3498db, #2980b9);
             color: white;
             padding: 4px 8px;
@@ -369,7 +426,6 @@
             transform: scale(1.05);
         }
 
-        /* Hidden div for measuring content height */
         #contentMeasurer {
             position: absolute;
             visibility: hidden;
@@ -388,31 +444,36 @@
             margin-bottom: 12px; font-size: 11pt;
         }
 
-        /* Responsive adjustments from user CSS */
         @media (max-width: 768px) {
             .control-panel {
-                bottom: 70px; /* Position above prev/next buttons */
+                bottom: 70px; 
                 top: auto;
                 right: 15px;
                 left: 15px;
-                width: auto; /* Adjust width */
-                flex-direction: column; /* Stack sections vertically for better fit */
+                width: auto; 
+                flex-direction: column; 
                 padding: 10px;
+                padding-top: 35px; /* Adjust for close button on mobile */
+                /* Override transform for mobile: slide from bottom */
+                transform: translateY(calc(100% + 70px)); /* 100% of its own height + its bottom offset */
+            }
+            .control-panel.visible {
+                transform: translateY(0); 
             }
              .page-nav-section {
-                flex-wrap: wrap; /* Allow items to wrap if needed */
+                flex-wrap: wrap; 
             }
             .page-nav-section .page-input {
-                flex-grow: 1; /* Allow input to take available space */
+                flex-grow: 1; 
             }
             .bookmarks-section {
-                border-top: 1px solid #e9ecef; /* Keep separator */
+                border-top: 1px solid #e9ecef; 
                 border-left: none;
                 padding-top: 10px;
                 padding-left: 0;
             }
             .prev-page-btn, .next-page-btn {
-                 font-size: 14px; /* Slightly smaller for mobile */
+                 font-size: 14px; 
                  padding: 10px 15px;
             }
             .back-arrow-doc {
@@ -422,10 +483,10 @@
         }
          @media (max-width: 480px) {
             .control-panel {
-                gap: 8px; /* Reduce gap for smaller screens */
+                gap: 8px; 
             }
             .page-nav-section span {
-                display: none; /* Hide "Go to:" label on very small screens */
+                display: none; 
             }
         }
 
@@ -433,6 +494,7 @@
 </head>
 <body>
     <a href="index.html" class="nav-button back-arrow-doc">←</a>
+    <button id="openControlPanelBtn" class="open-control-panel-btn" title="Open Controls">⚙️</button>
 
     <div class="viewport-container" id="viewportContainer">
         <div class="paper-scaler" id="paperScaler">
@@ -443,15 +505,15 @@
     <button class="nav-button prev-page-btn" id="prevButton">« Prev</button>
     <button class="nav-button next-page-btn" id="nextButton">Next »</button>
 
-    <!-- Control Panel (Structure from user's HTML) -->
-    <div class="control-panel">
+    <div class="control-panel"> <!-- JS will get this by querySelector('.control-panel') -->
+        <button id="closeControlPanelBtn" class="close-control-panel-btn" title="Close Controls">✖</button>
         <div class="current-page-info" id="currentPageInfoEl">Page 1/1</div>
         
         <div class="page-nav-section">
             <span>Go to:</span>
             <input type="number" class="page-input" id="pageInputEl" min="0" placeholder="Page #">
             <button class="control-panel-button" id="goButton">Go</button>
-            <button class="control-panel-button" id="bookmarkButton" title="Add bookmark">☆</button> <!-- Star outline for not bookmarked -->
+            <button class="control-panel-button" id="bookmarkButton" title="Add bookmark">☆</button>
         </div>
 
         <div class="bookmarks-section">
@@ -474,22 +536,23 @@
         const nextButton = document.getElementById('nextButton');
 
         // Control Panel Elements
+        const controlPanelEl = document.querySelector('.control-panel'); // Get the panel itself
+        const openControlPanelBtn = document.getElementById('openControlPanelBtn');
+        const closeControlPanelBtn = document.getElementById('closeControlPanelBtn');
         const pageInputEl = document.getElementById('pageInputEl');
         const goButton = document.getElementById('goButton');
         const bookmarkButton = document.getElementById('bookmarkButton');
         const currentPageInfoEl = document.getElementById('currentPageInfoEl');
         const bookmarkListEl = document.getElementById('bookmarkListEl');
         
-        // References to fixed UI elements that might obstruct content
         const backArrowEl = document.querySelector('.back-arrow-doc');
-        const controlPanelEl = document.querySelector('.control-panel');
-
+        // controlPanelEl is already defined above
 
         const KEY_MAPPING = { id: "id", questionText: "questionText", answer: "Answer", subject: "Subject" };
         const SUBJECT_ORDER = ["physics", "chemistry", "zoology", "botany", "mat"];
         const A4_PAGE_WIDTH_PX = 794;
         const A4_PAGE_HEIGHT_PX = 1123;
-        const A4_VERTICAL_PADDING_PX = 60; // This is padding INSIDE the A4 page
+        const A4_VERTICAL_PADDING_PX = 60; 
         const A4_CONTENT_HEIGHT_PX = A4_PAGE_HEIGHT_PX - (2 * A4_VERTICAL_PADDING_PX);
         const BOOKMARKS_STORAGE_KEY = 'studyDocBookmarks_v3'; 
 
@@ -499,11 +562,60 @@
         let maxContentPageNumber = 0; 
         let bookmarks = new Set(); 
 
+        // Initial state for control panel toggle
+        if (controlPanelEl) controlPanelEl.style.display = 'none'; // Start hidden
+        if (controlPanelEl) controlPanelEl.classList.remove('visible'); // Ensure animation class is not present
+        if (openControlPanelBtn) openControlPanelBtn.style.display = 'flex'; // Start visible (use flex due to its styling)
+
+
         function sanitize(text) {
             const element = document.createElement('div');
             element.innerText = text;
             return element.innerHTML;
         }
+
+        // --- Control Panel Toggle Functions ---
+        function showControlPanel() {
+            if (!controlPanelEl || !openControlPanelBtn) return;
+            controlPanelEl.style.display = 'flex'; // Make it occupy space for layout
+            // Timeout to allow display property to apply before transition starts
+            setTimeout(() => {
+                controlPanelEl.classList.add('visible');
+            }, 10); 
+            openControlPanelBtn.style.display = 'none';
+            fitPaperToViewport(); // Recalculate, panel is now part of layout
+        }
+
+        function hideControlPanel() {
+            if (!controlPanelEl || !openControlPanelBtn) return;
+            controlPanelEl.classList.remove('visible'); // Start transition out
+            openControlPanelBtn.style.display = 'flex'; // Show the open button
+
+            const onTransitionEnd = (event) => {
+                // Check if the transition that ended is one we care about (opacity or transform)
+                // and if the panel is actually hidden (no 'visible' class)
+                if ((event.propertyName === 'opacity' || event.propertyName === 'transform') && 
+                    !controlPanelEl.classList.contains('visible')) {
+                    controlPanelEl.style.display = 'none';
+                    controlPanelEl.removeEventListener('transitionend', onTransitionEnd);
+                    fitPaperToViewport(); // Recalculate, panel is no longer part of layout
+                }
+            };
+            controlPanelEl.addEventListener('transitionend', onTransitionEnd);
+
+            // Fallback for safety, in case transitionend doesn't fire (e.g., no transition defined)
+            setTimeout(() => {
+                if (!controlPanelEl.classList.contains('visible') && controlPanelEl.style.display !== 'none') {
+                    controlPanelEl.style.display = 'none';
+                    controlPanelEl.removeEventListener('transitionend', onTransitionEnd);
+                    fitPaperToViewport();
+                }
+            }, 350); // Slightly longer than CSS transition (0.3s = 300ms)
+        }
+        
+        if (openControlPanelBtn) openControlPanelBtn.addEventListener('click', showControlPanel);
+        if (closeControlPanelBtn) closeControlPanelBtn.addEventListener('click', hideControlPanel);
+
 
         // --- Bookmark Functions ---
         function loadBookmarks() {
@@ -577,7 +689,12 @@
                 }
                 item.textContent = pageLabel;
                 item.title = `Go to ${pageLabel.toLowerCase().startsWith('p') ? 'page ' + pageLabel.substring(1) : pageLabel}`;
-                item.addEventListener('click', () => showPage(pageIndex));
+                item.addEventListener('click', () => {
+                    showPage(pageIndex);
+                    if (window.innerWidth <= 768) { // Close panel on mobile after clicking bookmark
+                        hideControlPanel();
+                    }
+                });
                 bookmarkListEl.appendChild(item);
             });
         }
@@ -750,57 +867,51 @@
             if (currentPageIdx === 0 && allPageElements[0]?.classList.contains('index-page')) {
                 displayLabel = "Index Page";
             } else {
-                displayLabel = `Page ${currentPageIdx} of ${maxContentPageNumber}`;
+                // The page number displayed for content pages should be its sequential number (1-based from pageInput)
+                // currentPageIdx for the first content page is 1.
+                displayLabel = `Page ${currentPageIdx} of ${maxContentPageNumber}`; 
             }
             currentPageInfoEl.textContent = displayLabel;
         }
 
-        // --- MODIFIED FUNCTION ---
         function fitPaperToViewport() {
             const vpWidth = viewportContainer.clientWidth;
             const vpHeight = viewportContainer.clientHeight;
 
-            let effectiveTopClearance = 15; // Minimum clearance from viewport top edge + visual gap
-            let effectiveBottomClearance = 15; // Minimum clearance from viewport bottom edge + visual gap
-            const horizontalPadding = 40; // Total horizontal padding (e.g., 20px left, 20px right)
+            let effectiveTopClearance = 15; 
+            let effectiveBottomClearance = 15; 
+            const horizontalPadding = 40; 
 
-            // Calculate top clearance needed for fixed elements
             if (backArrowEl) {
                 const rect = backArrowEl.getBoundingClientRect();
-                // Element is visible and positioned near the top
-                if (rect.height > 0 && rect.top < vpHeight * 0.25) { // Heuristic: in top 25% of viewport
-                    effectiveTopClearance = Math.max(effectiveTopClearance, rect.bottom + 10 /* desired visual gap */);
+                if (rect.height > 0 && rect.top < vpHeight * 0.25) { 
+                    effectiveTopClearance = Math.max(effectiveTopClearance, rect.bottom + 10);
                 }
             }
 
-            if (controlPanelEl) {
+            if (controlPanelEl && controlPanelEl.style.display !== 'none' && controlPanelEl.classList.contains('visible')) {
                 const rect = controlPanelEl.getBoundingClientRect();
                 const style = window.getComputedStyle(controlPanelEl);
-                if (style.position === 'fixed' && rect.height > 0) {
-                    // Check if anchored to top (e.g., style.top is '15px')
-                    if (style.top !== 'auto' && style.top !== '' && parseFloat(style.top) < vpHeight * 0.5) { // Heuristic: top is set and in upper half
-                        effectiveTopClearance = Math.max(effectiveTopClearance, rect.bottom + 10 /* desired visual gap */);
+                 if (style.position === 'fixed' && rect.height > 0) {
+                    if (style.top !== 'auto' && style.top !== '' && parseFloat(style.top) < vpHeight * 0.5) { 
+                        effectiveTopClearance = Math.max(effectiveTopClearance, rect.bottom + 10);
                     }
-                    // Check if anchored to bottom (e.g., style.bottom is '70px' on mobile)
-                    // Space occupied from bottom = (vpHeight - rect.top) which is (distanceFromBottomEdge + elementHeight)
-                    else if (style.bottom !== 'auto' && style.bottom !== '' && parseFloat(style.bottom) < vpHeight * 0.5) { // Heuristic: bottom is set and positioning element in lower half
-                         effectiveBottomClearance = Math.max(effectiveBottomClearance, (vpHeight - rect.top) + 10 /* desired visual gap */);
+                    else if (style.bottom !== 'auto' && style.bottom !== '' && parseFloat(style.bottom) < vpHeight * 0.5) { 
+                         effectiveBottomClearance = Math.max(effectiveBottomClearance, (vpHeight - rect.top) + 10);
                     }
                 }
             }
 
-            // Calculate bottom clearance needed for fixed elements (prevButton and nextButton are script-globals)
             if (prevButton) {
                 const rect = prevButton.getBoundingClientRect();
-                 // Element is visible and positioned near the bottom
-                if (rect.height > 0 && rect.bottom > vpHeight * 0.75) { // Heuristic: in bottom 25% of viewport
-                    effectiveBottomClearance = Math.max(effectiveBottomClearance, (vpHeight - rect.top) + 10 /* desired visual gap */);
+                if (rect.height > 0 && rect.bottom > vpHeight * 0.75) { 
+                    effectiveBottomClearance = Math.max(effectiveBottomClearance, (vpHeight - rect.top) + 10);
                 }
             }
             if (nextButton) {
                 const rect = nextButton.getBoundingClientRect();
-                if (rect.height > 0 && rect.bottom > vpHeight * 0.75) { // Heuristic: in bottom 25% of viewport
-                    effectiveBottomClearance = Math.max(effectiveBottomClearance, (vpHeight - rect.top) + 10 /* desired visual gap */);
+                if (rect.height > 0 && rect.bottom > vpHeight * 0.75) { 
+                    effectiveBottomClearance = Math.max(effectiveBottomClearance, (vpHeight - rect.top) + 10);
                 }
             }
             
@@ -808,9 +919,7 @@
             const availableHeight = vpHeight - effectiveTopClearance - effectiveBottomClearance;
             
             if (availableWidth <= 0 || availableHeight <= 0) {
-                paperScaler.style.transform = `scale(0.1)`; // Fallback scale
-                // console.warn("FitPaperToViewport: Calculated available space is too small or negative.", 
-                //              { vpWidth, vpHeight, effectiveTopClearance, effectiveBottomClearance, availableWidth, availableHeight });
+                paperScaler.style.transform = `scale(0.1)`; 
                 return;
             }
 
@@ -818,12 +927,11 @@
             const scaleY = availableHeight / A4_PAGE_HEIGHT_PX;
             
             let newBaseScale = Math.min(scaleX, scaleY);
-            newBaseScale = Math.max(0.1, newBaseScale); // Ensure scale is not too small or zero/negative
+            newBaseScale = Math.max(0.1, newBaseScale); 
 
             currentZoomScale = newBaseScale; 
             paperScaler.style.transform = `scale(${currentZoomScale})`;
         }
-        // --- END OF MODIFIED FUNCTION ---
 
 
         // --- Event Handlers ---
@@ -836,8 +944,9 @@
             if (listItem) {
                 e.preventDefault();
                 const targetPageNum = parseInt(listItem.dataset.page, 10);
+                // targetPageNum from index is 1-based content page, which matches currentPageIdx for content pages
                 if (!isNaN(targetPageNum) && targetPageNum >= 1 && targetPageNum < allPageElements.length) {
-                    showPage(targetPageNum);
+                    showPage(targetPageNum); 
                 }
             }
         });
@@ -848,17 +957,20 @@
 
             const pageNum = parseInt(val, 10);
 
-            if (val.toLowerCase() === "index" || pageNum === 0) {
+            if (val.toLowerCase() === "index" || pageNum === 0) { // Go to index page
                 if (allPageElements[0] && allPageElements[0].classList.contains('index-page')) {
                     showPage(0);
                     pageInputEl.value = '';
+                    if (window.innerWidth <= 768) hideControlPanel();
                     return;
                 }
             }
             
+            // pageNum is 1-based for content pages here, which is currentPageIdx for content pages
             if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= maxContentPageNumber) {
-                showPage(pageNum);
+                showPage(pageNum); // pageNum is the direct index for content pages
                 pageInputEl.value = '';
+                if (window.innerWidth <= 768) hideControlPanel();
             } else {
                 alert(`Invalid page. Enter 0 or "Index", or a content page number between 1 and ${maxContentPageNumber}.`);
                 pageInputEl.focus();
@@ -883,6 +995,18 @@
 
         viewportContainer.addEventListener('touchend', (e) => {
             if (touchStartX === 0 || e.changedTouches.length !== 1) return;
+            // Prevent swipe if control panel is open on mobile and touch is within its bounds
+            if (controlPanelEl && controlPanelEl.classList.contains('visible') && window.innerWidth <= 768) {
+                const panelRect = controlPanelEl.getBoundingClientRect();
+                const touchX = e.changedTouches[0].clientX;
+                const touchY = e.changedTouches[0].clientY;
+                if (touchX >= panelRect.left && touchX <= panelRect.right &&
+                    touchY >= panelRect.top && touchY <= panelRect.bottom) {
+                    touchStartX = 0; touchStartY = 0;
+                    return; 
+                }
+            }
+
             const touchEndX = e.changedTouches[0].clientX;
             const touchEndY = e.changedTouches[0].clientY;
             const deltaX = touchEndX - touchStartX;
@@ -898,6 +1022,19 @@
         let initialPinchDistance = null;
         let lastZoomScale = currentZoomScale;
         viewportContainer.addEventListener('touchstart', (e) => {
+            // Prevent pinch zoom if control panel is open on mobile and touch is within its bounds
+            if (controlPanelEl && controlPanelEl.classList.contains('visible') && window.innerWidth <= 768) {
+                 if (e.touches.length === 2) {
+                    const panelRect = controlPanelEl.getBoundingClientRect();
+                    const touch1X = e.touches[0].clientX; const touch1Y = e.touches[0].clientY;
+                    const touch2X = e.touches[1].clientX; const touch2Y = e.touches[1].clientY;
+                    if ((touch1X >= panelRect.left && touch1X <= panelRect.right && touch1Y >= panelRect.top && touch1Y <= panelRect.bottom) ||
+                        (touch2X >= panelRect.left && touch2X <= panelRect.right && touch2Y >= panelRect.top && touch2Y <= panelRect.bottom)) {
+                        return; // One or both touches are on the panel
+                    }
+                }
+            }
+
             if (e.touches.length === 2) {
                 e.preventDefault(); 
                 const dx = e.touches[0].clientX - e.touches[1].clientX;
@@ -909,6 +1046,11 @@
 
         viewportContainer.addEventListener('touchmove', (e) => {
             if (e.touches.length === 2 && initialPinchDistance) {
+                // Check again for panel overlap during move (though initial block should be sufficient)
+                 if (controlPanelEl && controlPanelEl.classList.contains('visible') && window.innerWidth <= 768) {
+                    // Simplified check: if panel is visible on mobile, don't process pinch zoom for page
+                    return;
+                 }
                 e.preventDefault();
                 const dx = e.touches[0].clientX - e.touches[1].clientX;
                 const dy = e.touches[0].clientY - e.touches[1].clientY;
@@ -938,8 +1080,21 @@
                         break;
                     case 'g':
                         e.preventDefault();
+                        if (controlPanelEl && controlPanelEl.style.display === 'none') {
+                            showControlPanel();
+                        }
                         pageInputEl.focus();
                         pageInputEl.select();
+                        break;
+                    case 'o': // Ctrl+O or Cmd+O to toggle control panel
+                        e.preventDefault();
+                        if (controlPanelEl) {
+                            if (controlPanelEl.classList.contains('visible')) {
+                                hideControlPanel();
+                            } else {
+                                showControlPanel();
+                            }
+                        }
                         break;
                 }
             } else {
@@ -954,6 +1109,12 @@
                         if (currentPageIdx < allPageElements.length - 1) {
                             e.preventDefault();
                             showPage(currentPageIdx + 1);
+                        }
+                        break;
+                    case 'Escape': // Escape to close control panel if open
+                        if (controlPanelEl && controlPanelEl.classList.contains('visible')) {
+                            e.preventDefault();
+                            hideControlPanel();
                         }
                         break;
                 }
@@ -971,7 +1132,7 @@
                     const data = JSON.parse(storedDataString);
                     if (data && Array.isArray(data) && data.length > 0) {
                         const generatedPages = generatePagesFromData(data);
-                        displayPages(generatedPages); // This calls showPage and fitPaperToViewport
+                        displayPages(generatedPages); 
                         updateBookmarkButtonState(); 
                         updatePageBookmarkIndicator(currentPageIdx);
                     } else {
@@ -990,8 +1151,10 @@
                 currentPageInfoEl.textContent = "No Data Loaded";
                  renderBookmarksInControlPanel();
             }
-             // Ensure fitPaperToViewport is called once after everything is potentially set up
-            fitPaperToViewport();
+            // fitPaperToViewport is called by displayPages, or should be called explicitly if no pages
+            if (allPageElements.length === 0) {
+                 fitPaperToViewport();
+            }
         }
 
         init();
