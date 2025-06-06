@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusDiv = document.getElementById('status');
     const dataOutputDiv = document.getElementById('dataOutput');
 
-    const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTDAMB0qsDiZMizUdlfjLImiT9R2H_K266U3k30rjv0CUuPoI66qDKociYAzYEftngisBHt5QOiOXCN/pub?output=csv';
+    const spreadsheetUrl = 'https://script.google.com/macros/s/AKfycbxZZljxpIqKDPlkyyroFj1udnidM7ZhyfNzDc4KwZAS5_ZlnaIiMurWF7L4xHdRUYx6/exec';
 
     const rawCsvStorageKey = 'rawSpreadsheetCsvData_v2';
     const jsonDataStorageKey = 'structuredSpreadsheetJsData_v2';
