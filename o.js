@@ -3,7 +3,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusDiv = document.getElementById('status');
     const dataOutputDiv = document.getElementById('dataOutput');
 
-    const spreadsheetUrl = 'https://script.google.com/macros/s/AKfycbxZZljxpIqKDPlkyyroFj1udnidM7ZhyfNzDc4KwZAS5_ZlnaIiMurWF7L4xHdRUYx6/exec';
+    // --- START: CONFIGURATION YOU NEED TO UPDATE ---
+
+    // 1. Paste the NEW Web App URL you got after deploying the Apps Script.
+    //    It must be the one deployed with "Who has access: Anyone".
+    const webAppUrl = 'https://script.google.com/macros/s/AKfycbwyQqyK6TDWsHmD3ZcfsDUmCeyJBtGRFG6V_tUFs6NbvvwnnbMaIG95qsRr2aZvBynO/exec'; // <-- CHANGE THIS
+
+    // 2. Paste the EXACT same secret key you created in your Apps Script.
+    const secretApiKey = 'Saksham-is-great-guy'; // <-- CHANGE THIS
+
+    // --- END: CONFIGURATION ---
+
+
+    // This line constructs the final URL to be fetched. No need to change this.
+    const spreadsheetUrl = `${webAppUrl}?apiKey=${secretApiKey}`;
 
     const rawCsvStorageKey = 'rawSpreadsheetCsvData_v2';
     const jsonDataStorageKey = 'structuredSpreadsheetJsData_v2';
@@ -75,6 +88,18 @@ document.addEventListener('DOMContentLoaded', () => {
     function convertCsvToJs(csv) {
         const trimmedCsv = csv.trim().replace(/\r\n/g, '\n').replace(/\r/g, '\n');
         if (!trimmedCsv) return [];
+
+        // Check if the response is an error JSON from the Apps Script
+        try {
+            const errorCheck = JSON.parse(trimmedCsv);
+            if (errorCheck.error) {
+                // If it is an error, we throw it to be caught by the .catch block
+                throw new Error(`API Error: ${errorCheck.error}`);
+            }
+        } catch (e) {
+            // This is expected for valid CSV data, which is not valid JSON.
+            // If it was a real API error, it would have been thrown above.
+        }
 
         const lines = trimmedCsv.split('\n');
         if (lines.length < 1) return [];
@@ -164,18 +189,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Event listener for the sync button
     syncButton.addEventListener('click', () => {
-        // --- START: LOGIN CHECK ---
+        // --- START: YOUR CUSTOM LOGIN CHECK ---
         if (!isClientSideLoggedIn()) {
             statusDiv.textContent = 'Error: You must be logged in to sync data. Please log in and try again.';
             statusDiv.style.color = 'red'; // Style the error message
-            // Optionally, clear the data output if you prefer
-            // dataOutputDiv.innerHTML = '<p>Login required to perform this action.</p>';
             return; // Stop further execution of the sync process
         }
         // --- END: LOGIN CHECK ---
 
-        // If login check passes, reset statusDiv color (if it was red) and proceed
-        statusDiv.style.color = ''; // Or your default status text color
+        // If login check passes, proceed with the fetch using the secure URL
+        statusDiv.style.color = '';
         statusDiv.textContent = 'Fetching data from spreadsheet...';
         dataOutputDiv.innerHTML = '<p><em>Processing your request...</em></p>';
         syncButton.disabled = true;
@@ -193,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log("Raw CSV data saved to local storage.");
 
                 statusDiv.textContent = 'Converting CSV to JS format with custom mappings...';
-                const jsonData = convertCsvToJs(csvText);
+                const jsonData = convertCsvToJs(csvText); // This now also handles API errors
 
                 localStorage.setItem(jsonDataStorageKey, JSON.stringify(jsonData));
                 console.log("Structured JS data saved to local storage:", jsonData);
@@ -203,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .catch(error => {
                 statusDiv.textContent = `Error during sync: ${error.message}`;
-                statusDiv.style.color = 'red'; // Indicate error
+                statusDiv.style.color = 'red';
                 dataOutputDiv.innerHTML = `<p>Failed to fetch or process data. Please check the console (F12) for more details. Error: ${error.message}</p>`;
                 console.error('Sync process failed:', error);
             })
