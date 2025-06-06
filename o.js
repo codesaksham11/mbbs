@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 1. Paste the NEW Web App URL you got after deploying the Apps Script.
     //    It must be the one deployed with "Who has access: Anyone".
-    const webAppUrl = 'https://script.google.com/macros/s/AKfycbznVqse8NTGp_uy16q0uPjHDCWdzjNmkJ1N77v5e_6lOJsiT-pOXLgq4QSfOSLwFrsd/exec'; // <-- CHANGE THIS
+    const webAppUrl = 'https://script.google.com/macros/s/AKfycbxlmM1wR4IdS2UvrW04UFoiO-j78ANeA2JEZGQgLL645lqxfkWGfkA784dK90TWMEHG/exec'; // <-- CHANGE THIS
 
     // 2. Paste the EXACT same secret key you created in your Apps Script.
     const secretApiKey = 'Saksham-is-great-guy'; // <-- CHANGE THIS
