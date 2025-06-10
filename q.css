@@ -1,0 +1,94 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+h2 {
+    color: #555;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+    margin-top: 30px;
+}
+
+p {
+    margin-bottom: 15px;
+}
+
+#syncButton {
+    display: block;
+    width: 200px;
+    margin: 20px auto;
+    padding: 12px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+#syncButton:hover {
+    background-color: #0056b3;
+}
+
+#syncButton:active {
+    background-color: #004085;
+}
+
+#status {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #e9ecef;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-style: italic;
+}
+
+#dataOutput {
+    margin-top: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    min-height: 100px;
+    max-height: 600px; /* Adjust as needed */
+    overflow: auto;
+}
+
+#dataOutput p { /* For placeholder text */
+    color: #666;
+}
+
+#dataOutput pre {
+    white-space: pre-wrap;    /* CSS3 */
+    white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+    white-space: -pre-wrap;   /* Opera 4-6 */
+    white-space: -o-pre-wrap;  /* Opera 7 */
+    word-wrap: break-word;    /* Internet Explorer 5.5+ */
+    background-color: #eef; /* Light background for the JSON block */
+    padding: 15px;
+    border-radius: 4px;
+    border: 1px solid #cce;
+    font-family: "Courier New", Courier, monospace; /* Monospaced font for code */
+    font-size: 0.9em;
+}
