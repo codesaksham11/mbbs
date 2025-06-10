@@ -19,7 +19,7 @@ export async function onRequestPost(context) {
         });
     }
 
-    const SESSION_TTL_SECONDS = 3600 * 24 * 7; // 7 days session validity (adjust as needed)
+    const SESSION_TTL_SECONDS = 3600 * 24 * 399; // 7 days session validity (adjust as needed)
 
     try {
         let userDataInput;
