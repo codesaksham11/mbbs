@@ -468,38 +468,105 @@ document.addEventListener('DOMContentLoaded', () => {
         finalizeQuiz(status);
     }
 
-    function finalizeQuiz(status) {
-        console.log(`k_quiz.js: finalizeQuiz called with status: ${status}`);
-        
-        const endTime = Date.now();
-        const timeTakenSec = startTime === 0 ? 
-            (status === "Time Out" ? quizTimeMinutes * 60 : 0) : 
-            Math.round((endTime - startTime) / 1000);
+    // PASTE THIS ENTIRE BLOCK TO REPLACE THE OLD finalizeQuiz FUNCTION IN k_quiz.js
 
-        const quizResults = {
-            totalQuestionsAskedInConfig: numQuestionsToAsk,
-            totalQuestionsDisplayed: selectedQuestions.length,
-            answeredQuestionsDetail: userAnswers,
-            status: status,
-            timeTaken: status === "Time Out" ? quizTimeMinutes * 60 : timeTakenSec,
-            maxTime: quizTimeMinutes * 60,
-            score: userAnswers.filter(ans => ans.isCorrect).length
-        };
+function finalizeQuiz(status) {
+    console.log(`k_quiz.js: finalizeQuiz called with status: ${status}`);
 
-        console.log("k_quiz.js: Quiz results:", quizResults);
-        
-        try {
-            localStorage.setItem('quizResults', JSON.stringify(quizResults));
-            console.log("k_quiz.js: Results saved to localStorage.");
-        } catch (e) {
-            console.error("k_quiz.js: Error saving results:", e);
-            showError("Error saving quiz results. Check console.");
-            return;
+    const endTime = Date.now();
+    const timeTakenSec = startTime === 0 ?
+        (status === "Time Out" ? quizTimeMinutes * 60 : 0) :
+        Math.round((endTime - startTime) / 1000);
+
+    // Calculate marks and percentage for this specific quiz
+    // These constants should ideally be defined globally or passed if they can change
+    // For simplicity, defining them here based on k_result.js
+    const MARKS_CORRECT = 1;
+    const MARKS_INCORRECT = -0.25;
+    const MARKS_SKIPPED = 0;
+    let marksObtainedForThisQuiz = 0;
+
+    userAnswers.forEach(ans => {
+        const userAnswerStr = String(ans.userAnswer); // Ensure it's a string
+        if (userAnswerStr === 'Not answered' || userAnswerStr === 'DOM Error') {
+            marksObtainedForThisQuiz += MARKS_SKIPPED;
+        } else if (ans.isCorrect) {
+            marksObtainedForThisQuiz += MARKS_CORRECT;
+        } else {
+            marksObtainedForThisQuiz += MARKS_INCORRECT;
         }
+    });
 
-        console.log("k_quiz.js: Redirecting to k_result.html");
-        window.location.href = 'k_result.html';
+    // Ensure totalQuestionsDisplayed is accurate for calculation
+    const questionsCountForCalc = selectedQuestions.length > 0 ? selectedQuestions.length : numQuestionsToAsk;
+    const totalPossibleMarksForThisQuiz = questionsCountForCalc * MARKS_CORRECT;
+
+    let percentageForThisQuiz = 0;
+    if (totalPossibleMarksForThisQuiz > 0) {
+        percentageForThisQuiz = Math.round((marksObtainedForThisQuiz / totalPossibleMarksForThisQuiz) * 1000) / 10;
+    } else if (questionsCountForCalc === 0) { // If no questions, percentage is arguably 0 or N/A
+        percentageForThisQuiz = 0;
     }
+
+
+    const currentQuizResult = {
+        timestamp: new Date().toISOString(), // Add a timestamp
+        totalQuestionsAskedInConfig: numQuestionsToAsk,
+        totalQuestionsDisplayed: selectedQuestions.length,
+        answeredQuestionsDetail: userAnswers,
+        status: status,
+        timeTaken: status === "Time Out" ? quizTimeMinutes * 60 : timeTakenSec,
+        maxTime: quizTimeMinutes * 60,
+        score: userAnswers.filter(ans => ans.isCorrect).length,
+        marksObtained: marksObtainedForThisQuiz,
+        totalPossibleMarks: totalPossibleMarksForThisQuiz,
+        percentage: percentageForThisQuiz
+    };
+
+    console.log("k_quiz.js: Current quiz result (for immediate display & history):", currentQuizResult);
+
+    // --- Save for immediate k_result.html page ---
+    try {
+        localStorage.setItem('quizResults', JSON.stringify(currentQuizResult));
+        console.log("k_quiz.js: Current result saved to localStorage (key: 'quizResults') for k_result.html.");
+    } catch (e) {
+        console.error("k_quiz.js: Error saving current result for k_result.html:", e);
+        // Continue to try saving to history
+    }
+
+    // --- Save to historical stats ---
+    let allHistoricalResults = [];
+    const historicalResultsKey = 'allQuizHistoricalResults_v1';
+    try {
+        const storedHistoricalResults = localStorage.getItem(historicalResultsKey);
+        if (storedHistoricalResults) {
+            allHistoricalResults = JSON.parse(storedHistoricalResults);
+            if (!Array.isArray(allHistoricalResults)) {
+                console.warn("k_quiz.js: Historical results (key: '" + historicalResultsKey + "') was not an array, resetting.");
+                allHistoricalResults = [];
+            }
+        }
+    } catch (e) {
+        console.error("k_quiz.js: Error reading historical quiz results (key: '" + historicalResultsKey + "'):", e);
+        allHistoricalResults = []; // Reset on error
+    }
+
+    allHistoricalResults.push(currentQuizResult); // Add the new result
+
+    try {
+        localStorage.setItem(historicalResultsKey, JSON.stringify(allHistoricalResults));
+        console.log("k_quiz.js: Current result appended to historical results (key: '" + historicalResultsKey + "'). Total entries: " + allHistoricalResults.length);
+    } catch (e) {
+        console.error("k_quiz.js: Error saving historical results (key: '" + historicalResultsKey + "'):", e);
+        showError("Error saving quiz statistics. Check console. Current result might still be available.");
+        // Don't return here, still try to redirect
+    }
+
+    console.log("k_quiz.js: Redirecting to k_result.html");
+    window.location.href = 'k_result.html';
+}
+
+// END OF PASTE BLOCK
 
     // --- Main Initialization ---
     function initializeQuiz() {
