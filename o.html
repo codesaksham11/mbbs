@@ -5,20 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spreadsheet Data Sync</title>
     <link rel="stylesheet" href="o.css">
+    <style>
+        /* CSS for the Back Button */
+        .back-button-container {
+            position: fixed; /* Or absolute, depending on desired behavior with scrolling */
+            top: 15px;
+            left: 15px;
+            z-index: 1000; /* Ensure it's on top of other elements if needed */
+        }
+
+        .back-button-container a {
+            text-decoration: none; /* Remove underline from link */
+        }
+
+        .back-button-container button {
+            background-color: #007bff; /* Example blue */
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            text-align: center;
+            font-size: 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .back-button-container button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+    </style>
 </head>
 <body>
+    <!-- Back Button -->
+    <div class="back-button-container">
+        <a href="index.html">
+            <button>← Back to Home</button> <!-- ← is a left arrow HTML entity -->
+        </a>
+    </div>
+
     <div class="container">
         <h1>Sync Your Spreadsheet Data</h1>
         <p>
-            Click the button below to fetch the latest data from the Google Sheet.
-            The raw CSV will be fetched, converted into a JavaScript (JS) format with specific key mappings,
-            and saved to your browser's local storage.
-            The text area below will display the latest synced JS data from local storage in JSON format.
+            Click the button below to get the lastest questions with recent updates
         </p>
         <button id="syncButton">Sync Data Now</button>
         <div id="status">Status: Idle</div>
         
-        <h2>Latest Synced JS Data (JSON Format from Local Storage)</h2>
+        <h2>Latest question avilable (press sync button if latest questions are not available) </h2>
         <div id="dataOutput">
             <p>No data has been synced yet, or no data was found in local storage on page load.</p>
         </div>
