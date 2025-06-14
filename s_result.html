@@ -9,6 +9,7 @@
     <!-- Google Fonts (Poppins) -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        /* CSS from k_result.css (slightly adapted for direct embedding) */
         /* Base Styles */
         body {
             font-family: 'Poppins', sans-serif;
@@ -52,7 +53,7 @@
             align-items: center;
             gap: 10px;
         }
-        header h1 .fa-trophy {
+        header h1 .fa-trophy, header h1 .fa-book-open-reader { /* Added fa-book-open-reader */
             font-size: 0.9em;
         }
 
@@ -71,6 +72,10 @@
         .error-message {
             color: #e74c3c; /* Premium error red */
             font-weight: 600;
+        }
+        .error-message a {
+            color: #f1c40f;
+            text-decoration: underline;
         }
 
         /* Hidden Utility */
@@ -139,13 +144,13 @@
             font-size: 1.6em;
             font-weight: 700;
             color: #ffffff; /* White */
+            word-break: break-word; /* For long subject names */
         }
 
         #time-taken-value.timeout {
             color: #e74c3c; /* Premium error red for the text itself */
             font-weight: bold;
         }
-
 
         /* Detailed Section */
         .detailed-section {
@@ -165,7 +170,6 @@
             gap: 10px;
         }
 
-        /* Detailed Subject Header Styling */
         .detailed-subject-header {
             color: #f1c40f; /* Gold */
             margin-top: 30px;
@@ -175,7 +179,6 @@
             font-size: 1.6em;
             font-weight: 600;
             text-align: left; /* Align to left for sectioning */
-            text-transform: capitalize;
         }
         .detailed-subject-header:first-child { /* Reduce top margin for the very first subject header in the list */
             margin-top: 10px;
@@ -184,9 +187,7 @@
 
         #answers-breakdown { margin-bottom: 30px; }
 
-        /* Detailed Question Card */
         .detailed-question-card {
-            /* Darker card background */
             background-color: rgba(44, 62, 80, 0.8);
             border: 2px solid rgba(127, 140, 141, 0.5); /* Default grey border */
             padding: 15px 20px;
@@ -213,6 +214,7 @@
             font-weight: 600;
             color: #ecf0f1; /* Light text */
             margin-bottom: 15px;
+            word-break: break-word;
         }
         .detailed-question-text strong { margin-right: 8px; color: #f1c40f; } /* Gold number */
 
@@ -239,7 +241,7 @@
         .detailed-options-list li.correct-option {
             color: #f1c40f !important; /* Gold correct, ensure it overrides default */
         }
-        .detailed-options-list li strong { /* For user's answer text part: "(Your answer)" */
+        .detailed-options-list li strong { /* For user's answer text part: "(Your answer)" and the option text itself if user selected it */
             color: #ffffff; /* Make user answer text stand out a bit more if it's not the correct one */
             font-weight: bold;
         }
@@ -298,7 +300,6 @@
             flex-wrap: wrap; gap: 15px;
         }
 
-        /* General Button Styles */
         .button {
             padding: 12px 28px; border: none; border-radius: 25px; font-size: 1.05em; font-weight: 600;
             cursor: pointer; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -332,15 +333,17 @@
             .action-buttons { flex-direction: column; align-items: center; }
             .button { width: 90%; text-align: center; margin-bottom: 10px; } /* Added margin for stacked buttons */
             .action-buttons .button:last-child { margin-bottom: 0; }
-            .legend ul { flex-direction: column; align-items: flex-start; gap: 10px; }
+
+            .legend ul { flex-direction: column; align-items: flex-start; gap: 10px; } /* Adjusted gap */
+            
             .detailed-options-list li {
                 flex-direction: column; /* Stack text and icons vertically */
                 align-items: flex-start; /* Align items to the start */
                 gap: 5px;
             }
             .detailed-options-list li .icon-wrapper {
-                margin-left: 0;
-                margin-top: 5px;
+                margin-left: 0; /* Remove left margin when stacked */
+                margin-top: 5px; /* Add some space above icons */
             }
         }
 
@@ -359,253 +362,313 @@
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-trophy"></i> Subject Practice Results <i class="fas fa-trophy"></i></h1>
+            <h1><i class="fas fa-book-open-reader"></i> Subject Practice Results <i class="fas fa-book-open-reader"></i></h1>
         </header>
 
-        <div class="summary-section">
-            <p class="encouragement" id="encouragementMessage">Well done on completing the practice!</p>
-            <div class="stats">
-                <div class="stat-item">
-                    <span class="stat-label"><i class="fas fa-check-circle"></i> Correct / Total</span>
-                    <span class="stat-value" id="correct-ratio-value">0 / 0</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label"><i class="fas fa-medal"></i> Marks Obtained</span>
-                    <span class="stat-value" id="marks-obtained-value">0 / 0</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label"><i class="fas fa-percentage"></i> Percentage Score</span>
-                    <span class="stat-value" id="score-percentage">0%</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label"><i class="fas fa-clock"></i> Time Taken</span>
-                    <span class="stat-value" id="time-taken-value">0s</span>
-                </div>
-            </div>
-            <button id="toggleDetailsButton" class="button tertiary-button">
-                <i class="fas fa-eye"></i> Show Details
-            </button>
+        <div id="loadingMessage" class="loading">
+            <i class="fas fa-spinner fa-spin"></i> Loading results...
         </div>
+        <div id="errorMessage" class="error-message hidden"></div>
 
-        <div id="detailedResultsSection" class="detailed-section hidden">
-            <h2><i class="fas fa-list-ul"></i> Detailed Breakdown</h2>
-            <div id="answers-breakdown">
-                <!-- Detailed results will be inserted here by JavaScript -->
+
+        <div id="resultsContent" class="hidden">
+            <div class="summary-section">
+                <p class="encouragement" id="encouragementMessage">Well done on completing the practice!</p>
+                <div class="stats">
+                    <div class="stat-item">
+                        <span class="stat-label"><i class="fas fa-book"></i> Subject</span>
+                        <span class="stat-value" id="practice-subject-value">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label"><i class="fas fa-check-circle"></i> Correct / Total</span>
+                        <span class="stat-value" id="correct-ratio-value">0 / 0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label"><i class="fas fa-medal"></i> Marks Obtained</span>
+                        <span class="stat-value" id="marks-obtained-value">0 / 0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label"><i class="fas fa-percentage"></i> Percentage Score</span>
+                        <span class="stat-value" id="score-percentage">0%</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label"><i class="fas fa-clock"></i> Time Taken</span>
+                        <span class="stat-value" id="time-taken-value">0s</span>
+                    </div>
+                </div>
+                <button id="toggleDetailsButton" class="button tertiary-button">
+                    <i class="fas fa-eye"></i> Show Details
+                </button>
             </div>
 
-            <div class="legend">
-                <h3><i class="fas fa-info-circle"></i> Legend:</h3>
-                <ul>
-                    <li><span class="legend-color correct"></span> Card: Correctly Answered</li>
-                    <li><span class="legend-color incorrect"></span> Card: Incorrectly Answered</li>
-                    <li><span class="legend-color skipped"></span> Card: Skipped Question</li>
-                    <li><strong style="color: #f1c40f;">Gold Option Text</strong>: Correct Option</li>
-                    <li><i class="fas fa-check icon" style="color: #2ecc71;"></i> : Marks the correct option.</li>
-                    <li><i class="fas fa-times icon" style="color: #e74c3c;"></i> : Marks your incorrect selection.</li>
-                </ul>
-            </div>
-        </div>
+            <div id="detailedResultsSection" class="detailed-section hidden">
+                <h2><i class="fas fa-list-ul"></i> Detailed Breakdown</h2>
+                <div id="answers-breakdown">
+                    <!-- Detailed results will be inserted here by JavaScript -->
+                </div>
 
-        <div class="action-buttons">
-            <button id="backButton" class="button secondary-button"><i class="fas fa-arrow-left"></i> Back to Subject Practice Setup</button>
+                <div class="legend">
+                    <h3><i class="fas fa-info-circle"></i> Legend:</h3>
+                    <ul>
+                        <li><span class="legend-color correct"></span> Card: Correctly Answered</li>
+                        <li><span class="legend-color incorrect"></span> Card: Incorrectly Answered</li>
+                        <li><span class="legend-color skipped"></span> Card: Skipped Question</li>
+                        <li><strong style="color: #f1c40f;">Gold Option Text</strong>: Correct Option</li>
+                        <li><i class="fas fa-check icon" style="color: #2ecc71;"></i> : Marks the correct option.</li>
+                        <li><i class="fas fa-times icon" style="color: #e74c3c;"></i> : Marks your incorrect selection.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button id="backButton" class="button secondary-button"><i class="fas fa-arrow-left"></i> Back to Practice Setup</button>
+                <button id="viewHistoryButton" class="button primary-button"><i class="fas fa-history"></i> View Practice History</button>
+            </div>
         </div>
     </div>
-
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const practiceResults = JSON.parse(localStorage.getItem('subjectPracticeCurrentResult'));
-
-        // Constants for scoring
-        const MARKS_CORRECT = 1;
-        const MARKS_INCORRECT = -0.25;
-        const MARKS_SKIPPED = 0;
-
-        if (!practiceResults || !practiceResults.answeredQuestionsDetail) {
-            alert('No valid practice results found or results are corrupted. Redirecting to setup.');
-            console.error("s_result.js: practiceResults or practiceResults.answeredQuestionsDetail is missing.");
-            window.location.href = 's.html';
-            return;
-        }
-
-        // --- 1. Calculate Core Metrics ---
-        let correctCount = 0;
-        let incorrectCount = 0;
-        let skippedCount = 0;
-        
-        // Use the marks already calculated in s_quiz.js for consistency
-        const marksObtained = practiceResults.marksObtained;
-        const totalPossibleMarks = practiceResults.totalPossibleMarks;
-        let percentageFromMarks = practiceResults.percentage;
-
-        // Recalculate counts for display
-        practiceResults.answeredQuestionsDetail.forEach(q => {
-            const userAnswerStr = String(q.userAnswer);
-            if (userAnswerStr === 'Not answered' || userAnswerStr === 'DOM Error') {
-                skippedCount++;
-            } else if (q.isCorrect) {
-                correctCount++;
-            } else {
-                incorrectCount++;
-            }
-        });
-
-        // Use the total number of questions that were actually shown to the user
-        const totalQuestionsInQuiz = practiceResults.totalQuestionsDisplayed || 0;
-
-        // --- 2. DOM Elements for Summary ---
-        const correctRatioEl = document.getElementById('correct-ratio-value');
-        const marksObtainedEl = document.getElementById('marks-obtained-value');
-        const scorePercentageEl = document.getElementById('score-percentage');
-        const timeTakenEl = document.getElementById('time-taken-value');
-        const encouragementMessageEl = document.getElementById('encouragementMessage');
-
-        // --- 3. Display Summary ---
-        if (correctRatioEl) correctRatioEl.textContent = `${correctCount} / ${totalQuestionsInQuiz}`;
-        if (marksObtainedEl) {
-            const formattedMarks = Number.isInteger(marksObtained) ? marksObtained : marksObtained.toFixed(2);
-            const formattedTotalPossible = Number.isInteger(totalPossibleMarks) ? totalPossibleMarks : totalPossibleMarks.toFixed(2);
-            marksObtainedEl.textContent = `${formattedMarks} / ${formattedTotalPossible}`;
-        }
-        if (scorePercentageEl) scorePercentageEl.textContent = `${percentageFromMarks}%`;
-        if (timeTakenEl) {
-            const timeTaken = practiceResults.timeTaken || 0;
-            const minutes = Math.floor(timeTaken / 60);
-            const seconds = timeTaken % 60;
-            timeTakenEl.textContent = `${minutes}m ${seconds}s`;
-
-            if (practiceResults.status === "Time Out") {
-                timeTakenEl.textContent += ' (Time Ran Out)';
-                timeTakenEl.classList.add('timeout');
-            }
-        }
-
-        // Encouragement message
-        if (encouragementMessageEl) {
-            if (percentageFromMarks >= 80) {
-                encouragementMessageEl.innerHTML = `<i class="fas fa-star"></i> Excellent work! You aced it! <i class="fas fa-star"></i>`;
-            } else if (percentageFromMarks >= 60) {
-                encouragementMessageEl.innerHTML = `<i class="fas fa-thumbs-up"></i> Good job! You have a solid understanding.`;
-            } else if (percentageFromMarks >= 40) {
-                encouragementMessageEl.innerHTML = `Keep practicing! You're getting there.`;
-            } else {
-                encouragementMessageEl.innerHTML = `Don't give up! Review the material and try again.`;
-            }
-        }
-
-        // --- 4. Detailed Results Section Elements ---
-        const toggleDetailsButton = document.getElementById('toggleDetailsButton');
-        const detailedResultsSectionEl = document.getElementById('detailedResultsSection');
-        const answersBreakdownEl = document.getElementById('answers-breakdown');
-        const backButton = document.getElementById('backButton');
-
-        if (toggleDetailsButton && detailedResultsSectionEl) {
-            toggleDetailsButton.addEventListener('click', () => {
-                const isHidden = detailedResultsSectionEl.classList.toggle('hidden');
-                toggleDetailsButton.innerHTML = isHidden ? '<i class="fas fa-eye"></i> Show Details' : '<i class="fas fa-eye-slash"></i> Hide Details';
-            });
-        }
-
-        if (backButton) {
-            backButton.addEventListener('click', () => {
-                // Clean up the temporary result before going back
-                localStorage.removeItem('subjectPracticeCurrentResult');
-                window.location.href = 's.html';
-            });
-        }
-        
-        // --- 5. Generate Detailed View ---
-        if (answersBreakdownEl && practiceResults.answeredQuestionsDetail && practiceResults.answeredQuestionsDetail.length > 0) {
-            answersBreakdownEl.innerHTML = '';
+        document.addEventListener('DOMContentLoaded', () => {
+            const loadingMessageEl = document.getElementById('loadingMessage');
+            const errorMessageEl = document.getElementById('errorMessage');
+            const resultsContentEl = document.getElementById('resultsContent');
             
-            // Create a single subject header
-            const subjectHeader = document.createElement('h2');
-            subjectHeader.textContent = practiceResults.subject || "Detailed Results";
-            subjectHeader.classList.add('detailed-subject-header');
-            answersBreakdownEl.appendChild(subjectHeader);
+            let practiceResult;
 
-            practiceResults.answeredQuestionsDetail.forEach((questionData, index) => {
-                const questionCard = document.createElement('div');
-                questionCard.classList.add('detailed-question-card');
-
-                const userAnswerStr = String(questionData.userAnswer);
-                if (userAnswerStr === 'Not answered' || userAnswerStr === 'DOM Error') {
-                    questionCard.classList.add('result-skipped');
-                } else if (questionData.isCorrect) {
-                    questionCard.classList.add('result-correct');
-                } else {
-                    questionCard.classList.add('result-incorrect');
+            try {
+                const resultString = localStorage.getItem('subjectPracticeCurrentResult');
+                if (!resultString) {
+                    throw new Error("No practice result data found in local storage.");
                 }
-
-                const questionTextEl = document.createElement('p');
-                questionTextEl.classList.add('detailed-question-text');
-                questionTextEl.innerHTML = `<strong>Q${index + 1}:</strong> ${escapeHtml(questionData.questionText)}`;
-                questionCard.appendChild(questionTextEl);
-
-                const optionsUl = document.createElement('ul');
-                optionsUl.classList.add('detailed-options-list');
-
-                const optionsToShow = Array.isArray(questionData.options) ? questionData.options : [];
-                if (optionsToShow.length === 0) {
-                    // Fallback if options array is missing
-                    if (questionData.correctAnswer) optionsToShow.push(String(questionData.correctAnswer));
-                    if (userAnswerStr && userAnswerStr !== 'Not answered' && userAnswerStr !== 'DOM Error' && userAnswerStr !== String(questionData.correctAnswer)) {
-                        if (!optionsToShow.includes(userAnswerStr)) optionsToShow.push(userAnswerStr);
-                    }
-                }
-
-                optionsToShow.forEach(optionText => {
-                    const optionLi = document.createElement('li');
-                    let displayOptionText = escapeHtml(optionText);
-                    let iconsHTML = '';
-
-                    const isCorrectOption = (escapeHtml(String(optionText)) === escapeHtml(String(questionData.correctAnswer)));
-                    const isUserChoice = (userAnswerStr !== 'Not answered' && userAnswerStr !== 'DOM Error' && String(optionText) === userAnswerStr);
-
-                    if (isCorrectOption) {
-                        optionLi.classList.add('correct-option');
-                        iconsHTML += ' <span class="icon-wrapper"><i class="fas fa-check icon"></i></span>';
-                    }
-
-                    if (isUserChoice) {
-                        if (!questionData.isCorrect) {
-                            iconsHTML += ' <span class="icon-wrapper"><i class="fas fa-times icon"></i></span>';
-                        }
-                        displayOptionText = `<strong>${escapeHtml(optionText)} (Your answer)</strong>`;
-                    }
-
-                    optionLi.innerHTML = displayOptionText + iconsHTML;
-                    optionsUl.appendChild(optionLi);
-                });
-
-                if (optionsToShow.length === 0) {
-                    const p = document.createElement('p');
-                    p.textContent = "Options data not available for this question.";
-                    p.style.color = "#e74c3c";
-                    optionsUl.appendChild(p);
-                }
-
-                questionCard.appendChild(optionsUl);
-                answersBreakdownEl.appendChild(questionCard);
-            });
-
-        } else if (answersBreakdownEl) {
-             answersBreakdownEl.innerHTML = '<p class="error-message">No detailed answer data to display.</p>';
-        }
-
-        // --- Helper Function ---
-        function escapeHtml(unsafe) {
-            if (typeof unsafe !== 'string') {
-                if (unsafe === null || typeof unsafe === 'undefined') return '';
-                return String(unsafe);
+                practiceResult = JSON.parse(resultString);
+            } catch (e) {
+                console.error("s_result.js: Error loading or parsing results from localStorage:", e);
+                showError(`Could not load practice results. Data might be missing or corrupted. Please <a href="s.html">return to setup</a>.`);
+                return;
             }
-            return unsafe
-                .replace(/&/g, "&")
-                .replace(/</g, "<")
-                .replace(/>/g, ">")
-                .replace(/"/g, """)
-                .replace(/'/g, "'");
-        }
-    });
+
+            if (!practiceResult || !practiceResult.answeredQuestionsDetail || typeof practiceResult.subject === 'undefined') {
+                console.error("s_result.js: practiceResult data is incomplete or malformed:", practiceResult);
+                showError(`Practice result data is incomplete. Please <a href="s.html">return to setup</a> and try another practice session.`);
+                return;
+            }
+            
+            // Hide loading, show content
+            if (loadingMessageEl) loadingMessageEl.style.display = 'none';
+            if (resultsContentEl) resultsContentEl.classList.remove('hidden');
+
+
+            // --- DOM Elements for Summary ---
+            const practiceSubjectEl = document.getElementById('practice-subject-value');
+            const correctRatioEl = document.getElementById('correct-ratio-value');
+            const marksObtainedEl = document.getElementById('marks-obtained-value');
+            const scorePercentageEl = document.getElementById('score-percentage');
+            const timeTakenEl = document.getElementById('time-taken-value');
+            const encouragementMessageEl = document.getElementById('encouragementMessage');
+
+            // --- Display Summary ---
+            if (practiceSubjectEl) practiceSubjectEl.textContent = practiceResult.subject.charAt(0).toUpperCase() + practiceResult.subject.slice(1);
+            
+            const score = practiceResult.score || 0;
+            const totalDisplayed = practiceResult.totalQuestionsDisplayed || 0;
+            if (correctRatioEl) correctRatioEl.textContent = `${score} / ${totalDisplayed}`;
+
+            const marksObtained = practiceResult.marksObtained || 0;
+            const totalPossibleMarks = practiceResult.totalPossibleMarks || 0;
+            if (marksObtainedEl) {
+                const formattedMarks = Number.isInteger(marksObtained) ? marksObtained : marksObtained.toFixed(2);
+                const formattedTotalPossible = Number.isInteger(totalPossibleMarks) ? totalPossibleMarks : totalPossibleMarks.toFixed(2);
+                marksObtainedEl.textContent = `${formattedMarks} / ${formattedTotalPossible}`;
+            }
+            
+            const percentage = practiceResult.percentage || 0;
+            if (scorePercentageEl) scorePercentageEl.textContent = `${percentage}%`;
+            
+            if (timeTakenEl) {
+                const timeTaken = practiceResult.timeTaken || 0;
+                let timeText = formatSecondsToMinutesSeconds(timeTaken);
+
+                if (practiceResult.status === "Time Out") {
+                    if (practiceResult.maxTime) {
+                         timeText = `${formatSecondsToMinutesSeconds(practiceResult.maxTime)} (Time Ran Out)`;
+                    } else {
+                         timeText += ' (Time Ran Out)';
+                    }
+                    timeTakenEl.classList.add('timeout');
+                }
+                timeTakenEl.textContent = timeText;
+            }
+
+            // Encouragement message
+            if (encouragementMessageEl) {
+                if (percentage >= 80) {
+                    encouragementMessageEl.innerHTML = `<i class="fas fa-star"></i> Excellent work on ${escapeHtml(practiceResult.subject)}! You aced it! <i class="fas fa-star"></i>`;
+                } else if (percentage >= 60) {
+                    encouragementMessageEl.innerHTML = `<i class="fas fa-thumbs-up"></i> Good job on ${escapeHtml(practiceResult.subject)}! Solid understanding.`;
+                } else if (percentage >= 40) {
+                    encouragementMessageEl.innerHTML = `Keep practicing ${escapeHtml(practiceResult.subject)}! You're getting there.`;
+                } else {
+                    encouragementMessageEl.innerHTML = `Don't give up on ${escapeHtml(practiceResult.subject)}! Review and try again.`;
+                }
+            }
+
+            // --- Detailed Results Section Elements ---
+            const toggleDetailsButton = document.getElementById('toggleDetailsButton');
+            const detailedResultsSectionEl = document.getElementById('detailedResultsSection');
+            const answersBreakdownEl = document.getElementById('answers-breakdown');
+            const backButton = document.getElementById('backButton');
+            const viewHistoryButton = document.getElementById('viewHistoryButton');
+
+
+            if (toggleDetailsButton && detailedResultsSectionEl) {
+                toggleDetailsButton.addEventListener('click', () => {
+                    const isHidden = detailedResultsSectionEl.classList.toggle('hidden');
+                    toggleDetailsButton.innerHTML = isHidden ? '<i class="fas fa-eye"></i> Show Details' : '<i class="fas fa-eye-slash"></i> Hide Details';
+                });
+            }
+
+            if (backButton) {
+                backButton.addEventListener('click', () => {
+                    // Don't remove subjectPracticeCurrentResult here, s.html might want to show previous settings
+                    window.location.href = 's.html';
+                });
+            }
+            
+            if (viewHistoryButton) {
+                viewHistoryButton.addEventListener('click', () => {
+                    window.location.href = 's_history.html'; // Assuming this page exists or will be created
+                });
+            }
+
+
+            // --- Generate Detailed View ---
+            if (answersBreakdownEl && practiceResult.answeredQuestionsDetail) {
+                answersBreakdownEl.innerHTML = '';
+
+                if (practiceResult.subject && practiceResult.answeredQuestionsDetail.length > 0) {
+                    const subjectHeader = document.createElement('h2');
+                    subjectHeader.textContent = practiceResult.subject.charAt(0).toUpperCase() + practiceResult.subject.slice(1) + " Questions";
+                    subjectHeader.classList.add('detailed-subject-header');
+                    answersBreakdownEl.appendChild(subjectHeader);
+
+                    practiceResult.answeredQuestionsDetail.forEach((questionData, index) => {
+                        const questionCard = document.createElement('div');
+                        questionCard.classList.add('detailed-question-card');
+
+                        const userAnswerStr = String(questionData.userAnswer);
+                        if (userAnswerStr === 'Not answered' || userAnswerStr === 'DOM Error') {
+                            questionCard.classList.add('result-skipped');
+                        } else if (questionData.isCorrect) {
+                            questionCard.classList.add('result-correct');
+                        } else {
+                            questionCard.classList.add('result-incorrect');
+                        }
+
+                        const questionTextEl = document.createElement('p');
+                        questionTextEl.classList.add('detailed-question-text');
+                        questionTextEl.innerHTML = `<strong>Q${index + 1}:</strong> ${escapeHtml(questionData.questionText)}`;
+                        questionCard.appendChild(questionTextEl);
+
+                        const optionsUl = document.createElement('ul');
+                        optionsUl.classList.add('detailed-options-list');
+
+                        // Ensure options is an array. If not, try to construct it.
+                        let optionsToShow = Array.isArray(questionData.options) ? questionData.options : [];
+                        if (optionsToShow.length === 0) {
+                            console.warn(`Options array empty for QID ${questionData.questionId}. Constructing from answer/userAnswer.`);
+                            const tempOptions = new Set();
+                            if (questionData.correctAnswer) tempOptions.add(String(questionData.correctAnswer));
+                            if (userAnswerStr && userAnswerStr !== 'Not answered' && userAnswerStr !== 'DOM Error') {
+                                tempOptions.add(userAnswerStr);
+                            }
+                            // Add some placeholders if still less than 2
+                            const placeholders = ["Option A", "Option B"];
+                            let i = 0;
+                            while(tempOptions.size < 2 && i < placeholders.length) {
+                                tempOptions.add(placeholders[i++]);
+                            }
+                            optionsToShow = Array.from(tempOptions);
+                        }
+
+
+                        optionsToShow.forEach(optionText => {
+                            const optionLi = document.createElement('li');
+                            let displayOptionText = escapeHtml(optionText);
+                            let iconsHTML = '';
+
+                            const isCorrectOption = (String(optionText) === String(questionData.correctAnswer));
+                            const isUserChoice = (userAnswerStr !== 'Not answered' && userAnswerStr !== 'DOM Error' && String(optionText) === userAnswerStr);
+
+                            if (isCorrectOption) {
+                                optionLi.classList.add('correct-option');
+                                iconsHTML += ' <span class="icon-wrapper"><i class="fas fa-check icon"></i></span>';
+                            }
+
+                            if (isUserChoice) {
+                                if (!questionData.isCorrect && userAnswerStr !== 'Not answered' && userAnswerStr !== 'DOM Error') { // Only show X if answered and incorrect
+                                    iconsHTML += ' <span class="icon-wrapper"><i class="fas fa-times icon"></i></span>';
+                                }
+                                displayOptionText = `<strong>${escapeHtml(optionText)} (Your answer)</strong>`;
+                            } else if (userAnswerStr === 'Not answered' || userAnswerStr === 'DOM Error') {
+                                // If skipped, don't bold any option as "Your answer"
+                                // The correct option will still be gold and have a checkmark.
+                            }
+
+
+                            optionLi.innerHTML = displayOptionText + iconsHTML;
+                            optionsUl.appendChild(optionLi);
+                        });
+                        
+                        if (optionsToShow.length === 0) { // Should be rare now
+                            const p = document.createElement('p');
+                            p.textContent = "Options data not available for this question.";
+                            p.style.color = "#e74c3c";
+                            optionsUl.appendChild(p);
+                        }
+
+                        questionCard.appendChild(optionsUl);
+                        answersBreakdownEl.appendChild(questionCard);
+                    });
+                } else if (practiceResult.answeredQuestionsDetail.length === 0 && practiceResult.totalQuestionsDisplayed > 0) {
+                     answersBreakdownEl.innerHTML = `<p>No answers were recorded for this practice session, though questions were displayed. This might indicate an issue.</p>`;
+                } else {
+                     answersBreakdownEl.innerHTML = `<p>No questions were included in this practice session.</p>`;
+                }
+            } else {
+                 answersBreakdownEl.innerHTML = `<p>Detailed answer breakdown is not available.</p>`;
+            }
+
+            // --- Helper Functions ---
+            function escapeHtml(unsafe) {
+                if (typeof unsafe !== 'string') {
+                    if (unsafe === null || typeof unsafe === 'undefined') return '';
+                    return String(unsafe);
+                }
+                return unsafe
+                    .replace(/&/g, "&")
+                    .replace(/</g, "<")
+                    .replace(/>/g, ">")
+                    .replace(/"/g, """)
+                    .replace(/'/g, "'");
+            }
+
+            function formatSecondsToMinutesSeconds(totalSeconds) {
+                if (isNaN(totalSeconds) || totalSeconds < 0) return "00:00";
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+                return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }
+
+            function showError(message) {
+                if (loadingMessageEl) loadingMessageEl.style.display = 'none';
+                if (resultsContentEl) resultsContentEl.classList.add('hidden');
+                if (errorMessageEl) {
+                    errorMessageEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
+                    errorMessageEl.classList.remove('hidden');
+                }
+                console.error("s_result.js Error:", message);
+            }
+
+        });
     </script>
 </body>
 </html>
