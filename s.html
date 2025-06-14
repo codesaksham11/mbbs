@@ -55,7 +55,8 @@
             text-align: left;
         }
 
-        .form-group label {
+        /* General label styling for form group titles */
+        .form-group > label, .group-title-label {
             display: block;
             margin-bottom: 8px;
             color: #bdc3c7;
@@ -80,14 +81,75 @@
              box-shadow: 0 0 0 2px rgba(241, 196, 15, 0.3);
         }
 
-        .subject-selection-group label {
-            margin-right: 15px;
+        /* NEW STYLES for Custom Subject Selection UI */
+        .subject-options-container {
+            background: rgba(236, 240, 241, 0.08); /* Light frosted glass effect */
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px); /* Safari support */
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(236, 240, 241, 0.15); /* Subtle border for the panel */
+            margin-top: 10px;
+        }
+
+        .subject-option { /* This is the clickable label for each option */
+            display: flex;
+            align-items: center;
+            padding: 10px 5px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+            margin-bottom: 5px; /* Space between options */
+        }
+        .subject-option:last-child {
+            margin-bottom: 0;
+        }
+
+        .subject-option:hover {
+            background-color: rgba(236, 240, 241, 0.08); /* Subtle hover for the row */
+        }
+
+        .subject-option input[type="radio"] {
+            display: none; /* Hide the actual radio button */
+        }
+
+        .option-circle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid rgba(189, 195, 199, 0.4); /* Mid-tone grey border */
+            background-color: rgba(189, 195, 199, 0.1); /* Very transparent fill */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            flex-shrink: 0; /* Prevent circle from shrinking */
+        }
+
+        .option-icon {
+            font-size: 1.1em;
+            font-weight: 500;
+            color: #bdc3c7; /* Light grey text for unselected */
+            transition: color 0.3s ease, font-weight 0.3s ease;
+        }
+
+        .option-label-text {
             color: #ecf0f1;
+            font-size: 1em;
         }
-        .subject-selection-group input[type="radio"] {
-            margin-right: 5px;
-            accent-color: #f1c40f; /* Modern way to color radio check */
+
+        /* Selected State Styling */
+        .subject-option input[type="radio"]:checked + .option-circle {
+            background-color: #ecf0f1; /* Light background, almost white */
+            border-color: #f1c40f; /* Theme yellow for selected border */
         }
+
+        .subject-option input[type="radio"]:checked + .option-circle .option-icon {
+            color: #2c3e50; /* Dark text for contrast on light background */
+            font-weight: bold;
+        }
+        /* END OF NEW STYLES */
 
 
         .error-messages {
@@ -151,22 +213,45 @@
     <div class="container">
         <h1>Subject Practice Configuration</h1>
         <form id="subjectPracticeSetupForm">
+
+            <!-- MODIFIED SUBJECT SELECTION BLOCK -->
             <div class="form-group">
-                <label for="subject">Choose Subject:</label>
-                <div class="subject-selection-group">
-                    <input type="radio" id="physics" name="subject" value="physics" checked>
-                    <label for="physics">Physics</label>
+                <label class="group-title-label">Choose Subject:</label>
+                <div class="subject-options-container">
+                    <label class="subject-option">
+                        <input type="radio" id="physics" name="subject" value="physics" checked>
+                        <span class="option-circle">
+                            <span class="option-icon">P</span>
+                        </span>
+                        <span class="option-label-text">Physics</span>
+                    </label>
 
-                    <input type="radio" id="chemistry" name="subject" value="chemistry">
-                    <label for="chemistry">Chemistry</label>
+                    <label class="subject-option">
+                        <input type="radio" id="chemistry" name="subject" value="chemistry">
+                        <span class="option-circle">
+                            <span class="option-icon">C</span>
+                        </span>
+                        <span class="option-label-text">Chemistry</span>
+                    </label>
 
-                    <input type="radio" id="botany" name="subject" value="botany">
-                    <label for="botany">Botany</label>
+                    <label class="subject-option">
+                        <input type="radio" id="botany" name="subject" value="botany">
+                        <span class="option-circle">
+                            <span class="option-icon">B</span>
+                        </span>
+                        <span class="option-label-text">Botany</span>
+                    </label>
 
-                    <input type="radio" id="zoology" name="subject" value="zoology">
-                    <label for="zoology">Zoology</label>
+                    <label class="subject-option">
+                        <input type="radio" id="zoology" name="subject" value="zoology">
+                        <span class="option-circle">
+                            <span class="option-icon">Z</span>
+                        </span>
+                        <span class="option-label-text">Zoology</span>
+                    </label>
                 </div>
             </div>
+            <!-- END OF MODIFIED SUBJECT SELECTION BLOCK -->
 
             <div class="form-group">
                 <label for="time">Amount of Time (minutes):</label>
@@ -209,7 +294,7 @@
 
             const timeInput = document.getElementById('time');
             const questionsInput = document.getElementById('questions');
-            const subjectInputs = document.querySelectorAll('input[name="subject"]');
+            const subjectInputs = document.querySelectorAll('input[name="subject"]'); // This still works
             const errorMessagesDiv = document.getElementById('errorMessages');
             const submitButton = this.querySelector('button[type="submit"]');
 
@@ -252,7 +337,8 @@
             }
             if (!selectedSubject) {
                 errors.push("Please select a subject.");
-                // You might want to visually indicate error for the radio group too
+                // Visually indicate error for the custom radio group if desired
+                // For now, the general error message is sufficient.
                 isValid = false;
             }
 
