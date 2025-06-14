@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subject Quiz Statistics</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <style>
+        /* Embedded CSS (similar to your stats.html) */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #2c3e50; /* Dark blue-grey */
+            color: #ecf0f1; /* Light grey/white */
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: #34495e; /* Slightly lighter blue-grey */
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.3);
+        }
+        h1, h2 {
+            color: #f1c40f; /* Yellow accent */
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .subject-selector-container {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #4a627a;
+            border-radius: 6px;
+        }
+        .subject-selector-container label {
+            margin-right: 10px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        #subjectSelector {
+            padding: 10px 15px;
+            border-radius: 4px;
+            background-color: #5d7a99;
+            color: #ecf0f1;
+            border: 1px solid #f1c40f;
+            font-size: 1em;
+            min-width: 200px;
+        }
+        .overall-stats {
+            background-color: #4a627a;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .stat-item {
+            background-color: #5d7a99;
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .stat-item h3 {
+            margin-top: 0;
+            color: #f1c40f;
+            font-size: 1.1em;
+        }
+        .stat-item p {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #ecf0f1;
+            margin-bottom: 0;
+        }
+        #quizHistoryTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        #quizHistoryTable th, #quizHistoryTable td {
+            border: 1px solid #4a627a;
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 0.9em;
+        }
+        #quizHistoryTable th {
+            background-color: #f1c40f;
+            color: #2c3e50;
+        }
+        #quizHistoryTable tr:nth-child(even) {
+            background-color: #4a627a;
+        }
+        #quizHistoryTable tr:hover {
+            background-color: #5d7a99;
+        }
+        .no-data {
+            text-align: center;
+            font-style: italic;
+            padding: 20px;
+            color: #bdc3c7;
+        }
+        .button-container {
+            text-align: center;
+            margin-top: 30px;
+            padding-bottom: 20px;
+        }
+        .button-container button, .button-container a {
+            background-color: #f1c40f;
+            color: #2c3e50;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1em;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            margin: 8px 10px;
+            transition: background-color 0.3s ease;
+            display: inline-block;
+        }
+        .button-container button:hover, .button-container a:hover {
+            background-color: #f39c12; /* Darker yellow */
+        }
+        .button-container button.danger {
+            background-color: #e74c3c; /* Red */
+            color: white;
+        }
+        .button-container button.danger:hover {
+            background-color: #c0392b; /* Darker red */
+        }
+        .button-container button.super-danger {
+            background-color: #9b2335; /* Darker Red for more critical action */
+            color: white;
+        }
+        .button-container button.super-danger:hover {
+            background-color: #701a26;
+        }
+        #scoreChartContainer {
+            margin-top: 30px;
+            background-color: #4a627a;
+            padding: 20px;
+            border-radius: 6px;
+            min-height: 300px;
+        }
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .overall-stats {
+                grid-template-columns: 1fr;
+            }
+            #quizHistoryTable th, #quizHistoryTable td {
+                padding: 8px;
+                font-size: 0.8em;
+            }
+             h1 { font-size: 1.8em; }
+             h2 { font-size: 1.5em; }
+        }
+         @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            .button-container button, .button-container a {
+                padding: 10px 15px;
+                font-size: 0.9em;
+                width: calc(100% - 20px);
+                margin-left: 10px;
+                margin-right: 10px;
+                box-sizing: border-box;
+            }
+            .subject-selector-container label { display: block; margin-bottom: 8px; }
+            #subjectSelector { width: calc(100% - 30px); }
+         }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-chart-pie"></i> Subject Quiz Statistics</h1>
+
+        <div class="subject-selector-container">
+            <label for="subjectSelector">Select Subject:</label>
+            <select id="subjectSelector">
+                <option value="Biology">Biology</option>
+                <option value="Botany">Botany</option>
+                <option value="Chemistry">Chemistry</option>
+                <option value="Physics">Physics</option>
+                <option value="Zoology">Zoology</option>
+                <!-- Add other subjects as needed, ensure value matches lowercase stored name or handle conversion -->
+            </select>
+        </div>
+
+        <h2 id="overallStatsTitle"><i class="fas fa-clipboard-list"></i> Overall Stats for Selected Subject</h2>
+        <div id="overallStats" class="overall-stats">
+            <div class="stat-item">
+                <h3>Total Quizzes</h3>
+                <p id="totalQuizzes">0</p>
+            </div>
+            <div class="stat-item">
+                <h3>Avg. Score (Marks)</h3>
+                <p id="avgScoreMarks">0 / 0</p>
+            </div>
+            <div class="stat-item">
+                <h3>Avg. Score (%)</h3>
+                <p id="avgScorePercentage">0%</p>
+            </div>
+            <div class="stat-item">
+                <h3>Avg. Time</h3>
+                <p id="avgTime">0s</p>
+            </div>
+            <div class="stat-item">
+                <h3>Best Score (%)</h3>
+                <p id="bestScorePercentage">0%</p>
+            </div>
+             <div class="stat-item">
+                <h3>Total Correct</h3>
+                <p id="totalCorrectAnswers">0</p>
+            </div>
+            <div class="stat-item">
+                <h3>Total Incorrect</h3>
+                <p id="totalIncorrectAnswers">0</p>
+            </div>
+            <div class="stat-item">
+                <h3>Total Skipped</h3>
+                <p id="totalSkippedAnswers">0</p>
+            </div>
+        </div>
+
+        <h2 id="quizHistoryTitle"><i class="fas fa-history"></i> Quiz History</h2>
+        <div id="quizHistoryContainer">
+            <table id="quizHistoryTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Date & Time</th>
+                        <th>Qs</th>
+                        <th>Correct</th>
+                        <th>Marks</th>
+                        <th>%</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="quizHistoryBody">
+                    <!-- Rows will be inserted here by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        <p id="noHistoryMessage" class="no-data" style="display: none;">No quiz history found. Take a quiz to see your stats!</p>
+
+        <h2 id="scoreProgressionTitle"><i class="fas fa-chart-area"></i> Score Progression (%)</h2>
+        <div id="scoreChartContainer" style="position: relative; height:40vh; width:80vw; margin: auto;">
+            <canvas id="scoreProgressionChart"></canvas>
+        </div>
+
+
+        <div class="button-container">
+            <a href="s.html"><i class="fas fa-arrow-left"></i> Back to Subject Quiz Setup</a>
+            <button id="clearSelectedSubjectHistoryButton" class="danger"><i class="fas fa-trash-alt"></i> Clear History for Selected Subject</button>
+            <button id="clearAllSubjectHistoryButton" class="super-danger"><i class="fas fa-exclamation-triangle"></i> Clear ALL Subject Practice History</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const historicalResultsKey = 'allSubjectPracticeHistoricalResults_v1';
+            let allHistoricalResults = []; // All results from localStorage
+            let filteredSubjectResults = []; // Results for the currently selected subject
+            let currentSelectedSubject = '';
+            let currentSelectedSubjectDisplay = ''; // For display in titles (e.g., "Biology")
+
+            // DOM Elements
+            const subjectSelectorEl = document.getElementById('subjectSelector');
+            
+            const totalQuizzesEl = document.getElementById('totalQuizzes');
+            const avgScoreMarksEl = document.getElementById('avgScoreMarks');
+            const avgScorePercentageEl = document.getElementById('avgScorePercentage');
+            const avgTimeEl = document.getElementById('avgTime');
+            const bestScorePercentageEl = document.getElementById('bestScorePercentage');
+            const totalCorrectAnswersEl = document.getElementById('totalCorrectAnswers');
+            const totalIncorrectAnswersEl = document.getElementById('totalIncorrectAnswers');
+            const totalSkippedAnswersEl = document.getElementById('totalSkippedAnswers');
+
+            const quizHistoryBodyEl = document.getElementById('quizHistoryBody');
+            const quizHistoryTableEl = document.getElementById('quizHistoryTable');
+            const noHistoryMessageEl = document.getElementById('noHistoryMessage');
+            
+            const scoreChartContainerEl = document.getElementById('scoreChartContainer');
+            const scoreProgressionChartCtx = document.getElementById('scoreProgressionChart')?.getContext('2d');
+            let scoreChart = null;
+
+            const clearSelectedSubjectHistoryButton = document.getElementById('clearSelectedSubjectHistoryButton');
+            const clearAllSubjectHistoryButton = document.getElementById('clearAllSubjectHistoryButton');
+
+            // Title elements
+            const overallStatsTitleEl = document.getElementById('overallStatsTitle');
+            const quizHistoryTitleEl = document.getElementById('quizHistoryTitle');
+            const scoreProgressionTitleEl = document.getElementById('scoreProgressionTitle');
+
+
+            function formatTime(totalSeconds) {
+                if (isNaN(totalSeconds) || totalSeconds < 0) return '00:00';
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+                return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }
+
+            function loadAllData() {
+                try {
+                    const storedResults = localStorage.getItem(historicalResultsKey);
+                    if (storedResults) {
+                        allHistoricalResults = JSON.parse(storedResults);
+                        if (!Array.isArray(allHistoricalResults)) {
+                            console.warn("Historical results was not an array, resetting.");
+                            allHistoricalResults = [];
+                        }
+                    } else {
+                        allHistoricalResults = [];
+                    }
+                } catch (e) {
+                    console.error("Error loading historical results:", e);
+                    allHistoricalResults = [];
+                }
+                allHistoricalResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // Newest first
+            }
+
+            function filterDataForSelectedSubject() {
+                if (!subjectSelectorEl) {
+                    console.error("Subject selector not found!");
+                    filteredSubjectResults = [];
+                    return;
+                }
+                currentSelectedSubjectDisplay = subjectSelectorEl.options[subjectSelectorEl.selectedIndex].text;
+                currentSelectedSubject = subjectSelectorEl.value.toLowerCase(); // Ensure lowercase for matching stored data
+
+                if (!currentSelectedSubject) {
+                    console.warn("No subject selected for filtering.");
+                    filteredSubjectResults = [];
+                    return;
+                }
+                
+                filteredSubjectResults = allHistoricalResults.filter(result =>
+                    result.subject && result.subject.toLowerCase() === currentSelectedSubject
+                );
+            }
+
+            function updateDynamicTitles() {
+                if (overallStatsTitleEl) overallStatsTitleEl.innerHTML = `<i class="fas fa-clipboard-list"></i> Overall Stats for ${currentSelectedSubjectDisplay}`;
+                if (quizHistoryTitleEl) quizHistoryTitleEl.innerHTML = `<i class="fas fa-history"></i> Quiz History for ${currentSelectedSubjectDisplay}`;
+                if (scoreProgressionTitleEl) scoreProgressionTitleEl.innerHTML = `<i class="fas fa-chart-area"></i> Score Progression (%) for ${currentSelectedSubjectDisplay}`;
+            }
+
+            function updateAllDisplays() {
+                updateDynamicTitles();
+                displayOverallStats();
+                displayQuizHistory();
+                renderScoreProgressionChart();
+            }
+
+            function displayOverallStats() {
+                if (!totalQuizzesEl) return;
+
+                const resultsToProcess = filteredSubjectResults;
+
+                if (resultsToProcess.length === 0) {
+                    totalQuizzesEl.textContent = '0';
+                    avgScoreMarksEl.textContent = 'N/A';
+                    avgScorePercentageEl.textContent = 'N/A';
+                    avgTimeEl.textContent = 'N/A';
+                    bestScorePercentageEl.textContent = 'N/A';
+                    totalCorrectAnswersEl.textContent = '0';
+                    totalIncorrectAnswersEl.textContent = '0';
+                    totalSkippedAnswersEl.textContent = '0';
+                    return;
+                }
+
+                let totalMarksObtainedSum = 0;
+                let totalPossibleMarksSum = 0;
+                let totalPercentageSum = 0;
+                let totalTimeTakenSum = 0;
+                let bestPercentage = 0;
+                let grandTotalCorrect = 0;
+                let grandTotalIncorrect = 0;
+                let grandTotalSkipped = 0;
+
+                resultsToProcess.forEach(result => {
+                    totalMarksObtainedSum += (result.marksObtained || 0);
+                    totalPossibleMarksSum += (result.totalPossibleMarks || 0);
+                    totalPercentageSum += (result.percentage || 0);
+                    totalTimeTakenSum += (result.timeTaken || 0);
+                    if ((result.percentage || 0) > bestPercentage) {
+                        bestPercentage = result.percentage || 0;
+                    }
+                    if (result.answeredQuestionsDetail && Array.isArray(result.answeredQuestionsDetail)) {
+                        result.answeredQuestionsDetail.forEach(q => {
+                            const userAnswerStr = String(q.userAnswer);
+                            if (userAnswerStr === 'Not answered' || userAnswerStr === 'DOM Error') {
+                                grandTotalSkipped++;
+                            } else if (q.isCorrect) {
+                                grandTotalCorrect++;
+                            } else {
+                                grandTotalIncorrect++;
+                            }
+                        });
+                    }
+                });
+
+                const numQuizzes = resultsToProcess.length;
+                const avgMarks = numQuizzes > 0 ? (totalMarksObtainedSum / numQuizzes) : 0;
+                const avgPossibleMarks = numQuizzes > 0 ? (totalPossibleMarksSum / numQuizzes) : 0;
+                const avgPercentage = numQuizzes > 0 ? (totalPercentageSum / numQuizzes) : 0;
+                const avgTime = numQuizzes > 0 ? (totalTimeTakenSum / numQuizzes) : 0;
+
+                totalQuizzesEl.textContent = numQuizzes;
+                avgScoreMarksEl.textContent = `${avgMarks.toFixed(2)} / ${avgPossibleMarks.toFixed(2)}`;
+                avgScorePercentageEl.textContent = `${avgPercentage.toFixed(1)}%`;
+                avgTimeEl.textContent = `${formatTime(Math.round(avgTime))}`;
+                bestScorePercentageEl.textContent = `${bestPercentage.toFixed(1)}%`;
+                totalCorrectAnswersEl.textContent = grandTotalCorrect;
+                totalIncorrectAnswersEl.textContent = grandTotalIncorrect;
+                totalSkippedAnswersEl.textContent = grandTotalSkipped;
+            }
+
+            function displayQuizHistory() {
+                if (!quizHistoryBodyEl || !noHistoryMessageEl || !quizHistoryTableEl) return;
+                quizHistoryBodyEl.innerHTML = '';
+                const resultsToDisplay = filteredSubjectResults; // Already sorted newest first by loadAllData
+
+                if (resultsToDisplay.length === 0) {
+                    noHistoryMessageEl.textContent = `No quiz history found for ${currentSelectedSubjectDisplay}. Take a quiz in this subject to see your stats!`;
+                    noHistoryMessageEl.style.display = 'block';
+                    quizHistoryTableEl.style.display = 'none';
+                    return;
+                }
+
+                noHistoryMessageEl.style.display = 'none';
+                quizHistoryTableEl.style.display = 'table';
+
+                resultsToDisplay.forEach((result, index) => {
+                    const row = quizHistoryBodyEl.insertRow();
+                    row.insertCell().textContent = resultsToDisplay.length - index;
+                    try {
+                        const date = new Date(result.timestamp);
+                        row.insertCell().textContent = date.toLocaleString([], { year: '2-digit', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    } catch (e) {
+                        row.insertCell().textContent = "Invalid Date";
+                    }
+                    row.insertCell().textContent = result.totalQuestionsDisplayed || result.totalQuestionsAskedInConfig || 'N/A';
+                    row.insertCell().textContent = typeof result.score === 'number' ? result.score : 'N/A';
+                    const marksObtained = typeof result.marksObtained === 'number' ? result.marksObtained.toFixed(2) : 'N/A';
+                    const totalPossibleMarks = typeof result.totalPossibleMarks === 'number' ? result.totalPossibleMarks.toFixed(2) : 'N/A';
+                    row.insertCell().textContent = `${marksObtained}/${totalPossibleMarks}`;
+                    row.insertCell().textContent = typeof result.percentage === 'number' ? `${result.percentage.toFixed(1)}%` : 'N/A';
+                    row.insertCell().textContent = formatTime(result.timeTaken || 0);
+                    row.insertCell().textContent = result.status || 'N/A';
+                });
+            }
+
+            function renderScoreProgressionChart() {
+                if (!scoreProgressionChartCtx || !scoreChartContainerEl) {
+                     if(scoreChartContainerEl) scoreChartContainerEl.style.display = 'none';
+                    return;
+                }
+                const resultsForChart = filteredSubjectResults;
+
+                if (resultsForChart.length < 1) { // Show chart even for 1 data point, or hide if < 1
+                    scoreChartContainerEl.style.display = 'none';
+                     if (scoreChart) {
+                        scoreChart.destroy();
+                        scoreChart = null;
+                    }
+                    return;
+                }
+                scoreChartContainerEl.style.display = 'block';
+
+                const chartData = resultsForChart.slice().reverse().map(result => ({ // reverse for chronological order
+                    x: new Date(result.timestamp).getTime(),
+                    y: result.percentage || 0
+                }));
+
+                if (scoreChart) {
+                    scoreChart.destroy();
+                }
+
+                scoreChart = new Chart(scoreProgressionChartCtx, {
+                    type: 'line',
+                    data: {
+                        datasets: [{
+                            label: `Score % for ${currentSelectedSubjectDisplay}`,
+                            data: chartData,
+                            borderColor: '#f1c40f',
+                            backgroundColor: 'rgba(241, 196, 15, 0.2)',
+                            tension: 0.1,
+                            fill: true,
+                            pointRadius: 3,
+                            pointHoverRadius: 5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                type: 'time',
+                                time: {
+                                    unit: resultsForChart.length > 30 ? 'week' : (resultsForChart.length > 7 ? 'day' : 'hour'),
+                                    tooltipFormat: 'MMM d, yyyy, h:mm a',
+                                    displayFormats: { hour: 'h:mm a', day: 'MMM d', week: 'MMM d YYYY', month: 'MMM yyyy' }
+                                },
+                                title: { display: true, text: 'Date of Quiz', color: '#ecf0f1' },
+                                ticks: { color: '#ecf0f1' },
+                                grid: { color: 'rgba(236, 240, 241, 0.1)' }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                title: { display: true, text: 'Score (%)', color: '#ecf0f1' },
+                                ticks: { color: '#ecf0f1', stepSize: 10 },
+                                grid: { color: 'rgba(236, 240, 241, 0.2)' }
+                            }
+                        },
+                        plugins: {
+                            legend: { labels: { color: '#ecf0f1' } },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                                callbacks: {
+                                    label: function(context) {
+                                        return ` Score: ${context.parsed.y.toFixed(1)}%`;
+                                    }
+                                }
+                            }
+                        },
+                        interaction: {
+                            mode: 'nearest',
+                            axis: 'x',
+                            intersect: false
+                        }
+                    }
+                });
+            }
+
+            function handleSubjectChange() {
+                filterDataForSelectedSubject();
+                updateAllDisplays();
+            }
+
+            function handleClearSelectedSubjectHistory() {
+                if (!currentSelectedSubject) {
+                    alert("Please select a subject first.");
+                    return;
+                }
+                if (confirm(`Are you sure you want to clear all quiz history for ${currentSelectedSubjectDisplay}? This action cannot be undone.`)) {
+                    // Filter out results for the current subject, keep others
+                    const remainingResults = allHistoricalResults.filter(result =>
+                        !result.subject || result.subject.toLowerCase() !== currentSelectedSubject
+                    );
+                    localStorage.setItem(historicalResultsKey, JSON.stringify(remainingResults));
+                    
+                    loadAllData(); // Reload allHistoricalResults from the modified localStorage
+                    filterDataForSelectedSubject(); // Re-filter based on current selection
+                    updateAllDisplays();
+                    console.log(`History for ${currentSelectedSubjectDisplay} cleared.`);
+                }
+            }
+
+            function handleClearAllSubjectHistory() {
+                if (confirm("DANGER! Are you sure you want to clear ALL subject practice quiz history for ALL subjects? This action cannot be undone.")) {
+                    localStorage.removeItem(historicalResultsKey);
+                    allHistoricalResults = []; // Clear the global array
+                    
+                    filterDataForSelectedSubject(); // Re-filter (will likely be empty for current subject)
+                    updateAllDisplays(); // Update displays to show empty state
+                    console.log("All subject practice history cleared.");
+                }
+            }
+
+            function init() {
+                if (!subjectSelectorEl) {
+                    console.error("CRITICAL: Subject selector element not found. Page will not function correctly.");
+                    if (document.body) {
+                        const errorMsg = document.createElement('p');
+                        errorMsg.textContent = "Error: Subject selector UI element is missing. Please check the HTML.";
+                        errorMsg.style.color = "red"; errorMsg.style.textAlign = "center"; errorMsg.style.fontWeight = "bold";
+                        document.body.prepend(errorMsg);
+                    }
+                    return;
+                }
+                
+                loadAllData();
+                
+                subjectSelectorEl.addEventListener('change', handleSubjectChange);
+                if (clearSelectedSubjectHistoryButton) {
+                    clearSelectedSubjectHistoryButton.addEventListener('click', handleClearSelectedSubjectHistory);
+                }
+                if (clearAllSubjectHistoryButton) {
+                    clearAllSubjectHistoryButton.addEventListener('click', handleClearAllSubjectHistory);
+                }
+
+                // Initial display based on default selected subject
+                handleSubjectChange(); // This will filter and display for the initially selected subject
+            }
+
+            init();
+        });
+    </script>
+</body>
+</html>
