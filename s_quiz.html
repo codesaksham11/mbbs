@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subject Practice in Progress</title>
+    <style>
+        /* CSS from your k_quiz.html prompt, slightly adapted for context if needed */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+        /* --- Base Styles --- */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #4a0e4e 100%);
+            color: #e0e0e0;
+            margin: 0;
+            padding-top: 80px; /* Space for sticky header */
+            padding-left: 20px;
+            padding-right: 20px;
+            padding-bottom: 20px;
+        }
+
+        /* --- Quiz Header (Sticky) --- */
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: linear-gradient(135deg, #34495e 0%, #5e3370 100%);
+            padding: 15px 25px;
+            border-bottom: 2px solid #f1c40f;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            box-sizing: border-box;
+        }
+
+        .quiz-header .back-arrow {
+            color: #f1c40f;
+            text-decoration: none;
+            font-size: 26px;
+            padding: 5px;
+            transition: color 0.3s ease, transform 0.2s ease;
+        }
+
+        .quiz-header .back-arrow:hover {
+            color: #ffffff;
+            transform: scale(1.1);
+        }
+
+        .quiz-header .timer {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #ffffff;
+            background-color: rgba(44, 62, 80, 0.7);
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .quiz-header .timer.warning {
+            color: #f1c40f;
+            background-color: rgba(231, 76, 60, 0.7);
+            border-color: #f1c40f;
+            animation: pulseTimer 1.5s infinite ease-in-out;
+        }
+
+        @keyframes pulseTimer {
+          0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(241, 196, 15, 0.4); }
+          50% { transform: scale(1.03); box-shadow: 0 0 5px 3px rgba(241, 196, 15, 0.2); }
+        }
+
+        /* --- Main Quiz Container & Content --- */
+        .quiz-container {
+            max-width: 850px;
+            margin: 0 auto;
+            background-color: rgba(52, 73, 94, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            padding: 25px 30px;
+        }
+
+        #quizContent {
+            display: none; /* JS will show this */
+        }
+
+        /* --- Loading and Error Messages --- */
+        .loading-message, .error-message {
+            text-align: center;
+            font-size: 1.2em;
+            color: #bdc3c7;
+            padding: 40px 20px;
+        }
+        .loading-message i { margin-right: 10px; font-size: 1.2em; color: #f1c40f; }
+        .error-message a { color: #f1c40f; text-decoration: underline; }
+        .error-message a:hover { color: #ffffff; }
+
+        /* --- Question Styling --- */
+        #questionsContainer { margin-bottom: 30px; }
+
+        .question-block {
+            background-color: rgba(44, 62, 80, 0.75);
+            padding: 20px 25px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+        }
+
+        .question-block h3 {
+            font-size: 1.15em;
+            margin-top: 0;
+            margin-bottom: 18px;
+            color: #ecf0f1;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+        .question-block h3 strong { margin-right: 10px; color: #f1c40f; font-weight: 700; }
+
+        .options-container { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border: 1px solid #7f8c8d;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: rgba(236, 240, 241, 0.1);
+            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+            color: #bdc3c7;
+        }
+
+        .option:hover {
+            background-color: rgba(236, 240, 241, 0.2);
+            border-color: #f1c40f;
+            color: #ffffff;
+        }
+
+        .option input[type="radio"] {
+            margin-right: 12px;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            width: 19px;
+            height: 19px;
+            border: 2px solid #95a5a6;
+            border-radius: 50%;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+            flex-shrink: 0;
+            background-color: transparent;
+            position: relative;
+        }
+
+        .option input[type="radio"]:checked {
+            border-color: #f1c40f;
+            background-color: #f1c40f;
+        }
+
+        .option input[type="radio"]:checked::before {
+            content: '';
+            display: block;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background-color: #2c3e50;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .option input[type="radio"]:focus-visible {
+             box-shadow: 0 0 0 2px #2c3e50, 0 0 0 4px rgba(241, 196, 15, 0.5);
+        }
+
+        .option label { flex-grow: 1; cursor: pointer; margin-bottom: 0; }
+
+        /* --- Submit Button --- */
+        #submitButton {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 12px 28px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.05em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            text-decoration: none;
+            gap: 8px;
+            background: linear-gradient(45deg, #8e44ad, #5e3370);
+            color: white;
+            border: 1px solid rgba(255,255,255, 0.1);
+            margin-top: 30px;
+        }
+
+        #submitButton:hover {
+            background: linear-gradient(45deg, #7b3099, #4a245c);
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Responsive Adjustments from k_quiz.css */
+        @media (max-width: 768px) {
+            body { padding-top: 70px; padding-left: 15px; padding-right: 15px; }
+            .quiz-header { padding: 12px 20px; }
+            .quiz-header .timer { font-size: 1.1em; padding: 7px 12px; }
+            .quiz-container { padding: 20px 20px; }
+            .question-block { padding: 15px 20px; }
+            .question-block h3 { font-size: 1.1em; }
+            .option { padding: 10px 12px; font-size: 0.95em; }
+            .option input[type="radio"] { width: 17px; height: 17px; }
+            #submitButton { font-size: 1em; padding: 12px 22px; }
+        }
+
+        @media (max-width: 480px) {
+            body { padding-top: 65px; padding-left: 10px; padding-right: 10px; }
+            .quiz-header { padding: 10px 15px; }
+            .quiz-header .back-arrow { font-size: 22px; }
+            .quiz-header .timer { font-size: 1em; padding: 6px 10px; }
+            .quiz-container { padding: 15px; border-radius: 8px; }
+            .question-block { padding: 15px; }
+            .question-block h3 { font-size: 1em; margin-bottom: 15px; }
+            .option { font-size: 0.9em; }
+            #submitButton { font-size: 0.95em; padding: 10px 18px; border-radius: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-header">
+        <a href="s.html" class="back-arrow" title="Go Back to Setup">←</a>
+        <div id="timer" class="timer">00:00</div>
+    </div>
+
+    <div class="quiz-container">
+        <div id="quizContent">
+            <div id="questionsContainer">
+                <!-- Question blocks will be inserted here by s_quiz.js -->
+            </div>
+            <button id="submitButton">Submit Practice</button>
+        </div>
+        <div id="loadingMessage" class="loading-message">
+            Loading practice questions... Please wait.
+        </div>
+        <div id="errorMessage" class="error-message" style="display:none;">
+            Error loading practice. Please <a href="s.html">go back</a> and try again.
+        </div>
+    </div>
+
+    <script src="s_quiz.js"></script>
+</body>
+</html>
