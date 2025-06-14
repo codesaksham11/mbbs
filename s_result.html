@@ -420,35 +420,15 @@
                 </div>
             </div>
 
-            <div class="action-buttons">
-                <button id="backButton" class="button secondary-button"><i class="fas fa-arrow-left"></i> Back to Practice Setup</button>
-                <button id="viewHistoryButton" class="button primary-button"><i class="fas fa-history"></i> View Practice History</button>
-            </div>
+                        <div class="action-buttons">
+                <a href="s.html" id="backButton" class="button secondary-button"><i class="fas fa-arrow-left"></i> Back to Practice Setup</a>
+                <a href="s_stats.html" id="viewHistoryButton" class="button primary-button"><i class="fas fa-history"></i> View Practice History</a>
+                        </div>
         </div>
     </div>
     <script>
 document.addEventListener('DOMContentLoaded', () => {
     const loadingEl = document.getElementById('loadingMessage');
-    // --- ACTION BUTTONS ---
-    const backButton = document.getElementById('backButton');
-    const viewHistoryButton = document.getElementById('viewHistoryButton');
-
-    if (backButton) {
-        backButton.addEventListener('click', () => {
-            window.location.href = 's.html'; // Navigate to practice setup
-        });
-    } else {
-        console.warn('s_result.js: backButton not found.');
-    }
-
-    if (viewHistoryButton) {
-        viewHistoryButton.addEventListener('click', () => {
-            window.location.href = 's_stats.html'; // Navigate to practice history
-        });
-    } else {
-        console.warn('s_result.js: viewHistoryButton not found.');
-    }
-});
     const errorEl = document.getElementById('errorMessage');
     const resultsEl = document.getElementById('resultsContent');
     let data;
