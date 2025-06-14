@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subject Practice Setup</title>
+    <style>
+        /* Styles adapted from your k.css and stats.html for consistency */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: #ecf0f1;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column; /* To keep back arrow and container aligned */
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .back-arrow {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 2.5em;
+            color: #f1c40f;
+            text-decoration: none;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .back-arrow:hover {
+            transform: scale(1.1);
+        }
+
+        .container {
+            background-color: rgba(52, 73, 94, 0.9);
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 550px;
+            margin-top: 80px; /* Space for back arrow if needed, or general centering */
+            text-align: center;
+            border: 1px solid rgba(241, 196, 15, 0.3);
+        }
+
+        h1 {
+            color: #f1c40f;
+            margin-bottom: 25px;
+            font-size: 2em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #bdc3c7;
+            font-weight: 500;
+        }
+
+        .form-group input[type="number"],
+        .form-group select { /* Added select styling */
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #7f8c8d;
+            border-radius: 5px;
+            background-color: rgba(236, 240, 241, 0.1);
+            color: #ecf0f1;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+        .form-group input[type="number"]:focus,
+        .form-group select:focus {
+             border-color: #f1c40f;
+             outline: none;
+             box-shadow: 0 0 0 2px rgba(241, 196, 15, 0.3);
+        }
+
+        .subject-selection-group label {
+            margin-right: 15px;
+            color: #ecf0f1;
+        }
+        .subject-selection-group input[type="radio"] {
+            margin-right: 5px;
+            accent-color: #f1c40f; /* Modern way to color radio check */
+        }
+
+
+        .error-messages {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: rgba(231, 76, 60, 0.1);
+            border: 1px solid #e74c3c;
+            border-radius: 5px;
+            color: #e74c3c; /* Red text for errors */
+            font-size: 0.9em;
+            text-align: left;
+        }
+        .error-messages p {
+            margin: 5px 0;
+        }
+
+
+        button[type="submit"] {
+            background: linear-gradient(45deg, #f1c40f, #f39c12);
+            color: #2c3e50;
+            border: none;
+            padding: 14px 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        button[type="submit"]:hover {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+        }
+        button[type="submit"]:disabled {
+            background: #7f8c8d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .input-error {
+            border-color: #e74c3c !important; /* Red border for invalid inputs */
+        }
+
+         @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                margin-top: 60px;
+            }
+            h1 { font-size: 1.8em; }
+            .back-arrow { font-size: 2em; top: 15px; left: 15px;}
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-arrow" title="Go Back">←</a>
+
+    <div class="container">
+        <h1>Subject Practice Configuration</h1>
+        <form id="subjectPracticeSetupForm">
+            <div class="form-group">
+                <label for="subject">Choose Subject:</label>
+                <div class="subject-selection-group">
+                    <input type="radio" id="physics" name="subject" value="physics" checked>
+                    <label for="physics">Physics</label>
+
+                    <input type="radio" id="chemistry" name="subject" value="chemistry">
+                    <label for="chemistry">Chemistry</label>
+
+                    <input type="radio" id="botany" name="subject" value="botany">
+                    <label for="botany">Botany</label>
+
+                    <input type="radio" id="zoology" name="subject" value="zoology">
+                    <label for="zoology">Zoology</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="time">Amount of Time (minutes):</label>
+                <input type="number" id="time" name="time" placeholder="1 - 300" min="1" max="300">
+            </div>
+
+            <div class="form-group">
+                <label for="questions">Number of Questions:</label>
+                <input type="number" id="questions" name="questions" placeholder="1 - 500" min="1" max="500">
+            </div>
+
+            <div id="errorMessages" class="error-messages" style="display: none;"></div>
+
+            <button type="submit">Submit & Start Practice</button>
+        </form>
+    </div>
+
+    <script>
+        // Helper function to get a cookie by name
+        function getCookie(name) {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                let cookie = cookies[i].trim();
+                if (cookie.startsWith(name + '=')) {
+                    return cookie.substring(name.length + 1, cookie.length);
+                }
+            }
+            return null;
+        }
+
+        // Function to check for login status (client-side)
+        function isClientSideLoggedIn() {
+            const sessionToken = getCookie('session_token');
+            // Basic check, in a real app, this token would be validated server-side.
+            return sessionToken !== null && sessionToken !== '';
+        }
+
+        document.getElementById('subjectPracticeSetupForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const timeInput = document.getElementById('time');
+            const questionsInput = document.getElementById('questions');
+            const subjectInputs = document.querySelectorAll('input[name="subject"]');
+            const errorMessagesDiv = document.getElementById('errorMessages');
+            const submitButton = this.querySelector('button[type="submit"]');
+
+            errorMessagesDiv.innerHTML = ''; // Clear previous errors
+            errorMessagesDiv.style.display = 'none';
+            const originalButtonText = submitButton.textContent;
+
+            // Reset error classes
+            timeInput.classList.remove('input-error');
+            questionsInput.classList.remove('input-error');
+
+
+            // --- Login Check ---
+            submitButton.disabled = true;
+            submitButton.textContent = 'Verifying login...';
+
+            if (!isClientSideLoggedIn()) {
+                const p = document.createElement('p');
+                p.textContent = 'Error: You must be logged in to start practice. Please log in and try again.';
+                errorMessagesDiv.appendChild(p);
+                errorMessagesDiv.style.display = 'block';
+                submitButton.disabled = false;
+                submitButton.textContent = originalButtonText;
+                return;
+            }
+            // --- End Login Check ---
+
+            submitButton.textContent = 'Processing...'; // Update button text after login check
+
+            let errors = [];
+            let isValid = true;
+
+            // Validate Subject
+            let selectedSubject = null;
+            for (const input of subjectInputs) {
+                if (input.checked) {
+                    selectedSubject = input.value;
+                    break;
+                }
+            }
+            if (!selectedSubject) {
+                errors.push("Please select a subject.");
+                // You might want to visually indicate error for the radio group too
+                isValid = false;
+            }
+
+            // Validate Time
+            const timeValue = parseInt(timeInput.value, 10);
+            if (isNaN(timeValue) || timeValue < 1 || timeValue > 300) {
+                errors.push("Time must be a number between 1 and 300 minutes.");
+                timeInput.classList.add('input-error');
+                isValid = false;
+            }
+
+            // Validate Number of Questions
+            const questionsValue = parseInt(questionsInput.value, 10);
+            if (isNaN(questionsValue) || questionsValue < 1 || questionsValue > 500) {
+                errors.push("Number of questions must be between 1 and 500.");
+                questionsInput.classList.add('input-error');
+                isValid = false;
+            }
+
+            if (isValid) {
+                // Save to localStorage with distinct names
+                localStorage.setItem('subjectPracticeTime', timeValue);
+                localStorage.setItem('subjectPracticeQuestions', questionsValue);
+                localStorage.setItem('subjectPracticeSubject', selectedSubject); // Save the chosen subject
+
+                // Proceed to s_quiz.html
+                window.location.href = 's_quiz.html';
+            } else {
+                // Display errors
+                errors.forEach(error => {
+                    const p = document.createElement('p');
+                    p.textContent = error;
+                    errorMessagesDiv.appendChild(p);
+                });
+                errorMessagesDiv.style.display = 'block';
+                submitButton.disabled = false;
+                submitButton.textContent = originalButtonText;
+            }
+        });
+    </script>
+</body>
+</html>
