@@ -429,6 +429,26 @@
     <script>
 document.addEventListener('DOMContentLoaded', () => {
     const loadingEl = document.getElementById('loadingMessage');
+    // --- ACTION BUTTONS ---
+    const backButton = document.getElementById('backButton');
+    const viewHistoryButton = document.getElementById('viewHistoryButton');
+
+    if (backButton) {
+        backButton.addEventListener('click', () => {
+            window.location.href = 's.html'; // Navigate to practice setup
+        });
+    } else {
+        console.warn('s_result.js: backButton not found.');
+    }
+
+    if (viewHistoryButton) {
+        viewHistoryButton.addEventListener('click', () => {
+            window.location.href = 's_stats.html'; // Navigate to practice history
+        });
+    } else {
+        console.warn('s_result.js: viewHistoryButton not found.');
+    }
+});
     const errorEl = document.getElementById('errorMessage');
     const resultsEl = document.getElementById('resultsContent');
     let data;
