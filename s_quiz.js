@@ -49,6 +49,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    //
+    // ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
+    // THIS IS THE CORRECTED FUNCTION. IT NOW PROPERLY ESCAPES HTML CHARACTERS.
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+    //
     function escapeHtml(unsafe) {
         if (typeof unsafe !== 'string') {
             if (unsafe === null || typeof unsafe === 'undefined') return '';
@@ -215,12 +220,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     const optionId = `option-${index}-${optIndex}`;
                     const div = document.createElement('div');
                     div.classList.add('option');
-                    const displayOptionText = escapeHtml(optionText);
-                    const valueOptionText = escapeHtml(optionText); // Raw value for submission
+                    
+                    // Both the display text and the value should be escaped to prevent HTML issues.
+                    const escapedOptionText = escapeHtml(optionText);
 
                     div.innerHTML = `
-                        <input type="radio" id="${optionId}" name="quizOption-${index}" value="${valueOptionText}">
-                        <label for="${optionId}">${displayOptionText}</label>
+                        <input type="radio" id="${optionId}" name="quizOption-${index}" value="${escapedOptionText}">
+                        <label for="${optionId}">${escapedOptionText}</label>
                     `;
                     optionsContainer.appendChild(div);
                 });
@@ -288,7 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 options: optionsList,
                 correctAnswer: correctAnswer,
                 userAnswer: String(userAnswer),
-                isCorrect: userAnswer !== "Not answered" && userAnswer !== "DOM Error" && String(userAnswer) === correctAnswer
+                isCorrect: userAnswer !== "Not answered" && userAnswer !== "DOM Error" && String(userAnswer) === escapeHtml(correctAnswer)
             });
         });
         finalizeQuiz(status);
@@ -374,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showError("Error saving practice statistics. Current result might be available.");
         }
         console.log("s_quiz.js: Redirecting to s_result.html");
-        window.location.href = 's_result.html'; // Or k_result.html if you plan to adapt it
+        window.location.href = 's_result.html';
     }
 
     // --- Main Initialization ---
@@ -453,7 +459,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isNaN(practiceTimeMinutes) || practiceTimeMinutes <= 0) {
         showError(`Invalid practice time: "${practiceTimeStr}".`); return;
     }
-    if (isNaN(numQuestionsToAsk) || numQuestionsToAsk < 0) { // Allow 0 for initial load, handled in initializeQuiz
+    if (isNaN(numQuestionsToAsk) || numQuestionsToAsk < 0) { 
         showError(`Invalid number of questions: "${numQuestionsStr}".`); return;
     }
     if (!practiceSubject) {
