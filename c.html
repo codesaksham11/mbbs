@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Other Options</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            background-color: #f0f2f5; /* Light gray background for the page */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align to top for longer content */
+            min-height: 100vh;
+            margin: 0;
+            padding-top: 40px; /* Space from top */
+        }
+
+        .container {
+            background-color: #ffffff; /* White background for the card */
+            border-radius: 16px;
+            padding: 24px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px; /* Increased margin */
+        }
+
+        .back-arrow {
+            font-size: 28px;
+            color: #333;
+            text-decoration: none;
+            margin-right: 15px; /* Space between arrow and title */
+            line-height: 1;
+        }
+
+        .header h1 {
+            font-size: 28px; /* Slightly larger */
+            font-weight: 600;
+            color: #1f2937; /* Darker gray */
+            margin: 0;
+        }
+
+        .options-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .options-list li {
+            margin-bottom: 16px;
+        }
+
+        .options-list li:last-child {
+            margin-bottom: 0;
+        }
+
+        .option-button {
+            display: flex;
+            align-items: center;
+            padding: 18px 20px; /* Increased padding */
+            border-radius: 12px; /* More rounded */
+            text-decoration: none;
+            font-size: 18px; /* Slightly larger text */
+            font-weight: 500;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .option-button .icon {
+            margin-right: 15px;
+            width: 32px; /* Larger icons */
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .option-button .icon svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Default style for non-active buttons */
+        .option-button {
+            background-color: #ffffff;
+            border: 1.5px solid #e5e7eb; /* Light gray border */
+            color: #1f2937; /* Dark gray text */
+        }
+        .option-button .icon svg {
+            fill: #374151; /* Dark gray for default icons */
+        }
+
+        .option-button:hover {
+            background-color: #f9fafb; /* Very light gray on hover */
+            border-color: #d1d5db;
+        }
+
+        /* Specific style for the "Subject-specific practice" button */
+        .option-button.subject-practice {
+            background-color: #f5f3ff; /* Light lavender */
+            border: 1.5px solid #a78bfa; /* Purple border */
+            color: #1f2937; /* Text color remains dark */
+        }
+
+        .option-button.subject-practice .icon svg {
+            fill: #8b5cf6; /* Purple icon */
+        }
+        .option-button.subject-practice:hover {
+            background-color: #ede9fe; /* Slightly darker lavender on hover */
+            border-color: #8b5cf6;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="back-arrow" aria-label="Go back">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+            </a>
+            <h1>Other options</h1>
+        </div>
+
+        <ul class="options-list">
+            <li>
+                <a href="s.html" class="option-button subject-practice">
+                    <span class="icon">
+                        <!-- Open Book Icon -->
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M19 2H6.5C5.12 2 4 3.12 4 4.5V19.5C4 20.88 5.12 22 6.5 22H19V2ZM6.5 4H10V10L8.25 8.5L6.5 10V4ZM17.5 20H6.5C6.22386 20 6 19.7761 6 19.5V12H11L12.75 13.5L14.5 12H17.5V20Z"/>
+                        </svg>
+                    </span>
+                    Subject-specific practice
+                </a>
+            </li>
+            <li>
+                <a href="s_stats.html" class="option-button">
+                    <span class="icon">
+                        <!-- Bar Chart Icon -->
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 19H8V10H5V19ZM9 19H12V4H9V19ZM13 19H16V14H13V19ZM17 19H20V8H17V19Z"/>
+                        </svg>
+                    </span>
+                    Subject statistics
+                </a>
+            </li>
+            <li>
+                <a href="stats.html" class="option-button">
+                    <span class="icon">
+                        <!-- Pie Chart Icon -->
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                           <path d="M11 2C15.968 2 20 6.032 20 11C20 15.968 15.968 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2ZM11 4C7.136 4 4 7.136 4 11C4 14.864 7.136 18 11 18V4ZM13 4V11H20C19.9942 9.03961 19.3094 7.16377 18.0615 5.7226C16.8136 4.28143 14.9926 3.38531 13 4Z"/>
+                        </svg>
+                    </span>
+                    Overall statistics
+                </a>
+            </li>
+        </ul>
+    </div>
+
+</body>
+</html>
