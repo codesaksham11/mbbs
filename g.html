@@ -8,6 +8,9 @@
     <!-- Chart.js and its date adapter are loaded from a CDN, which is perfect for static sites -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    
+
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom/dist/chartjs-plugin-zoom.min.js"></script> 
     <style>
         /* Embedded CSS */
         body {
@@ -496,21 +499,100 @@
             dom.paginationControls.appendChild(createButton('Last »', totalPages, currentPage === totalPages));
         }
 
-        function renderScoreProgressionChart() {
-            if (!dom.scoreProgressionChartCtx) return;
+        // Replace the entire renderScoreProgressionChart function with this one
 
-            // Filter data based on date inputs
-            let dataForChart = allHistoricalResults;
-            const startVal = dom.startDate.value;
-            const endVal = dom.endDate.value;
-            if (startVal && endVal) {
-                const startTime = new Date(startVal).getTime();
-                const endTime = new Date(endVal).getTime();
-                dataForChart = allHistoricalResults.filter(r => {
-                    const rTime = new Date(r.timestamp).getTime();
-                    return rTime >= startTime && rTime <= endTime;
-                });
+function renderScoreProgressionChart() {
+    if (!dom.scoreProgressionChartCtx) return;
+
+    // Filter data based on date inputs
+    let dataForChart = allHistoricalResults;
+    const startVal = dom.startDate.value;
+    const endVal = dom.endDate.value;
+    if (startVal && endVal) {
+        const startTime = new Date(startVal).getTime();
+        const endTime = new Date(endVal).getTime();
+        dataForChart = allHistoricalResults.filter(r => {
+            const rTime = new Date(r.timestamp).getTime();
+            return rTime >= startTime && rTime <= endTime;
+        });
+    }
+
+    dataForChart.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+    const chartData = dataForChart.map(result => ({
+        x: new Date(result.timestamp).getTime(),
+        y: result.percentage || 0
+    }));
+
+    if (scoreChart) scoreChart.destroy();
+
+    scoreChart = new Chart(dom.scoreProgressionChartCtx, {
+        type: 'line',
+        data: {
+            datasets: [{
+                label: 'Score Percentage Over Time',
+                data: chartData,
+                borderColor: '#f1c40f',
+                backgroundColor: 'rgba(241, 196, 15, 0.2)',
+                tension: 0.4,
+                fill: true,
+                pointRadius: 4,
+                pointHoverRadius: 7
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    type: 'time',
+                    time: {
+                        tooltipFormat: 'MMM d, yyyy, h:mm a',
+                        displayFormats: { hour: 'h:mm a', day: 'MMM d', week: 'MMM d yyyy' }
+                    },
+                    title: { display: true, text: 'Date of Quiz', color: '#ecf0f1' },
+                    ticks: { color: '#ecf0f1' },
+                    grid: { color: 'rgba(236, 240, 241, 0.1)' }
+                },
+                y: {
+                    beginAtZero: true, max: 100,
+                    title: { display: true, text: 'Score (%)', color: '#ecf0f1' },
+                    ticks: { color: '#ecf0f1', stepSize: 10 },
+                    grid: { color: 'rgba(236, 240, 241, 0.2)' }
+                }
+            },
+            plugins: {
+                // Add the title to instruct users
+                title: {
+                    display: true,
+                    text: 'Pinch/scroll to zoom, click and drag to pan',
+                    color: '#bdc3c7',
+                    font: {
+                        style: 'italic'
+                    }
+                },
+                legend: { labels: { color: '#ecf0f1' } },
+                tooltip: { mode: 'index', intersect: false },
+                // --- NEW ZOOM CONFIGURATION ---
+                zoom: {
+                    pan: {
+                        enabled: true, // Allows panning (click and drag)
+                        mode: 'x',     // Only pans along the x-axis (time)
+                    },
+                    zoom: {
+                        wheel: {
+                            enabled: true, // Allows zooming with the mouse wheel
+                        },
+                        pinch: {
+                            enabled: true, // Allows pinching to zoom on touch devices
+                        },
+                        mode: 'x', // Only zooms along the x-axis (time)
+                    }
+                }
             }
+        }
+    });
+}
 
             // ChartJS expects data sorted by x-axis value (time)
             dataForChart.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
