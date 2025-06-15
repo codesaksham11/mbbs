@@ -125,6 +125,13 @@
             border-radius: 6px;
         }
         
+        /* --- THIS IS THE FIX --- */
+        /* It tells the mobile browser not to handle pinch/zoom gestures on the canvas,
+           allowing the Chart.js plugin to take full control. */
+        #scoreProgressionChart {
+            touch-action: none;
+        }
+        
         /* --- STYLES FOR CONTROLS --- */
         .history-controls {
             display: flex;
