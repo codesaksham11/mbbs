@@ -129,7 +129,11 @@
         /* It tells the mobile browser not to handle pinch/zoom gestures on the canvas,
            allowing the Chart.js plugin to take full control. */
         #scoreProgressionChart {
-  touch-action: pan-x pan-y pinch-zoom;
+    touch-action: none !important;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
         }
         
         /* --- STYLES FOR CONTROLS --- */
@@ -302,6 +306,9 @@
     </div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+    // Register the zoom plugin
+    Chart.register(ChartZoom);
     document.addEventListener('DOMContentLoaded', () => {
         // --- CONFIGURATION & STATE MANAGEMENT ---
         const historicalResultsKey = 'allQuizHistoricalResults_v1';
@@ -460,32 +467,112 @@
 
             if (scoreChart) scoreChart.destroy();
 
-            scoreChart = new Chart(dom.scoreProgressionChartCtx, {
-                type: 'line',
-                data: {
-                    datasets: [{
-                        label: 'Score Percentage', data: chartData, borderColor: '#f1c40f',
-                        backgroundColor: 'rgba(241, 196, 15, 0.2)', tension: 0.4,
-                        fill: true, pointRadius: 4, pointHoverRadius: 7
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    scales: {
-                        x: { type: 'time', time: { tooltipFormat: 'MMM d, yyyy, h:mm a', displayFormats: { hour: 'h:mm a', day: 'MMM d', week: 'MMM d yyyy' }}, title: { display: true, text: 'Date of Quiz', color: '#ecf0f1' }, ticks: { color: '#ecf0f1' }, grid: { color: 'rgba(236, 240, 241, 0.1)' }},
-                        y: { beginAtZero: true, max: 100, title: { display: true, text: 'Score (%)', color: '#ecf0f1' }, ticks: { color: '#ecf0f1', stepSize: 10 }, grid: { color: 'rgba(236, 240, 241, 0.2)' }}
-                    },
-                    plugins: {
-                        title: { display: true, text: 'Pinch/scroll to zoom, drag to pan. Double-click to reset.', color: '#bdc3c7', font: { style: 'italic' }},
-                        legend: { labels: { color: '#ecf0f1' } },
-                        tooltip: { mode: 'index', intersect: false },
-                        zoom: {
-                            pan: { enabled: true, mode: 'x' },
-                            zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'xy' }
-                        }
+ scoreChart = new Chart(dom.scoreProgressionChartCtx, {
+    type: 'line',
+    data: {
+        datasets: [{
+            label: 'Score Percentage', 
+            data: chartData, 
+            borderColor: '#f1c40f',
+            backgroundColor: 'rgba(241, 196, 15, 0.2)', 
+            tension: 0.4,
+            fill: true, 
+            pointRadius: 4, 
+            pointHoverRadius: 7
+        }]
+    },
+    options: {
+        responsive: true, 
+        maintainAspectRatio: false,
+        interaction: {
+            intersect: false,
+            mode: 'index'
+        },
+        scales: {
+            x: { 
+                type: 'time', 
+                time: { 
+                    tooltipFormat: 'MMM d, yyyy, h:mm a', 
+                    displayFormats: { 
+                        hour: 'h:mm a', 
+                        day: 'MMM d', 
+                        week: 'MMM d yyyy' 
                     }
+                }, 
+                title: { 
+                    display: true, 
+                    text: 'Date of Quiz', 
+                    color: '#ecf0f1' 
+                }, 
+                ticks: { 
+                    color: '#ecf0f1' 
+                }, 
+                grid: { 
+                    color: 'rgba(236, 240, 241, 0.1)' 
                 }
-            });
+            },
+            y: { 
+                beginAtZero: true, 
+                max: 100, 
+                title: { 
+                    display: true, 
+                    text: 'Score (%)', 
+                    color: '#ecf0f1' 
+                }, 
+                ticks: { 
+                    color: '#ecf0f1', 
+                    stepSize: 10 
+                }, 
+                grid: { 
+                    color: 'rgba(236, 240, 241, 0.2)' 
+                }
+            }
+        },
+        plugins: {
+            title: { 
+                display: true, 
+                text: 'Mouse wheel/pinch to zoom, drag to pan. Double-click to reset.', 
+                color: '#bdc3c7', 
+                font: { 
+                    style: 'italic' 
+                }
+            },
+            legend: { 
+                labels: { 
+                    color: '#ecf0f1' 
+                } 
+            },
+            tooltip: { 
+                mode: 'index', 
+                intersect: false 
+            },
+            zoom: {
+                pan: {
+                    enabled: true,
+                    mode: 'xy',
+                    threshold: 10
+                },
+                zoom: {
+                    wheel: {
+                        enabled: true,
+                        speed: 0.1
+                    },
+                    pinch: {
+                        enabled: true
+                    },
+                    mode: 'xy',
+                    sensitivity: 3
+                },
+                limits: {
+                    y: {min: 0, max: 100}
+                }
+            }
+        },
+        onDoubleClick: function(event, elements) {
+            scoreChart.resetZoom();
+        }
+    }
+});
         }
         
         function sortData(data, config) {
