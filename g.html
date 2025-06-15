@@ -5,12 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz Statistics</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Chart.js and its date adapter are loaded from a CDN, which is perfect for static sites -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     
+    <!-- Scripts loaded from CDN in the correct order -->
+    <!-- 1. Core Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- 2. Date Adapter for Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <!-- 3. Zoom Plugin for Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom/dist/chartjs-plugin-zoom.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom/dist/chartjs-plugin-zoom.min.js"></script> 
     <style>
         /* Embedded CSS */
         body {
@@ -122,7 +125,7 @@
             border-radius: 6px;
         }
         
-        /* --- NEW STYLES FOR CONTROLS --- */
+        /* --- STYLES FOR CONTROLS --- */
         .history-controls {
             display: flex;
             justify-content: space-between;
@@ -230,7 +233,6 @@
         <h1><i class="fas fa-chart-line"></i> Quiz Statistics</h1>
 
         <div id="overallStats" class="overall-stats">
-            <!-- Stat items remain the same -->
             <div class="stat-item"><h3>Total Quizzes</h3><p id="totalQuizzes">0</p></div>
             <div class="stat-item"><h3>Avg. Score (Marks)</h3><p id="avgScoreMarks">0 / 0</p></div>
             <div class="stat-item"><h3>Avg. Score (%)</h3><p id="avgScorePercentage">0%</p></div>
@@ -242,7 +244,6 @@
         </div>
 
         <h2><i class="fas fa-history"></i> Quiz History</h2>
-        <!-- NEW CONTROLS FOR SORTING AND PAGINATION -->
         <div id="historyControls" class="history-controls" style="display: none;">
             <div class="sort-controls">
                 <label for="sortKey">Sort by:</label>
@@ -275,7 +276,6 @@
         <p id="noHistoryMessage" class="no-data" style="display: none;">No quiz history found. Take a quiz to see your stats!</p>
 
         <h2><i class="fas fa-chart-area"></i> Score Progression (%)</h2>
-        <!-- NEW CONTROLS FOR CHART FILTERING -->
         <div id="chartFilterControls" class="chart-filters" style="display: none;">
             <label for="startDate">From:</label>
             <input type="datetime-local" id="startDate">
@@ -288,7 +288,6 @@
             <canvas id="scoreProgressionChart"></canvas>
         </div>
 
-
         <div class="button-container">
             <a href="k.html"><i class="fas fa-arrow-left"></i> Back to Quiz Setup</a>
             <button id="clearHistoryButton" class="danger"><i class="fas fa-trash-alt"></i> Clear All History</button>
@@ -299,10 +298,8 @@
     document.addEventListener('DOMContentLoaded', () => {
         // --- CONFIGURATION & STATE MANAGEMENT ---
         const historicalResultsKey = 'allQuizHistoricalResults_v1';
-        let allHistoricalResults = []; // Master data source, never modified directly after load
+        let allHistoricalResults = [];
         let scoreChart = null;
-        
-        // State for table sorting and pagination
         let currentPage = 1;
         const rowsPerPage = 10;
         let sortConfig = { key: 'timestamp', direction: 'desc' };
@@ -345,14 +342,11 @@
                 console.error("Error loading historical results:", e);
                 allHistoricalResults = [];
             }
-            updateUI(); // Central function to render everything
+            updateUI();
         }
 
         function updateUI() {
-            // Display overall stats based on the complete history
             displayOverallStats();
-
-            // Handle visibility of elements based on data availability
             const hasData = allHistoricalResults.length > 0;
             dom.noHistoryMessage.style.display = hasData ? 'none' : 'block';
             dom.quizHistoryTable.style.display = hasData ? 'table' : 'none';
@@ -362,89 +356,58 @@
 
             if (!hasData) return;
 
-            // 1. Sort data for the table
             const sortedData = sortData(allHistoricalResults, sortConfig);
-            
-            // 2. Render pagination controls based on sorted data
             renderPagination(sortedData.length);
-            
-            // 3. Get the slice of data for the current page
             const paginatedData = paginateData(sortedData, currentPage, rowsPerPage);
-
-            // 4. Display the history table with the paginated data
             displayQuizHistory(paginatedData, sortedData);
-
-            // 5. Filter and render the chart
             renderScoreProgressionChart();
         }
 
         function displayOverallStats() {
             if (allHistoricalResults.length === 0) {
-                dom.totalQuizzes.textContent = '0';
-                dom.avgScoreMarks.textContent = 'N/A';
-                dom.avgScorePercentage.textContent = 'N/A';
-                dom.avgTime.textContent = 'N/A';
-                dom.bestScorePercentage.textContent = 'N/A';
-                dom.totalCorrect.textContent = '0';
-                dom.totalIncorrect.textContent = '0';
-                dom.totalSkipped.textContent = '0';
+                dom.totalQuizzes.textContent = '0'; dom.avgScoreMarks.textContent = 'N/A';
+                dom.avgScorePercentage.textContent = 'N/A'; dom.avgTime.textContent = 'N/A';
+                dom.bestScorePercentage.textContent = 'N/A'; dom.totalCorrect.textContent = '0';
+                dom.totalIncorrect.textContent = '0'; dom.totalSkipped.textContent = '0';
                 return;
             }
-
             let totalMarks = 0, totalPossibleMarks = 0, totalPercentage = 0;
             let totalTime = 0, bestPercentage = 0, correct = 0, incorrect = 0, skipped = 0;
-
             allHistoricalResults.forEach(r => {
-                totalMarks += r.marksObtained || 0;
-                totalPossibleMarks += r.totalPossibleMarks || 0;
-                totalPercentage += r.percentage || 0;
-                totalTime += r.timeTaken || 0;
+                totalMarks += r.marksObtained || 0; totalPossibleMarks += r.totalPossibleMarks || 0;
+                totalPercentage += r.percentage || 0; totalTime += r.timeTaken || 0;
                 if ((r.percentage || 0) > bestPercentage) bestPercentage = r.percentage || 0;
-                
                 if (r.answeredQuestionsDetail) {
                     r.answeredQuestionsDetail.forEach(q => {
                         const ans = String(q.userAnswer);
                         if (ans === 'Not answered' || ans === 'DOM Error') skipped++;
-                        else if (q.isCorrect) correct++;
-                        else incorrect++;
+                        else if (q.isCorrect) correct++; else incorrect++;
                     });
                 }
             });
-
             const count = allHistoricalResults.length;
             dom.totalQuizzes.textContent = count;
             dom.avgScoreMarks.textContent = `${(totalMarks / count).toFixed(2)} / ${(totalPossibleMarks / count).toFixed(2)}`;
             dom.avgScorePercentage.textContent = `${(totalPercentage / count).toFixed(1)}%`;
             dom.avgTime.textContent = formatTime(Math.round(totalTime / count));
             dom.bestScorePercentage.textContent = `${bestPercentage.toFixed(1)}%`;
-            dom.totalCorrect.textContent = correct;
-            dom.totalIncorrect.textContent = incorrect;
-            dom.totalSkipped.textContent = skipped;
+            dom.totalCorrect.textContent = correct; dom.totalIncorrect.textContent = incorrect; dom.totalSkipped.textContent = skipped;
         }
 
         function displayQuizHistory(paginatedData, fullSortedData) {
             dom.quizHistoryBody.innerHTML = '';
-            const startIndex = (currentPage - 1) * rowsPerPage;
-
-            paginatedData.forEach((result, index) => {
+            paginatedData.forEach(result => {
                 const globalIndex = fullSortedData.indexOf(result);
                 const row = dom.quizHistoryBody.insertRow();
                 row.insertCell().textContent = sortConfig.direction === 'desc' ? fullSortedData.length - globalIndex : globalIndex + 1;
-                
                 try {
-                    const date = new Date(result.timestamp);
-                    row.insertCell().textContent = date.toLocaleString([], { year: '2-digit', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-                } catch (e) {
-                    row.insertCell().textContent = "Invalid Date";
-                }
-                
+                    row.insertCell().textContent = new Date(result.timestamp).toLocaleString([], { year: '2-digit', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                } catch (e) { row.insertCell().textContent = "Invalid Date"; }
                 row.insertCell().textContent = result.totalQuestionsDisplayed || result.totalQuestionsAskedInConfig || 'N/A';
                 row.insertCell().textContent = typeof result.score === 'number' ? result.score : 'N/A';
-                
                 const marksObtained = typeof result.marksObtained === 'number' ? result.marksObtained.toFixed(2) : 'N/A';
                 const totalPossibleMarks = typeof result.totalPossibleMarks === 'number' ? result.totalPossibleMarks.toFixed(2) : 'N/A';
                 row.insertCell().textContent = `${marksObtained}/${totalPossibleMarks}`;
-                
                 row.insertCell().textContent = typeof result.percentage === 'number' ? `${result.percentage.toFixed(1)}%` : 'N/A';
                 row.insertCell().textContent = formatTime(result.timeTaken || 0);
                 row.insertCell().textContent = result.status || 'N/A';
@@ -455,152 +418,38 @@
             dom.paginationControls.innerHTML = '';
             const totalPages = Math.ceil(totalItems / rowsPerPage);
             if (totalPages <= 1) return;
-
             const createButton = (text, page, disabled = false, active = false) => {
                 const btn = document.createElement('button');
-                btn.innerHTML = text;
-                btn.disabled = disabled;
+                btn.innerHTML = text; btn.disabled = disabled;
                 if (active) btn.classList.add('active');
-                btn.addEventListener('click', () => {
-                    currentPage = page;
-                    updateUI();
-                });
+                btn.addEventListener('click', () => { currentPage = page; updateUI(); });
                 return btn;
             };
-            
-            // First & Prev
             dom.paginationControls.appendChild(createButton('« First', 1, currentPage === 1));
             dom.paginationControls.appendChild(createButton('‹ Prev', currentPage - 1, currentPage === 1));
-            
-            // Page numbers
-            const pagesToShow = 5;
-            let startPage = Math.max(1, currentPage - Math.floor(pagesToShow / 2));
-            let endPage = Math.min(totalPages, startPage + pagesToShow - 1);
-            if (endPage - startPage + 1 < pagesToShow) {
-                startPage = Math.max(1, endPage - pagesToShow + 1);
-            }
-
-            if (startPage > 1) {
-                dom.paginationControls.appendChild(createButton(1, 1));
-                if (startPage > 2) dom.paginationControls.insertAdjacentHTML('beforeend', '<span>...</span>');
-            }
-
-            for (let i = startPage; i <= endPage; i++) {
-                dom.paginationControls.appendChild(createButton(i, i, false, i === currentPage));
-            }
-
-            if (endPage < totalPages) {
-                if (endPage < totalPages - 1) dom.paginationControls.insertAdjacentHTML('beforeend', '<span>...</span>');
-                dom.paginationControls.appendChild(createButton(totalPages, totalPages));
-            }
-
-            // Next & Last
+            let startPage = Math.max(1, currentPage - 2), endPage = Math.min(totalPages, currentPage + 2);
+            if (startPage > 1) { dom.paginationControls.appendChild(createButton(1, 1)); if (startPage > 2) dom.paginationControls.insertAdjacentHTML('beforeend', '<span>...</span>');}
+            for (let i = startPage; i <= endPage; i++) dom.paginationControls.appendChild(createButton(i, i, false, i === currentPage));
+            if (endPage < totalPages) { if (endPage < totalPages - 1) dom.paginationControls.insertAdjacentHTML('beforeend', '<span>...</span>'); dom.paginationControls.appendChild(createButton(totalPages, totalPages));}
             dom.paginationControls.appendChild(createButton('Next ›', currentPage + 1, currentPage === totalPages));
             dom.paginationControls.appendChild(createButton('Last »', totalPages, currentPage === totalPages));
         }
 
-        // Replace the entire renderScoreProgressionChart function with this one
+        function renderScoreProgressionChart() {
+            if (!dom.scoreProgressionChartCtx) return;
 
-function renderScoreProgressionChart() {
-    if (!dom.scoreProgressionChartCtx) return;
-
-    // Filter data based on date inputs
-    let dataForChart = allHistoricalResults;
-    const startVal = dom.startDate.value;
-    const endVal = dom.endDate.value;
-    if (startVal && endVal) {
-        const startTime = new Date(startVal).getTime();
-        const endTime = new Date(endVal).getTime();
-        dataForChart = allHistoricalResults.filter(r => {
-            const rTime = new Date(r.timestamp).getTime();
-            return rTime >= startTime && rTime <= endTime;
-        });
-    }
-
-    dataForChart.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-
-    const chartData = dataForChart.map(result => ({
-        x: new Date(result.timestamp).getTime(),
-        y: result.percentage || 0
-    }));
-
-    if (scoreChart) scoreChart.destroy();
-
-    scoreChart = new Chart(dom.scoreProgressionChartCtx, {
-        type: 'line',
-        data: {
-            datasets: [{
-                label: 'Score Percentage Over Time',
-                data: chartData,
-                borderColor: '#f1c40f',
-                backgroundColor: 'rgba(241, 196, 15, 0.2)',
-                tension: 0.4,
-                fill: true,
-                pointRadius: 4,
-                pointHoverRadius: 7
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: {
-                    type: 'time',
-                    time: {
-                        tooltipFormat: 'MMM d, yyyy, h:mm a',
-                        displayFormats: { hour: 'h:mm a', day: 'MMM d', week: 'MMM d yyyy' }
-                    },
-                    title: { display: true, text: 'Date of Quiz', color: '#ecf0f1' },
-                    ticks: { color: '#ecf0f1' },
-                    grid: { color: 'rgba(236, 240, 241, 0.1)' }
-                },
-                y: {
-                    beginAtZero: true, max: 100,
-                    title: { display: true, text: 'Score (%)', color: '#ecf0f1' },
-                    ticks: { color: '#ecf0f1', stepSize: 10 },
-                    grid: { color: 'rgba(236, 240, 241, 0.2)' }
-                }
-            },
-            plugins: {
-                // Add the title to instruct users
-                title: {
-                    display: true,
-                    text: 'Pinch/scroll to zoom, click and drag to pan',
-                    color: '#bdc3c7',
-                    font: {
-                        style: 'italic'
-                    }
-                },
-                legend: { labels: { color: '#ecf0f1' } },
-                tooltip: { mode: 'index', intersect: false },
-                // --- NEW ZOOM CONFIGURATION ---
-                zoom: {
-                    pan: {
-                        enabled: true, // Allows panning (click and drag)
-                        mode: 'x',     // Only pans along the x-axis (time)
-                    },
-                    zoom: {
-                        wheel: {
-                            enabled: true, // Allows zooming with the mouse wheel
-                        },
-                        pinch: {
-                            enabled: true, // Allows pinching to zoom on touch devices
-                        },
-                        mode: 'x', // Only zooms along the x-axis (time)
-                    }
-                }
+            let dataForChart = allHistoricalResults;
+            const startVal = dom.startDate.value, endVal = dom.endDate.value;
+            if (startVal && endVal) {
+                const startTime = new Date(startVal).getTime(), endTime = new Date(endVal).getTime();
+                dataForChart = allHistoricalResults.filter(r => {
+                    const rTime = new Date(r.timestamp).getTime();
+                    return rTime >= startTime && rTime <= endTime;
+                });
             }
-        }
-    });
-}
 
-            // ChartJS expects data sorted by x-axis value (time)
             dataForChart.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-
-            const chartData = dataForChart.map(result => ({
-                x: new Date(result.timestamp).getTime(),
-                y: result.percentage || 0
-            }));
+            const chartData = dataForChart.map(r => ({ x: new Date(r.timestamp).getTime(), y: r.percentage || 0 }));
 
             if (scoreChart) scoreChart.destroy();
 
@@ -608,105 +457,63 @@ function renderScoreProgressionChart() {
                 type: 'line',
                 data: {
                     datasets: [{
-                        label: 'Score Percentage Over Time',
-                        data: chartData,
-                        borderColor: '#f1c40f',
-                        backgroundColor: 'rgba(241, 196, 15, 0.2)',
-                        tension: 0.4, // Smoother curve
-                        fill: true,
-                        pointRadius: 4,
-                        pointHoverRadius: 7
+                        label: 'Score Percentage', data: chartData, borderColor: '#f1c40f',
+                        backgroundColor: 'rgba(241, 196, 15, 0.2)', tension: 0.4,
+                        fill: true, pointRadius: 4, pointHoverRadius: 7
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    responsive: true, maintainAspectRatio: false,
                     scales: {
-                        x: {
-                            type: 'time',
-                            time: {
-                                tooltipFormat: 'MMM d, yyyy, h:mm a',
-                                displayFormats: { hour: 'h:mm a', day: 'MMM d', week: 'MMM d yyyy' }
-                            },
-                            title: { display: true, text: 'Date of Quiz', color: '#ecf0f1' },
-                            ticks: { color: '#ecf0f1' },
-                            grid: { color: 'rgba(236, 240, 241, 0.1)' }
-                        },
-                        y: {
-                            beginAtZero: true, max: 100,
-                            title: { display: true, text: 'Score (%)', color: '#ecf0f1' },
-                            ticks: { color: '#ecf0f1', stepSize: 10 },
-                            grid: { color: 'rgba(236, 240, 241, 0.2)' }
-                        }
+                        x: { type: 'time', time: { tooltipFormat: 'MMM d, yyyy, h:mm a', displayFormats: { hour: 'h:mm a', day: 'MMM d', week: 'MMM d yyyy' }}, title: { display: true, text: 'Date of Quiz', color: '#ecf0f1' }, ticks: { color: '#ecf0f1' }, grid: { color: 'rgba(236, 240, 241, 0.1)' }},
+                        y: { beginAtZero: true, max: 100, title: { display: true, text: 'Score (%)', color: '#ecf0f1' }, ticks: { color: '#ecf0f1', stepSize: 10 }, grid: { color: 'rgba(236, 240, 241, 0.2)' }}
                     },
                     plugins: {
+                        title: { display: true, text: 'Pinch/scroll to zoom, drag to pan. Double-click to reset.', color: '#bdc3c7', font: { style: 'italic' }},
                         legend: { labels: { color: '#ecf0f1' } },
-                        tooltip: { mode: 'index', intersect: false }
+                        tooltip: { mode: 'index', intersect: false },
+                        zoom: {
+                            pan: { enabled: true, mode: 'x' },
+                            zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' }
+                        }
                     }
                 }
             });
         }
         
-        // --- HELPER FUNCTIONS ---
         function sortData(data, config) {
-            const sorted = [...data]; // Create a shallow copy to avoid mutating the original
+            const sorted = [...data];
             sorted.sort((a, b) => {
-                const valA = a[config.key] || 0;
-                const valB = b[config.key] || 0;
-                if (config.key === 'timestamp') {
-                    return config.direction === 'asc' ? new Date(valA) - new Date(valB) : new Date(valB) - new Date(valA);
-                }
+                const valA = a[config.key] || 0, valB = b[config.key] || 0;
+                if (config.key === 'timestamp') return config.direction === 'asc' ? new Date(valA) - new Date(valB) : new Date(valB) - new Date(valA);
                 return config.direction === 'asc' ? valA - valB : valB - valA;
             });
             return sorted;
         }
 
-        function paginateData(data, page, limit) {
-            const start = (page - 1) * limit;
-            const end = start + limit;
-            return data.slice(start, end);
-        }
-
+        function paginateData(data, page, limit) { return data.slice((page - 1) * limit, page * limit); }
         function formatTime(totalSeconds) {
             if (isNaN(totalSeconds) || totalSeconds < 0) return '00:00';
-            const minutes = Math.floor(totalSeconds / 60);
-            const seconds = Math.round(totalSeconds % 60);
-            return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            const mins = Math.floor(totalSeconds / 60), secs = Math.round(totalSeconds % 60);
+            return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
         }
         
         // --- EVENT LISTENERS ---
-        dom.sortKey.addEventListener('change', (e) => {
-            sortConfig.key = e.target.value;
-            currentPage = 1;
-            updateUI();
-        });
-
+        dom.sortKey.addEventListener('change', e => { sortConfig.key = e.target.value; currentPage = 1; updateUI(); });
         dom.sortDirection.addEventListener('click', () => {
             sortConfig.direction = sortConfig.direction === 'desc' ? 'asc' : 'desc';
-            const icon = dom.sortDirection.querySelector('i');
-            icon.className = `fas fa-sort-${sortConfig.direction === 'desc' ? 'down' : 'up'}`;
-            currentPage = 1;
-            updateUI();
+            dom.sortDirection.querySelector('i').className = `fas fa-sort-${sortConfig.direction === 'desc' ? 'down' : 'up'}`;
+            currentPage = 1; updateUI();
         });
-
         dom.applyChartFilter.addEventListener('click', () => {
-            if (!dom.startDate.value || !dom.endDate.value) {
-                alert('Please select both a start and end date.');
-                return;
-            }
-            if (new Date(dom.startDate.value) >= new Date(dom.endDate.value)) {
-                alert('Start date must be before the end date.');
-                return;
-            }
-            renderScoreProgressionChart(); // Just re-render the chart
-        });
-
-        dom.resetChartFilter.addEventListener('click', () => {
-            dom.startDate.value = '';
-            dom.endDate.value = '';
+            if (!dom.startDate.value || !dom.endDate.value) return alert('Please select both a start and end date.');
+            if (new Date(dom.startDate.value) >= new Date(dom.endDate.value)) return alert('Start date must be before the end date.');
             renderScoreProgressionChart();
         });
-
+        dom.resetChartFilter.addEventListener('click', () => {
+            dom.startDate.value = ''; dom.endDate.value = '';
+            renderScoreProgressionChart();
+        });
         dom.clearHistoryButton.addEventListener('click', () => {
             if (confirm("Are you sure you want to clear all quiz history? This action cannot be undone.")) {
                 localStorage.removeItem(historicalResultsKey);
@@ -714,7 +521,6 @@ function renderScoreProgressionChart() {
                 if (scoreChart) scoreChart.destroy();
                 scoreChart = null;
                 loadAndInitialize();
-                console.log("Quiz history cleared.");
             }
         });
 
