@@ -5,414 +5,234 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crack MCQs Like a Pro</title>
     <style>
+         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        /* --- Base Styles (Consistent with Quiz Theme) --- */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            font-family: 'Poppins', sans-serif;
             margin: 0;
-            background-color: #fdfaf6; /* Light beige background from image */
-            color: #333;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e6f1ff;
             line-height: 1.6;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
         }
-        header {
-            padding: 15px 30px; /* Adjusted padding */
-            display: flex;
-            justify-content: space-between; /* Changed to space-between for nav and user status */
-            align-items: center;
-            background-color: #fdfaf6;
-            border-bottom: 1px solid #eee; /* Subtle separator */
-        }
-        nav a {
-            margin-right: 25px;
-            text-decoration: none;
-            color: #3a3a3a;
-            font-weight: 500;
-            font-size: 16px;
-        }
-        nav a:hover {
-            color: #ff7f50;
+
+        body::before {
+            content: "";
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(25, 130, 196, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(142, 68, 173, 0.1) 0%, transparent 25%);
+            z-index: -2; pointer-events: none;
         }
 
-        /* --- START: User Status & Auth Buttons --- */
-        .user-status {
+        header {
+            padding: 15px 30px;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 1rem;
+            background: rgba(26, 26, 46, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(113, 201, 248, 0.3);
+            position: sticky; top: 0; z-index: 1000;
         }
+
+        nav a {
+            margin-right: 25px; text-decoration: none; color: #c1d1e8;
+            font-weight: 500; font-size: 16px; transition: color 0.3s ease;
+        }
+        nav a:hover { color: #71c9f8; }
+
+        /* --- User Status & Auth Buttons (Themed) --- */
+        .user-status { display: flex; align-items: center; gap: 1rem; }
         #user-info {
-            font-size: 0.95rem;
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
+            font-size: 0.95rem; color: #e6f1ff; display: flex;
+            align-items: center; gap: 0.6rem;
         }
-        #user-info .user-icon { font-size: 1.2em; color: #ff7043; line-height: 1; }
+        #user-info .user-icon { font-size: 1.2em; color: #71c9f8; line-height: 1; }
         #user-info span#user-name { font-weight: 600; }
 
         .auth-button {
-            background: #ff7043; /* Main button color */
-            color: #FFFFFF;
-            border: none;
-            padding: 8px 18px; /* Slightly smaller padding */
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 0.9rem;
-            transition: background 0.3s ease, transform 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
+            background: linear-gradient(45deg, #71c9f8, #8e44ad);
+            color: white; border: none; padding: 10px 20px;
+            border-radius: 15px; cursor: pointer; font-weight: 600;
+            font-size: 0.9rem; transition: all 0.3s ease;
+            display: flex; align-items: center; gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-        .auth-button .icon { font-size: 1em; line-height: 1; }
         .auth-button:hover {
-            background: #f36335; /* Darker shade */
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(113, 201, 248, 0.3);
         }
-        #logout-btn {
-            background: #555e68; /* A more neutral color for logout */
-        }
-        #logout-btn:hover {
-            background: #333;
-        }
-        /* --- END: User Status & Auth Buttons --- */
-
-
-        main {
-            flex-grow: 1; /* Ensure main content takes available space */
-        }
+        #logout-btn { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1); }
+        #logout-btn:hover { background: rgba(255, 255, 255, 0.15); }
+        .auth-button .icon { font-size: 1em; line-height: 1; }
+        
+        main { flex-grow: 1; }
+        
         .hero-section {
-            display: flex;
-            padding: 40px 50px 60px;
-            align-items: center;
-            justify-content: space-between;
+            display: flex; padding: 60px 50px 80px; align-items: center; justify-content: space-between;
         }
-        .hero-text {
-            max-width: 45%;
-        }
+        .hero-text { max-width: 50%; }
         .hero-text h1 {
-            font-size: 52px;
-            color: #0d244f;
-            margin-top: 0;
-            margin-bottom: 20px;
-            line-height: 1.2;
+            font-size: 52px; color: #ffffff; margin: 0 0 20px 0;
+            line-height: 1.2; font-weight: 700;
         }
-        .hero-text .subheading {
-            font-size: 18px;
-            margin-bottom: 35px;
-            color: #555e68;
+        .hero-text h1 span { /* For gradient text effect if desired */
+            background: -webkit-linear-gradient(45deg, #71c9f8, #c1d1e8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
+        .hero-text .subheading { font-size: 18px; margin-bottom: 35px; color: #a3b1c6; }
         .start-practicing-text {
-            font-size: 18px;
-            font-weight: bold;
-            color: #ffffff;
-            background-color: #ff7043;
-            padding: 14px 28px;
-            border-radius: 30px;
-            display: inline-block;
-            text-align: center;
+            font-size: 18px; font-weight: bold; color: #ffffff;
+            background: linear-gradient(45deg, #71c9f8, #8e44ad);
+            padding: 14px 28px; border-radius: 30px; display: inline-block;
+            text-align: center; box-shadow: 0 5px 20px rgba(113, 201, 248, 0.25);
         }
-        .hero-image {
-            max-width: 50%;
-            text-align: right;
-        }
+        .hero-image { max-width: 45%; text-align: right; }
         .hero-image img {
-            max-width: 100%;
-            height: auto;
-            max-height: 350px;
+            max-width: 100%; height: auto; max-height: 400px;
+            filter: drop-shadow(0 0 30px rgba(113, 201, 248, 0.2));
         }
 
+        /* --- Category Cards (Themed) --- */
         .categories-section {
-            padding: 30px 50px 50px;
-            display: grid;
+            padding: 30px 50px 50px; display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            justify-content: center;
+            gap: 25px; justify-content: center;
         }
         .card {
-            background-color: #fff;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.07);
-            text-align: left;
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            background: rgba(30, 33, 55, 0.5); padding: 25px;
+            border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            text-align: left; transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         .card:hover:not(.no-hover-effect) {
              transform: translateY(-5px);
-             box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+             box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+             border-color: rgba(113, 201, 248, 0.5);
         }
-        .card-link {
-            text-decoration: none;
-            color: inherit;
-            display: block;
-            height: 100%;
-        }
+        .card-link { text-decoration: none; color: inherit; display: block; height: 100%; }
         .card-icon {
-            font-size: 36px;
-            margin-bottom: 15px;
-            height: 40px;
-            display: flex;
-            align-items: center;
+            font-size: 36px; margin-bottom: 15px; height: 40px;
+            display: flex; align-items: center; color: #71c9f8;
+            text-shadow: 0 0 15px rgba(113, 201, 248, 0.5);
         }
-        .icon-mbbs { color: #2ECC71; }
-        .icon-neb { color: #50E3C2; }
-        .icon-entrance { color: #F5A623; }
-        .icon-other { color: #4A90E2; }
-
-        .card h2 {
-            font-size: 22px;
-            color: #0d244f;
-            margin-top: 0;
-            margin-bottom: 8px;
-        }
-        .card p {
-            font-size: 15px;
-            color: #555e68;
-            line-height: 1.5;
-        }
-        #kharidar-card { /* This ID is for the Kharidar password modal trigger */
-            cursor: pointer;
-        }
-
-        /* --- START: General Modal Styles --- */
+        .card h2 { font-size: 22px; color: #ecf0f1; margin: 0 0 8px 0; }
+        .card p { font-size: 15px; color: #a3b1c6; line-height: 1.5; }
+        
+        /* --- Modal Styles (Themed) --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.6); /* Darker overlay */
-            z-index: 1050; /* Ensure above most content */
-            display: none; justify-content: center; align-items: center;
+            background-color: rgba(10, 12, 28, 0.9);
+            backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+            z-index: 1050; display: none; justify-content: center; align-items: center;
             opacity: 0; transition: opacity 0.3s ease-in-out;
         }
         .modal-overlay.visible { display: flex; opacity: 1; }
 
-        .modal-content-base { /* Base style for modal content boxes */
-            background: #fff;
-            padding: 25px 30px; /* Adjusted padding */
-            border-radius: 8px;
-            max-width: 420px; /* Consistent max-width */
-            width: 90%;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-            position: relative;
-            transform: scale(0.95);
-            transition: transform 0.3s ease-in-out;
-            text-align: center; /* Default to center for titles/messages */
+        .modal-content-base, #kharidar-modal .modal-content {
+            background: rgba(30, 33, 55, 0.95);
+            padding: 30px; border-radius: 20px;
+            border: 1px solid rgba(113, 201, 248, 0.3);
+            max-width: 420px; width: 90%;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+            position: relative; transform: scale(0.95);
+            transition: transform 0.3s ease-in-out; text-align: center;
         }
-        .modal-overlay.visible .modal-content-base { transform: scale(1); }
+        .modal-overlay.visible .modal-content-base,
+        .modal-overlay.visible #kharidar-modal .modal-content { transform: scale(1); }
 
-        .modal-content-base h2, .modal-content-base h3 {
-            text-align: center; margin-bottom: 1.5rem; color: #0d244f;
-            font-size: 1.4rem; /* Consistent title size */
+        .modal-content-base h2, .modal-content-base h3, #kharidar-modal .modal-content h3 {
+            margin: 0 0 1.5rem 0; color: #71c9f8; font-size: 1.5rem;
         }
-        .modal-close-btn {
-            position: absolute; top: 10px; right: 15px; font-size: 1.8rem; color: #888;
+        .modal-close-btn, #kharidar-modal .close-button {
+            position: absolute; top: 15px; right: 20px; font-size: 1.8rem; color: #a3b1c6;
             background: none; border: none; cursor: pointer; line-height: 1; padding: 0;
-            transition: color 0.2s ease;
+            transition: color 0.2s ease, transform 0.2s ease;
         }
-        .modal-close-btn:hover { color: #333; }
-        /* --- END: General Modal Styles --- */
+        .modal-close-btn:hover, #kharidar-modal .close-button:hover { color: #fff; transform: rotate(90deg); }
 
-        /* --- START: Login Modal Specific Styles --- */
-        #login-modal-content .form-group { margin-bottom: 1.1rem; text-align: left; }
+        /* --- Modal Form Styles (Themed) --- */
+        #login-modal-content .form-group, #kharidar-modal .form-group { margin-bottom: 1.1rem; text-align: left; }
         #login-modal-content .form-group label {
-            display: block; margin-bottom: 0.4rem; font-weight: 500;
-            color: #555e68; font-size: 0.9rem;
+            display: block; margin-bottom: 0.5rem; font-weight: 500;
+            color: #c1d1e8; font-size: 0.9rem;
         }
-        #login-modal-content .form-group input[type="email"],
-        #login-modal-content .form-group input[type="text"],
-        #login-modal-content .form-group input[type="number"] { /* Assuming MBBS ID might be number */
-            width: 100%; padding: 10px 12px; border: 1px solid #ccc;
-            background: #fdfaf6; color: #333; border-radius: 5px;
+        #login-modal-content .form-group input, #kharidar-modal input[type="password"] {
+            width: 100%; padding: 12px; border: 1px solid rgba(113, 201, 248, 0.2);
+            background: rgba(255, 255, 255, 0.04); color: #e6f1ff; border-radius: 8px;
             font-size: 1rem; transition: border-color 0.3s ease, box-shadow 0.3s ease;
-            box-sizing: border-box; /* Important for width 100% */
-        }
-        #login-modal-content .form-group input:focus {
-            outline: none; border-color: #ff7043;
-            box-shadow: 0 0 0 2px rgba(255, 112, 67, 0.2);
-        }
-        #login-submit-btn { width: 100%; padding: 10px 20px; margin-top: 0.5rem; }
-        #login-error-message {
-            text-align: center; margin-top: 1rem; font-weight: 500;
-            min-height: 1.2em; color: #d9534f; font-size: 0.9rem;
-        }
-        /* --- END: Login Modal Specific Styles --- */
-
-        /* --- START: Confirmation Modal Specific Styles --- */
-        #confirmation-modal-content p {
-            color: #333; font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;
-        }
-        .confirmation-modal-actions {
-            display: flex; justify-content: center; gap: 1rem; margin-top: 1rem;
-        }
-        .confirmation-modal-actions .auth-button { min-width: 100px; }
-        .confirmation-modal-actions .cancel-button { background-color: #777; }
-        .confirmation-modal-actions .cancel-button:hover { background-color: #555; }
-        /* --- END: Confirmation Modal Specific Styles --- */
-
-
-        /* Kharidar Modal Styles (Existing - slightly adjusted to use modal-overlay class) */
-        #kharidar-modal .modal-content { /* Specific for Kharidar */
-            background-color: #fff;
-            /* margin: auto; No longer needed due to flex centering */
-            padding: 30px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            text-align: center;
-            position: relative;
-        }
-        #kharidar-modal .modal-content h3 {
-            margin-top: 0;
-            margin-bottom: 20px;
-            color: #0d244f;
-            font-size: 20px;
-        }
-        #kharidar-modal .modal-content input[type="password"] {
-            width: calc(100% - 24px); /* Account for padding */
-            padding: 12px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
             box-sizing: border-box;
         }
-        #kharidar-modal .modal-content button {
-            background-color: #ff7043;
-            color: white;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 500;
-            transition: background-color 0.2s;
+        #login-modal-content .form-group input:focus, #kharidar-modal input[type="password"]:focus {
+            outline: none; border-color: #71c9f8;
+            box-shadow: 0 0 0 3px rgba(113, 201, 248, 0.4);
         }
-        #kharidar-modal .modal-content button:hover {
-            background-color: #f36335;
+        #login-submit-btn, #kharidar-modal button {
+            width: 100%; padding: 12px 20px; margin-top: 0.5rem;
+            /* Re-using .auth-button styles */
+            background: linear-gradient(45deg, #71c9f8, #8e44ad); color: white; border: none;
+            border-radius: 15px; cursor: pointer; font-weight: 600; font-size: 1rem;
+            transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-        #kharidar-modal .close-button { /* Re-target for Kharidar modal */
-            color: #777;
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
+        #login-submit-btn:hover, #kharidar-modal button:hover {
+            transform: translateY(-2px); box-shadow: 0 6px 20px rgba(113, 201, 248, 0.3);
         }
-        #kharidar-modal .close-button:hover,
-        #kharidar-modal .close-button:focus {
-            color: #333;
-        }
-        #kharidar-modal #error-message { /* Specific error message for Kharidar modal */
-            color: #d9534f;
-            margin-top: 15px;
-            font-size: 14px;
-            min-height: 20px;
+        #login-error-message, #kharidar-modal #error-message {
+            text-align: center; margin-top: 1rem; font-weight: 500;
+            min-height: 1.2em; color: #ff6b6b; font-size: 0.9rem;
         }
 
+        /* Confirmation Modal Styles (Themed) */
+        #confirmation-modal-content p { color: #c1d1e8; font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem; }
+        .confirmation-modal-actions { display: flex; justify-content: center; gap: 1rem; margin-top: 1rem; }
+        .confirmation-modal-actions .auth-button { min-width: 120px; }
+        .confirmation-modal-actions .cancel-button { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .confirmation-modal-actions .cancel-button:hover { background: rgba(255, 255, 255, 0.15); }
 
+        /* --- About Section & Footer (Themed) --- */
         #about-section {
-            padding: 60px 50px;
-            background-color: #f8f9fa;
-            text-align: center;
+            padding: 60px 50px; background-color: transparent; text-align: center;
+            border-top: 1px solid rgba(113, 201, 248, 0.2);
         }
-        #about-section h2 {
-            color: #0d244f;
-            margin-bottom: 25px;
-            font-size: 32px;
-        }
-        #about-section p {
-            font-size: 17px;
-            color: #555e68;
-            max-width: 700px;
-            margin: 0 auto 15px auto;
-            line-height: 1.7;
-        }
+        #about-section h2 { color: #ecf0f1; margin-bottom: 25px; font-size: 32px; }
+        #about-section p { font-size: 17px; color: #a3b1c6; max-width: 700px; margin: 0 auto 15px auto; line-height: 1.7; }
+        
         footer {
             text-align: center; padding: 1.5rem 1rem; margin-top: auto;
-            background: #0d244f;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.9rem;
+            background: #10111e; /* Deepest dark color */
+            color: rgba(255, 255, 255, 0.7); font-size: 0.9rem;
         }
-        footer a { color: #ff7043; text-decoration: none; font-weight: 600;}
+        footer a { color: #71c9f8; text-decoration: none; font-weight: 600; }
         footer a:hover { text-decoration: underline; }
 
         /* Responsive adjustments */
         @media (max-width: 992px) {
-            .hero-section {
-                padding: 30px 30px 40px;
-            }
-            .hero-text h1 {
-                font-size: 44px;
-            }
-             .hero-image {
-                display: none;
-            }
-            .hero-text {
-                max-width: 100%;
-                text-align: center;
-            }
+            .hero-section { padding: 40px 30px; }
+            .hero-text h1 { font-size: 44px; }
+            .hero-image { display: none; }
+            .hero-text { max-width: 100%; text-align: center; }
         }
         @media (max-width: 768px) {
-            header {
-                padding: 15px 20px;
-                flex-direction: column; /* Stack nav and user status on small screens */
-                gap: 10px;
-            }
-            header nav {
-                display: flex;
-                justify-content: center;
-                width: 100%;
-            }
-            nav a { margin: 0 10px;}
-            .user-status { justify-content: center; width: 100%;}
+            header { padding: 15px 20px; flex-direction: column; gap: 15px; }
+            header nav { display: flex; justify-content: center; width: 100%; }
+            nav a { margin: 0 12px;}
+            .user-status { justify-content: center; width: 100%; }
+            .hero-section { padding: 30px 20px; }
+            .hero-text h1 { font-size: 38px; }
+            .hero-image { display: block; max-width: 80%; margin: 30px auto 0 auto; }
+            .categories-section { grid-template-columns: 1fr; padding: 20px; gap: 20px; }
+            #about-section { padding: 40px 20px; }
+            #about-section h2 { font-size: 28px; }
+            .confirmation-modal-actions { flex-direction: column; gap: 0.8rem; }
+            .confirmation-modal-actions .auth-button { width: 100%; }
+                                }
 
-
-            .hero-section {
-                flex-direction: column;
-                text-align: center;
-                padding: 30px 20px;
-            }
-            .hero-text {
-                max-width: 100%;
-            }
-             .hero-text h1 {
-                font-size: 38px;
-            }
-            .hero-text .subheading {
-                font-size: 17px;
-            }
-            .start-practicing-text {
-                 padding: 12px 24px;
-                 font-size: 17px;
-            }
-            .hero-image {
-                display: block;
-                max-width: 80%;
-                margin: 30px auto 0 auto; /* Adjusted margin */
-            }
-            .categories-section {
-                grid-template-columns: 1fr;
-                padding: 20px;
-                gap: 20px;
-            }
-            .modal-content-base, #kharidar-modal .modal-content { /* Apply to both modal types */
-                width: 90%;
-                padding: 20px;
-            }
-            #about-section {
-                padding: 40px 20px;
-            }
-            #about-section h2 {
-                font-size: 28px;
-            }
-            .confirmation-modal-actions {
-                flex-direction: column;
-                gap: 0.8rem;
-            }
-            .confirmation-modal-actions .auth-button {
-                width: 100%;
-            }
-        }
     </style>
 </head>
 <body>
