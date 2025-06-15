@@ -307,9 +307,9 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-    // Register the zoom plugin
-    Chart.register(ChartZoom);
-    document.addEventListener('DOMContentLoaded', () => {
+            // Register the zoom plugin FIRST within the *single* DOMContentLoaded listener
+            Chart.register(ChartZoom);
+
         // --- CONFIGURATION & STATE MANAGEMENT ---
         const historicalResultsKey = 'allQuizHistoricalResults_v1';
         let allHistoricalResults = [];
