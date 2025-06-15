@@ -4,224 +4,470 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Subject Practice Setup</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Styles adapted from your k.css and stats.html for consistency */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-            color: #ecf0f1;
+        :root {
+            --primary: #4A6FA5;
+            --primary-dark: #3A5A8C;
+            --secondary: #FFC857;
+            --secondary-dark: #E8B44A;
+            --dark: #2C3E50;
+            --darker: #1E2A38;
+            --light: #ECF0F1;
+            --danger: #E74C3C;
+            --success: #2ECC71;
+            --card-bg: rgba(52, 73, 94, 0.85);
+            --input-bg: rgba(236, 240, 241, 0.12);
+            --transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        * {
             margin: 0;
             padding: 0;
-            display: flex;
-            flex-direction: column; /* To keep back arrow and container aligned */
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .back-arrow {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            font-size: 2.5em;
-            color: #f1c40f;
-            text-decoration: none;
-            transition: transform 0.2s ease-in-out;
-        }
-
-        .back-arrow:hover {
-            transform: scale(1.1);
-        }
-
-        .container {
-            background-color: rgba(52, 73, 94, 0.9);
-            padding: 30px 40px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            width: 90%;
-            max-width: 550px;
-            margin-top: 80px; /* Space for back arrow if needed, or general centering */
-            text-align: center;
-            border: 1px solid rgba(241, 196, 15, 0.3);
-        }
-
-        h1 {
-            color: #f1c40f;
-            margin-bottom: 25px;
-            font-size: 2em;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        /* General label styling for form group titles */
-        .form-group > label, .group-title-label {
-            display: block;
-            margin-bottom: 8px;
-            color: #bdc3c7;
-            font-weight: 500;
-        }
-
-        .form-group input[type="number"],
-        .form-group select { /* Added select styling */
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #7f8c8d;
-            border-radius: 5px;
-            background-color: rgba(236, 240, 241, 0.1);
-            color: #ecf0f1;
-            font-size: 1em;
             box-sizing: border-box;
         }
-        .form-group input[type="number"]:focus,
-        .form-group select:focus {
-             border-color: #f1c40f;
-             outline: none;
-             box-shadow: 0 0 0 2px rgba(241, 196, 15, 0.3);
-        }
 
-        /* NEW STYLES for Custom Subject Selection UI */
-        .subject-options-container {
-            background: rgba(236, 240, 241, 0.08); /* Light frosted glass effect */
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px); /* Safari support */
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid rgba(236, 240, 241, 0.15); /* Subtle border for the panel */
-            margin-top: 10px;
-        }
-
-        .subject-option { /* This is the clickable label for each option */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+            color: var(--light);
+            min-height: 100vh;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            padding: 10px 5px;
-            cursor: pointer;
-            border-radius: 6px;
-            transition: background-color 0.2s ease;
-            margin-bottom: 5px; /* Space between options */
-        }
-        .subject-option:last-child {
-            margin-bottom: 0;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
         }
 
-        .subject-option:hover {
-            background-color: rgba(236, 240, 241, 0.08); /* Subtle hover for the row */
+        /* Background decoration */
+        .bg-decoration {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            overflow: hidden;
         }
 
-        .subject-option input[type="radio"] {
-            display: none; /* Hide the actual radio button */
-        }
-
-        .option-circle {
-            width: 36px;
-            height: 36px;
+        .bg-circle {
+            position: absolute;
             border-radius: 50%;
-            border: 2px solid rgba(189, 195, 199, 0.4); /* Mid-tone grey border */
-            background-color: rgba(189, 195, 199, 0.1); /* Very transparent fill */
+            background: rgba(74, 111, 165, 0.1);
+        }
+
+        .circle-1 {
+            width: 300px;
+            height: 300px;
+            top: -100px;
+            left: -100px;
+        }
+
+        .circle-2 {
+            width: 200px;
+            height: 200px;
+            bottom: -80px;
+            right: -80px;
+        }
+
+        .circle-3 {
+            width: 150px;
+            height: 150px;
+            top: 30%;
+            right: 10%;
+        }
+
+        /* Back arrow */
+        .back-arrow {
+            position: absolute;
+            top: 25px;
+            left: 25px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-right: 12px;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-            flex-shrink: 0; /* Prevent circle from shrinking */
+            width: 50px;
+            height: 50px;
+            background: var(--card-bg);
+            border-radius: 50%;
+            color: var(--secondary);
+            font-size: 1.8rem;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: var(--transition);
+            z-index: 10;
+        }
+
+        .back-arrow:hover {
+            transform: translateX(-5px);
+            background: var(--primary);
+            color: var(--light);
+        }
+
+        /* Container */
+        .container {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+            width: 100%;
+            max-width: 520px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 200, 87, 0.15);
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+        }
+
+        h1 {
+            color: var(--secondary);
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+            font-size: 2.2rem;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 25%;
+            width: 50%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--secondary), transparent);
+            border-radius: 3px;
+        }
+
+        /* Form groups */
+        .form-group {
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .group-title {
+            display: block;
+            margin-bottom: 15px;
+            color: var(--light);
+            font-weight: 500;
+            font-size: 1.1rem;
+            padding-left: 8px;
+            position: relative;
+        }
+
+        .group-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 18px;
+            background: var(--secondary);
+            border-radius: 2px;
+        }
+
+        /* Subject options */
+        .subject-options-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .subject-option {
+            background: var(--input-bg);
+            border-radius: 12px;
+            padding: 18px 15px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .subject-option:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            border-color: rgba(255, 200, 87, 0.3);
+        }
+
+        .subject-option input[type="radio"] {
+            display: none;
+        }
+
+        .option-circle {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: rgba(255, 200, 87, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            transition: var(--transition);
         }
 
         .option-icon {
-            font-size: 1.1em;
-            font-weight: 500;
-            color: #bdc3c7; /* Light grey text for unselected */
-            transition: color 0.3s ease, font-weight 0.3s ease;
+            font-size: 1.4rem;
+            color: var(--secondary);
+            transition: var(--transition);
         }
 
         .option-label-text {
-            color: #ecf0f1;
-            font-size: 1em;
+            font-weight: 500;
+            font-size: 1.05rem;
+            transition: var(--transition);
         }
 
-        /* Selected State Styling */
+        /* Selected state */
         .subject-option input[type="radio"]:checked + .option-circle {
-            background-color: #ecf0f1; /* Light background, almost white */
-            border-color: #f1c40f; /* Theme yellow for selected border */
+            background: var(--secondary);
+            box-shadow: 0 0 0 5px rgba(255, 200, 87, 0.2);
         }
 
         .subject-option input[type="radio"]:checked + .option-circle .option-icon {
-            color: #2c3e50; /* Dark text for contrast on light background */
-            font-weight: bold;
+            color: var(--darker);
         }
-        /* END OF NEW STYLES */
 
+        .subject-option input[type="radio"]:checked ~ .option-label-text {
+            color: var(--secondary);
+            font-weight: 600;
+        }
 
+        /* Input fields */
+        .input-container {
+            position: relative;
+            margin-top: 5px;
+        }
+
+        .input-container input {
+            width: 100%;
+            padding: 18px 20px;
+            border: none;
+            border-radius: 12px;
+            background: var(--input-bg);
+            color: var(--light);
+            font-size: 1rem;
+            font-weight: 500;
+            transition: var(--transition);
+            border: 2px solid transparent;
+        }
+
+        .input-container input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 4px rgba(255, 200, 87, 0.15);
+        }
+
+        .input-container input::placeholder {
+            color: rgba(236, 240, 241, 0.6);
+        }
+
+        .input-container label {
+            position: absolute;
+            left: 20px;
+            top: 18px;
+            color: rgba(236, 240, 241, 0.8);
+            pointer-events: none;
+            transition: var(--transition);
+            font-weight: 400;
+        }
+
+        .input-container input:focus + label,
+        .input-container input:not(:placeholder-shown) + label {
+            top: -8px;
+            left: 15px;
+            font-size: 0.85rem;
+            background: var(--primary-dark);
+            padding: 2px 8px;
+            border-radius: 20px;
+            color: var(--light);
+        }
+
+        .input-container .icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(236, 240, 241, 0.6);
+            font-size: 1.1rem;
+        }
+
+        /* Error messages */
         .error-messages {
             margin-top: 15px;
-            padding: 10px;
-            background-color: rgba(231, 76, 60, 0.1);
-            border: 1px solid #e74c3c;
-            border-radius: 5px;
-            color: #e74c3c; /* Red text for errors */
-            font-size: 0.9em;
+            padding: 15px;
+            background: rgba(231, 76, 60, 0.15);
+            border-left: 4px solid var(--danger);
+            border-radius: 8px;
+            color: var(--light);
+            font-size: 0.95rem;
             text-align: left;
-        }
-        .error-messages p {
-            margin: 5px 0;
+            display: none;
+            animation: fadeIn 0.3s ease;
         }
 
+        .error-messages p {
+            margin: 8px 0;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .error-messages p i {
+            color: var(--danger);
+            margin-right: 10px;
+            margin-top: 4px;
+        }
+
+        .input-error {
+            border-color: var(--danger) !important;
+        }
+
+        /* Submit button */
+        .submit-container {
+            margin-top: 20px;
+            position: relative;
+        }
 
         button[type="submit"] {
-            background: linear-gradient(45deg, #f1c40f, #f39c12);
-            color: #2c3e50;
+            background: linear-gradient(45deg, var(--secondary), var(--secondary-dark));
+            color: var(--darker);
             border: none;
-            padding: 14px 25px;
-            font-size: 1.1em;
-            font-weight: bold;
-            border-radius: 25px;
+            padding: 18px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 12px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: var(--transition);
             width: 100%;
-            margin-top: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        button[type="submit"]::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--secondary-dark), var(--secondary));
+            opacity: 0;
+            transition: var(--transition);
+            z-index: -1;
         }
 
         button[type="submit"]:hover {
-            background: linear-gradient(45deg, #f39c12, #e67e22);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
         }
+
+        button[type="submit"]:hover::before {
+            opacity: 1;
+        }
+
+        button[type="submit"]:active {
+            transform: translateY(1px);
+        }
+
         button[type="submit"]:disabled {
             background: #7f8c8d;
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
         }
-        .input-error {
-            border-color: #e74c3c !important; /* Red border for invalid inputs */
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-         @media (max-width: 600px) {
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Responsive design */
+        @media (max-width: 600px) {
             .container {
-                padding: 20px;
-                margin-top: 60px;
+                padding: 30px 20px;
+                margin-top: 0;
             }
-            h1 { font-size: 1.8em; }
-            .back-arrow { font-size: 2em; top: 15px; left: 15px;}
+            
+            h1 {
+                font-size: 1.9rem;
+            }
+            
+            .subject-options-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .back-arrow {
+                top: 15px;
+                left: 15px;
+                width: 45px;
+                height: 45px;
+                font-size: 1.6rem;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .container {
+                padding: 25px 15px;
+            }
+            
+            h1 {
+                font-size: 1.7rem;
+            }
+            
+            .subject-option {
+                padding: 15px;
+            }
         }
     </style>
 </head>
 <body>
-    <a href="index.html" class="back-arrow" title="Go Back">←</a>
+    <div class="bg-decoration">
+        <div class="bg-circle circle-1"></div>
+        <div class="bg-circle circle-2"></div>
+        <div class="bg-circle circle-3"></div>
+    </div>
+
+    <a href="index.html" class="back-arrow" title="Go Back">
+        <i class="fas fa-arrow-left"></i>
+    </a>
 
     <div class="container">
         <h1>Subject Practice Configuration</h1>
         <form id="subjectPracticeSetupForm">
 
-            <!-- MODIFIED SUBJECT SELECTION BLOCK -->
+            <!-- Subject Selection -->
             <div class="form-group">
-                <label class="group-title-label">Choose Subject:</label>
+                <label class="group-title">Choose Subject</label>
                 <div class="subject-options-container">
                     <label class="subject-option">
                         <input type="radio" id="physics" name="subject" value="physics" checked>
                         <span class="option-circle">
-                            <span class="option-icon">P</span>
+                            <i class="fas fa-atom option-icon"></i>
                         </span>
                         <span class="option-label-text">Physics</span>
                     </label>
@@ -229,7 +475,7 @@
                     <label class="subject-option">
                         <input type="radio" id="chemistry" name="subject" value="chemistry">
                         <span class="option-circle">
-                            <span class="option-icon">C</span>
+                            <i class="fas fa-flask option-icon"></i>
                         </span>
                         <span class="option-label-text">Chemistry</span>
                     </label>
@@ -237,7 +483,7 @@
                     <label class="subject-option">
                         <input type="radio" id="botany" name="subject" value="botany">
                         <span class="option-circle">
-                            <span class="option-icon">B</span>
+                            <i class="fas fa-seedling option-icon"></i>
                         </span>
                         <span class="option-label-text">Botany</span>
                     </label>
@@ -245,27 +491,43 @@
                     <label class="subject-option">
                         <input type="radio" id="zoology" name="subject" value="zoology">
                         <span class="option-circle">
-                            <span class="option-icon">Z</span>
+                            <i class="fas fa-paw option-icon"></i>
                         </span>
                         <span class="option-label-text">Zoology</span>
                     </label>
                 </div>
             </div>
-            <!-- END OF MODIFIED SUBJECT SELECTION BLOCK -->
 
+            <!-- Time Input -->
             <div class="form-group">
-                <label for="time">Amount of Time (minutes):</label>
-                <input type="number" id="time" name="time" placeholder="1 - 300" min="1" max="300">
+                <label class="group-title">Practice Settings</label>
+                <div class="input-container">
+                    <input type="number" id="time" name="time" placeholder=" " min="1" max="300">
+                    <label for="time">Practice Time (minutes)</label>
+                    <i class="fas fa-clock icon"></i>
+                </div>
             </div>
 
+            <!-- Questions Input -->
             <div class="form-group">
-                <label for="questions">Number of Questions:</label>
-                <input type="number" id="questions" name="questions" placeholder="1 - 500" min="1" max="500">
+                <div class="input-container">
+                    <input type="number" id="questions" name="questions" placeholder=" " min="1" max="500">
+                    <label for="questions">Number of Questions</label>
+                    <i class="fas fa-list-ol icon"></i>
+                </div>
             </div>
 
-            <div id="errorMessages" class="error-messages" style="display: none;"></div>
+            <!-- Error Messages -->
+            <div id="errorMessages" class="error-messages">
+                <!-- Will be populated by JavaScript -->
+            </div>
 
-            <button type="submit">Submit & Start Practice</button>
+            <!-- Submit Button -->
+            <div class="submit-container">
+                <button type="submit">
+                    <i class="fas fa-play-circle"></i> Start Practice Session
+                </button>
+            </div>
         </form>
     </div>
 
@@ -285,98 +547,122 @@
         // Function to check for login status (client-side)
         function isClientSideLoggedIn() {
             const sessionToken = getCookie('session_token');
-            // Basic check, in a real app, this token would be validated server-side.
             return sessionToken !== null && sessionToken !== '';
         }
 
-        document.getElementById('subjectPracticeSetupForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent default form submission
-
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('subjectPracticeSetupForm');
             const timeInput = document.getElementById('time');
             const questionsInput = document.getElementById('questions');
-            const subjectInputs = document.querySelectorAll('input[name="subject"]'); // This still works
+            const subjectInputs = document.querySelectorAll('input[name="subject"]');
             const errorMessagesDiv = document.getElementById('errorMessages');
-            const submitButton = this.querySelector('button[type="submit"]');
-
-            errorMessagesDiv.innerHTML = ''; // Clear previous errors
-            errorMessagesDiv.style.display = 'none';
-            const originalButtonText = submitButton.textContent;
-
-            // Reset error classes
-            timeInput.classList.remove('input-error');
-            questionsInput.classList.remove('input-error');
-
-
-            // --- Login Check ---
-            submitButton.disabled = true;
-            submitButton.textContent = 'Verifying login...';
-
-            if (!isClientSideLoggedIn()) {
-                const p = document.createElement('p');
-                p.textContent = 'Error: You must be logged in to start practice. Please log in and try again.';
-                errorMessagesDiv.appendChild(p);
-                errorMessagesDiv.style.display = 'block';
-                submitButton.disabled = false;
-                submitButton.textContent = originalButtonText;
-                return;
-            }
-            // --- End Login Check ---
-
-            submitButton.textContent = 'Processing...'; // Update button text after login check
-
-            let errors = [];
-            let isValid = true;
-
-            // Validate Subject
-            let selectedSubject = null;
-            for (const input of subjectInputs) {
-                if (input.checked) {
-                    selectedSubject = input.value;
-                    break;
-                }
-            }
-            if (!selectedSubject) {
-                errors.push("Please select a subject.");
-                // Visually indicate error for the custom radio group if desired
-                // For now, the general error message is sufficient.
-                isValid = false;
-            }
-
-            // Validate Time
-            const timeValue = parseInt(timeInput.value, 10);
-            if (isNaN(timeValue) || timeValue < 1 || timeValue > 300) {
-                errors.push("Time must be a number between 1 and 300 minutes.");
-                timeInput.classList.add('input-error');
-                isValid = false;
-            }
-
-            // Validate Number of Questions
-            const questionsValue = parseInt(questionsInput.value, 10);
-            if (isNaN(questionsValue) || questionsValue < 1 || questionsValue > 500) {
-                errors.push("Number of questions must be between 1 and 500.");
-                questionsInput.classList.add('input-error');
-                isValid = false;
-            }
-
-            if (isValid) {
-                // Save to localStorage with distinct names
-                localStorage.setItem('subjectPracticeTime', timeValue);
-                localStorage.setItem('subjectPracticeQuestions', questionsValue);
-                localStorage.setItem('subjectPracticeSubject', selectedSubject); // Save the chosen subject
-
-                // Proceed to s_quiz.html
-                window.location.href = 's_quiz.html';
-            } else {
-                // Display errors
-                errors.forEach(error => {
-                    const p = document.createElement('p');
-                    p.textContent = error;
-                    errorMessagesDiv.appendChild(p);
+            const submitButton = form.querySelector('button[type="submit"]');
+            
+            // Add floating label functionality
+            const inputs = document.querySelectorAll('.input-container input');
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    if (this.value.trim() !== '') {
+                        this.parentNode.querySelector('label').classList.add('active');
+                    } else {
+                        this.parentNode.querySelector('label').classList.remove('active');
+                    }
                 });
-                errorMessagesDiv.style.display = 'block';
-                submitButton.disabled = false;
-                submitButton.textContent = originalButtonText;
-            }
+            });
+
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                // Reset UI states
+                errorMessagesDiv.style.display = 'none';
+                errorMessagesDiv.innerHTML = '';
+                timeInput.classList.remove('input-error');
+                questionsInput.classList.remove('input-error');
+                const originalButtonText = submitButton.innerHTML;
+                
+                // Show processing state
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                
+                // Check login status
+                if (!isClientSideLoggedIn()) {
+                    setTimeout(() => {
+                        errorMessagesDiv.innerHTML = `
+                            <p><i class="fas fa-exclamation-circle"></i> You must be logged in to start practice. Please log in and try again.</p>
+                        `;
+                        errorMessagesDiv.style.display = 'block';
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalButtonText;
+                    }, 500);
+                    return;
+                }
+                
+                // Validate inputs
+                let errors = [];
+                let isValid = true;
+                
+                // Validate Subject
+                let selectedSubject = null;
+                for (const input of subjectInputs) {
+                    if (input.checked) {
+                        selectedSubject = input.value;
+                        break;
+                    }
+                }
+                
+                if (!selectedSubject) {
+                    errors.push("<i class='fas fa-exclamation-circle'></i> Please select a subject.");
+                    isValid = false;
+                }
+                
+                // Validate Time
+                const timeValue = parseInt(timeInput.value, 10);
+                if (isNaN(timeValue) || timeValue < 1 || timeValue > 300) {
+                    errors.push("<i class='fas fa-exclamation-circle'></i> Time must be between 1 and 300 minutes.");
+                    timeInput.classList.add('input-error');
+                    isValid = false;
+                }
+                
+                // Validate Number of Questions
+                const questionsValue = parseInt(questionsInput.value, 10);
+                if (isNaN(questionsValue) || questionsValue < 1 || questionsValue > 500) {
+                    errors.push("<i class='fas fa-exclamation-circle'></i> Number of questions must be between 1 and 500.");
+                    questionsInput.classList.add('input-error');
+                    isValid = false;
+                }
+                
+                // Handle validation results
+                if (isValid) {
+                    // Save to localStorage
+                    localStorage.setItem('subjectPracticeTime', timeValue);
+                    localStorage.setItem('subjectPracticeQuestions', questionsValue);
+                    localStorage.setItem('subjectPracticeSubject', selectedSubject);
+                    
+                    // Visual feedback before redirect
+                    submitButton.innerHTML = '<i class="fas fa-check"></i> Starting Session...';
+                    submitButton.style.background = 'linear-gradient(45deg, #2ECC71, #27AE60)';
+                    
+                    // Redirect after a short delay for visual feedback
+                    setTimeout(() => {
+                        window.location.href = 's_quiz.html';
+                    }, 800);
+                } else {
+                    // Show errors with a slight delay for smoother UI
+                    setTimeout(() => {
+                        errorMessagesDiv.innerHTML = errors.map(error => `<p>${error}</p>`).join('');
+                        errorMessagesDiv.style.display = 'block';
+                        
+                        // Shake animation for error messages
+                        errorMessagesDiv.style.animation = 'none';
+                        setTimeout(() => {
+                            errorMessagesDiv.style.animation = 'pulse 0.5s ease';
+                        }, 10);
+                        
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalButtonText;
+                    }, 500);
+                }
+            });
         });
     </script>
 </body>
